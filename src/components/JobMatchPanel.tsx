@@ -129,7 +129,7 @@ export function JobMatchPanel({
             </div>
             <div>
               <h2 className="text-sm font-semibold text-white">
-                Match Offre d'Emploi
+                Match Offre d&apos;Emploi
               </h2>
               <p className="text-xs text-slate-500">
                 Optimise ton CV pour ce poste
@@ -150,7 +150,7 @@ export function JobMatchPanel({
           {/* Zone de saisie */}
           <div className="p-5 space-y-3">
             <label className="text-xs font-medium text-slate-400 block">
-              Colle le texte de l'offre d'emploi
+              Colle le texte de l&apos;offre d&apos;emploi
             </label>
             <textarea
               id="job-description-textarea"

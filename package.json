@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:bloc1": "playwright test tests/bloc1-auth.spec.ts",
+    "test:bloc2": "playwright test tests/bloc2-chat.spec.ts",
+    "test:bloc4": "playwright test tests/bloc4-upload.spec.ts",
+    "test:bloc5": "playwright test tests/bloc5-jobmatch.spec.ts",
+    "test:bloc6": "playwright test tests/bloc6-history.spec.ts",
+    "test:report": "playwright show-report tests/report"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.70",
@@ -33,6 +42,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

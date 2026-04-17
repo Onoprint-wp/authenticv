@@ -59,6 +59,7 @@ export interface CvDataSnapshot {
 }
 
 export interface CvData {
+  documentTitle: string;
   personalInfo: PersonalInfo;
   summary: string;
   experiences: Experience[];
@@ -87,20 +88,31 @@ interface CvStore {
 
   // Granular updaters (called by AI tool calls)
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
+  updateDocumentTitle: (title: string) => void;
   updateSummary: (summary: string) => void;
   addExperience: (exp: Omit<Experience, "id">) => void;
   updateExperience: (id: string, data: Partial<Experience>) => void;
   setSkills: (skills: string[]) => void;
   addEducation: (edu: Omit<Education, "id">) => void;
+  updateEducation: (id: string, data: Partial<Education>) => void;
   addLanguage: (lang: Omit<Language, "id">) => void;
+  updateLanguage: (id: string, data: Partial<Language>) => void;
   addCertification: (cert: Omit<Certification, "id">) => void;
+  updateCertification: (id: string, data: Partial<Certification>) => void;
   addProject: (proj: Omit<Project, "id">) => void;
+  updateProject: (id: string, data: Partial<Project>) => void;
+  removeExperience: (id: string) => void;
+  removeEducation: (id: string) => void;
+  removeLanguage: (id: string) => void;
+  removeCertification: (id: string) => void;
+  removeProject: (id: string) => void;
   clearCv: () => void;
 }
 
 // ─── Default empty CV ────────────────────────────────────────────────────────
 
 const defaultCvData: CvData = {
+  documentTitle: "Untitled CV",
   personalInfo: {
     firstName: "",
     lastName: "",
@@ -121,7 +133,7 @@ const defaultCvData: CvData = {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
-export const useCvStore = create<CvStore>((set, get) => ({
+export const useCvStore = create<CvStore>((set) => ({
   cvData: defaultCvData,
   isHydrated: false,
   syncStatus: "idle",
@@ -158,6 +170,9 @@ export const useCvStore = create<CvStore>((set, get) => ({
         personalInfo: { ...state.cvData.personalInfo, ...info },
       },
     })),
+
+  updateDocumentTitle: (title) =>
+    set((state) => ({ cvData: { ...state.cvData, documentTitle: title } })),
 
   updateSummary: (summary) =>
     set((state) => ({ cvData: { ...state.cvData, summary } })),
@@ -197,6 +212,16 @@ export const useCvStore = create<CvStore>((set, get) => ({
       },
     })),
 
+  updateEducation: (id, data) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        education: state.cvData.education.map((e) =>
+          e.id === id ? { ...e, ...data } : e
+        ),
+      },
+    })),
+
   addLanguage: (lang) =>
     set((state) => ({
       cvData: {
@@ -205,6 +230,16 @@ export const useCvStore = create<CvStore>((set, get) => ({
           ...state.cvData.languages,
           { ...lang, id: crypto.randomUUID() },
         ],
+      },
+    })),
+
+  updateLanguage: (id, data) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        languages: state.cvData.languages.map((l) =>
+          l.id === id ? { ...l, ...data } : l
+        ),
       },
     })),
 
@@ -219,6 +254,16 @@ export const useCvStore = create<CvStore>((set, get) => ({
       },
     })),
 
+  updateCertification: (id, data) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        certifications: state.cvData.certifications.map((c) =>
+          c.id === id ? { ...c, ...data } : c
+        ),
+      },
+    })),
+
   addProject: (proj) =>
     set((state) => ({
       cvData: {
@@ -227,6 +272,56 @@ export const useCvStore = create<CvStore>((set, get) => ({
           ...state.cvData.projects,
           { ...proj, id: crypto.randomUUID() },
         ],
+      },
+    })),
+
+  updateProject: (id, data) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        projects: state.cvData.projects.map((p) =>
+          p.id === id ? { ...p, ...data } : p
+        ),
+      },
+    })),
+
+  removeExperience: (id) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        experiences: state.cvData.experiences.filter((e) => e.id !== id),
+      },
+    })),
+
+  removeEducation: (id) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        education: state.cvData.education.filter((e) => e.id !== id),
+      },
+    })),
+
+  removeLanguage: (id) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        languages: state.cvData.languages.filter((l) => l.id !== id),
+      },
+    })),
+
+  removeCertification: (id) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        certifications: state.cvData.certifications.filter((c) => c.id !== id),
+      },
+    })),
+
+  removeProject: (id) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        projects: state.cvData.projects.filter((p) => p.id !== id),
       },
     })),
 

@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import type { CvData } from "@/store/useCvStore";
 import { useCvStore } from "@/store/useCvStore";
-import { createClient } from "@/utils/supabase/client";
 
 const DEBOUNCE_MS = 2000;
 
@@ -98,7 +96,7 @@ export function useSyncCv() {
       console.error("Save error:", err);
       setSyncStatus("error");
     }
-  }, [cvData, setSyncStatus]);
+  }, [cvData, setSyncStatus, saveCheckpoint]);
 
   useEffect(() => {
     // Skip the very first render (hydration phase)
