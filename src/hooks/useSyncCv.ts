@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import type { CvData } from "@/store/useCvStore";
 import { useCvStore } from "@/store/useCvStore";
 import { createClient } from "@/utils/supabase/client";
 
@@ -101,7 +102,7 @@ export function useSyncCv() {
             if (newContent && typeof newContent === "object") {
               console.log("[Realtime] CV updated from server:", Object.keys(newContent));
               isSavingFromServer.current = true;
-              setCvData(newContent as Record<string, unknown>);
+              setCvData(newContent as unknown as CvData);
               setTimeout(() => {
                 isSavingFromServer.current = false;
               }, 100);

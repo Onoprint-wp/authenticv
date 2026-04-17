@@ -5,12 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
 import { Send, Loader2, Bot, User } from "lucide-react";
 
-// ChatPanel props — onToolCall kept for future client-side overrides
-interface ChatPanelProps {
-  onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
-}
-
-export function ChatPanel({ onToolCall }: ChatPanelProps) {
+export function ChatPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isHydrated = useCvStore((s) => s.isHydrated);
   const [inputValue, setInputValue] = useState("");
@@ -18,7 +13,6 @@ export function ChatPanel({ onToolCall }: ChatPanelProps) {
   // AI SDK v6 useChat hook — handles UIMessageStream automatically
   // NOTE: tools have server-side `execute` functions, so onToolCall is NOT needed here
   const { messages, status, sendMessage } = useChat({
-    api: "/api/chat",
     onError(error) {
       console.error("[Chat] Error:", error);
     },

@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { ChatPanel } from "@/components/ChatPanel";
@@ -11,42 +10,11 @@ import { FileText, LogOut, Sparkles } from "lucide-react";
 
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
-  const {
-    updatePersonalInfo,
-    updateSummary,
-    addExperience,
-    setSkills,
-    addEducation,
-  } = useCvStore();
 
   // Activate auto-save sync
   useSyncCv();
 
-  // Map AI tool calls → Zustand store actions
-  const handleToolCall = useCallback(
-    (toolName: string, args: Record<string, unknown>) => {
-      switch (toolName) {
-        case "updatePersonalInfo":
-          updatePersonalInfo(args as Parameters<typeof updatePersonalInfo>[0]);
-          break;
-        case "updateSummary":
-          updateSummary(args.summary as string);
-          break;
-        case "addExperience":
-          addExperience(args as Parameters<typeof addExperience>[0]);
-          break;
-        case "setSkills":
-          setSkills(args.skills as string[]);
-          break;
-        case "addEducation":
-          addEducation(args as Parameters<typeof addEducation>[0]);
-          break;
-        default:
-          console.warn("Unknown tool call:", toolName);
-      }
-    },
-    [updatePersonalInfo, updateSummary, addExperience, setSkills, addEducation]
-  );
+
 
   // Loading screen while hydrating from Supabase
   if (!isHydrated) {
@@ -112,7 +80,7 @@ export default function BuilderPage() {
             </p>
           </div>
           <div className="flex-1 overflow-hidden">
-            <ChatPanel onToolCall={handleToolCall} />
+            <ChatPanel />
           </div>
         </div>
 

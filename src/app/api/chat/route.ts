@@ -128,7 +128,6 @@ export async function POST(req: Request) {
     model: anthropic("claude-sonnet-4-5-20250929"),
     system: SYSTEM_PROMPT,
     messages: coreMessages,
-    maxSteps: 5,
     tools: {
       // ── Tool 1: Update personal info ──────────────────────────────────────
       updatePersonalInfo: tool({
