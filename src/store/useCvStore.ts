@@ -53,6 +53,11 @@ export interface Project {
 
 export type SyncStatus = "idle" | "saving" | "saved" | "error";
 
+export interface CvDataSnapshot {
+  cvData: CvData;
+  savedAt: string; // ISO 8601
+}
+
 export interface CvData {
   personalInfo: PersonalInfo;
   summary: string;
@@ -68,11 +73,17 @@ interface CvStore {
   cvData: CvData;
   isHydrated: boolean;
   syncStatus: SyncStatus;
+  history: CvDataSnapshot[];
 
   // State setters
   setIsHydrated: (value: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setCvData: (data: CvData) => void;
+
+  // Version history
+  saveCheckpoint: () => void;
+  restoreCheckpoint: (index: number) => void;
+  clearHistory: () => void;
 
   // Granular updaters (called by AI tool calls)
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
@@ -110,14 +121,35 @@ const defaultCvData: CvData = {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
-export const useCvStore = create<CvStore>((set) => ({
+export const useCvStore = create<CvStore>((set, get) => ({
   cvData: defaultCvData,
   isHydrated: false,
   syncStatus: "idle",
+  history: [],
 
   setIsHydrated: (value) => set({ isHydrated: value }),
   setSyncStatus: (status) => set({ syncStatus: status }),
   setCvData: (data) => set({ cvData: data }),
+
+  saveCheckpoint: () =>
+    set((state) => {
+      const MAX_HISTORY = 10;
+      const snapshot: CvDataSnapshot = {
+        cvData: JSON.parse(JSON.stringify(state.cvData)), // deep clone
+        savedAt: new Date().toISOString(),
+      };
+      const newHistory = [snapshot, ...state.history].slice(0, MAX_HISTORY);
+      return { history: newHistory };
+    }),
+
+  restoreCheckpoint: (index: number) =>
+    set((state) => {
+      const snapshot = state.history[index];
+      if (!snapshot) return state;
+      return { cvData: JSON.parse(JSON.stringify(snapshot.cvData)) };
+    }),
+
+  clearHistory: () => set({ history: [] }),
 
   updatePersonalInfo: (info) =>
     set((state) => ({

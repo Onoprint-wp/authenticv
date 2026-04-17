@@ -6,7 +6,7 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
+  Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
 
@@ -138,6 +138,67 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 1,
   },
+  // Projects
+  projItem: {
+    marginBottom: 10,
+  },
+  projName: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: "#1a1a2e",
+  },
+  projDesc: {
+    fontSize: 9.5,
+    lineHeight: 1.5,
+    color: "#374151",
+    marginTop: 4,
+  },
+  projLink: {
+    fontSize: 9,
+    color: "#6366f1",
+    marginTop: 3,
+    textDecoration: "none",
+  },
+  // Languages
+  langRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  langItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  langName: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: "#1a1a2e",
+  },
+  langLevel: {
+    fontSize: 9,
+    color: "#6366f1",
+    marginLeft: 4,
+  },
+  // Certifications
+  certItem: {
+    marginBottom: 8,
+  },
+  certName: {
+    fontSize: 10.5,
+    fontFamily: "Helvetica-Bold",
+    color: "#1a1a2e",
+  },
+  certIssuer: {
+    fontSize: 10,
+    color: "#6366f1",
+    marginTop: 2,
+  },
+  certDate: {
+    fontSize: 9,
+    color: "#888",
+    marginTop: 2,
+  },
   // Empty state
   emptyText: {
     fontSize: 10,
@@ -153,7 +214,16 @@ interface CvDocumentProps {
 }
 
 export function CvDocument({ cvData }: CvDocumentProps) {
-  const { personalInfo, summary, experiences, education, skills } = cvData;
+  const {
+    personalInfo,
+    summary,
+    experiences,
+    education,
+    skills,
+    projects,
+    languages,
+    certifications,
+  } = cvData;
 
   const fullName =
     `${personalInfo.firstName} ${personalInfo.lastName}`.trim() ||
@@ -268,10 +338,67 @@ export function CvDocument({ cvData }: CvDocumentProps) {
           </View>
         )}
 
+        {/* ── Projects ── */}
+        {projects && projects.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Projets</Text>
+            {projects.map((proj) => (
+              <View key={proj.id} style={styles.projItem}>
+                <Text style={styles.projName}>{proj.name}</Text>
+                {proj.description ? (
+                  <Text style={styles.projDesc}>{proj.description}</Text>
+                ) : null}
+                {proj.link ? (
+                  <Link src={proj.link} style={styles.projLink}>
+                    {proj.link}
+                  </Link>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* ── Languages ── */}
+        {languages && languages.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Langues</Text>
+            <View style={styles.langRow}>
+              {languages.map((lang) => (
+                <View key={lang.id} style={styles.langItem}>
+                  <Text style={styles.langName}>{lang.name}</Text>
+                  {lang.level ? (
+                    <Text style={styles.langLevel}>({lang.level})</Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* ── Certifications ── */}
+        {certifications && certifications.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Certifications</Text>
+            {certifications.map((cert) => (
+              <View key={cert.id} style={styles.certItem}>
+                <Text style={styles.certName}>{cert.name}</Text>
+                <Text style={styles.certIssuer}>{cert.issuer}</Text>
+                {cert.date ? (
+                  <Text style={styles.certDate}>{cert.date}</Text>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Empty state */}
         {!summary &&
           experiences.length === 0 &&
+          education.length === 0 &&
           skills.length === 0 &&
+          (!projects || projects.length === 0) &&
+          (!languages || languages.length === 0) &&
+          (!certifications || certifications.length === 0) &&
           !personalInfo.firstName && (
             <View style={{ marginTop: 40, alignItems: "center" }}>
               <Text style={styles.emptyText}>

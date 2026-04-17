@@ -1,20 +1,29 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
-import { ChatPanel } from "@/components/ChatPanel";
+import { ChatPanel, type ChatPanelHandle } from "@/components/ChatPanel";
 import { DynamicPdfViewer } from "@/components/pdf/DynamicPdfViewer";
 import { SyncIndicator } from "@/components/SyncIndicator";
+import { UploadCvButton } from "@/components/UploadCvButton";
+import { JobMatchPanel } from "@/components/JobMatchPanel";
+import { VersionHistoryPanel } from "@/components/VersionHistoryPanel";
 import { logout } from "@/app/login/actions";
-import { FileText, LogOut, Sparkles } from "lucide-react";
+import { FileText, LogOut, Sparkles, Briefcase } from "lucide-react";
 
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
+  const chatRef = useRef<ChatPanelHandle>(null);
+  const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
 
   // Activate auto-save sync
   const { refetch } = useSyncCv();
 
-
+  // Injecte un message dans le chat depuis le JobMatchPanel
+  const handleApplySuggestion = (chatPrompt: string) => {
+    chatRef.current?.sendExternalMessage(chatPrompt);
+  };
 
   // Loading screen while hydrating from Supabase
   if (!isHydrated) {
@@ -54,8 +63,23 @@ export default function BuilderPage() {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <SyncIndicator />
+          <VersionHistoryPanel />
+          <UploadCvButton />
+
+          {/* Bouton Match Offre */}
+          <button
+            id="open-job-match-btn"
+            onClick={() => setIsJobMatchOpen(true)}
+            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
+              border border-slate-700/50 text-slate-400 hover:text-violet-300
+              hover:bg-violet-950/40 hover:border-violet-800/50 transition-all duration-200"
+          >
+            <Briefcase className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Optimiser pour une offre</span>
+          </button>
+
           <form action={logout}>
             <button
               id="logout-btn"
@@ -80,7 +104,7 @@ export default function BuilderPage() {
             </p>
           </div>
           <div className="flex-1 overflow-hidden">
-            <ChatPanel onToolFinish={refetch} />
+            <ChatPanel ref={chatRef} onToolFinish={refetch} />
           </div>
         </div>
 
@@ -97,6 +121,13 @@ export default function BuilderPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Job Match Panel (drawer) ── */}
+      <JobMatchPanel
+        isOpen={isJobMatchOpen}
+        onClose={() => setIsJobMatchOpen(false)}
+        onApplySuggestion={handleApplySuggestion}
+      />
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const SYSTEM_PROMPT = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
+const BASE_SYSTEM_PROMPT = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
 
 Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authentique, qui reflète vraiment qui il est.
 
@@ -33,7 +34,17 @@ Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authe
 - Si l'utilisateur mentionne un titre → mets à jour updatePersonalInfo avec le titre aussi
 - Ne demande JAMAIS la permission d'appeler un outil — fais-le immédiatement
 - Après chaque outil appelé, explique BRIÈVEMENT ce que tu viens d'ajouter ou modifier au CV, puis pose la prochaine question
+- NE DUPLIQUE JAMAIS une entrée déjà présente dans le CV (vérifie l'état actuel avant d'ajouter)
 `;
+
+// ── Génère un system prompt dynamique avec le contexte CV actuel ──────────────
+const buildSystemPrompt = (cvJson: Record<string, unknown>): string => {
+  const hasData = Object.keys(cvJson).length > 0;
+  const cvSection = hasData
+    ? `\n\n## État actuel du CV de l'utilisateur (JSON) :\n\`\`\`json\n${JSON.stringify(cvJson, null, 2)}\n\`\`\`\nConsulte ces données pour éviter les doublons et contextualiser tes réponses. Ne re-demande pas des informations déjà présentes.`
+    : `\n\n## État actuel du CV : vide — commence l'entretien depuis le début.`;
+  return BASE_SYSTEM_PROMPT + cvSection;
+};
 
 const extractText = (message: any) => {
   if (typeof message.content === "string") return message.content;
@@ -106,19 +117,31 @@ export async function POST(req: Request) {
 
   const { messages } = await req.json();
 
+  // Tronquer l'historique à 6 derniers messages pour contrôler les coûts en tokens
+  const MAX_HISTORY = 6;
   const coreMessages = (messages as any[])
     .filter((m) => m.role === "user" || m.role === "assistant")
     .map((m) => ({
       role: m.role as "user" | "assistant",
       content: extractText(m),
     }))
-    .filter((m) => m.content.trim().length > 0);
+    .filter((m) => m.content.trim().length > 0)
+    .slice(-MAX_HISTORY);
 
   const userId = user.id;
 
+  // Récupérer le CV actuel pour l'injecter dans le contexte du LLM
+  const currentResume = await prisma.resume.findFirst({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    select: { content: true },
+  });
+  const cvJson = (currentResume?.content as Record<string, unknown>) ?? {};
+  const dynamicSystemPrompt = buildSystemPrompt(cvJson);
+
   const result = streamText({
     model: anthropic("claude-sonnet-4-5-20250929"),
-    system: SYSTEM_PROMPT,
+    system: dynamicSystemPrompt,
     messages: coreMessages,
     tools: {
       // ── Tool: Update personal info ────────────────────────────────────────
@@ -279,6 +302,19 @@ export async function POST(req: Request) {
         },
       }),
 
+      updateLanguage: tool({
+        description: "Modifie une langue existante.",
+        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), level: z.string().optional() }) }),
+        execute: async ({ id, data }) => {
+          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
+          if (!resume) return { success: false };
+          const content = (resume.content as any) ?? {};
+          const languages = (content.languages as any[]).map(lang => lang.id === id ? { ...lang, ...data } : lang);
+          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, languages }, updatedAt: new Date() }});
+          return { success: true };
+        },
+      }),
+
       removeLanguage: tool({
         description: "Supprime une langue.",
         inputSchema: z.object({ id: z.string() }),
@@ -303,6 +339,19 @@ export async function POST(req: Request) {
           const existing = Array.isArray(content.certifications) ? content.certifications : [];
           const updated = { ...content, certifications: [...existing, { ...args, id: crypto.randomUUID() }] };
           await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
+          return { success: true };
+        },
+      }),
+
+      updateCertification: tool({
+        description: "Modifie une certification existante.",
+        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), issuer: z.string().optional(), date: z.string().optional() }) }),
+        execute: async ({ id, data }) => {
+          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
+          if (!resume) return { success: false };
+          const content = (resume.content as any) ?? {};
+          const certifications = (content.certifications as any[]).map(cert => cert.id === id ? { ...cert, ...data } : cert);
+          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, certifications }, updatedAt: new Date() }});
           return { success: true };
         },
       }),
@@ -335,6 +384,19 @@ export async function POST(req: Request) {
         },
       }),
 
+      updateProject: tool({
+        description: "Modifie un projet existant.",
+        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), description: z.string().optional(), link: z.string().optional() }) }),
+        execute: async ({ id, data }) => {
+          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
+          if (!resume) return { success: false };
+          const content = (resume.content as any) ?? {};
+          const projects = (content.projects as any[]).map(proj => proj.id === id ? { ...proj, ...data } : proj);
+          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, projects }, updatedAt: new Date() }});
+          return { success: true };
+        },
+      }),
+
       removeProject: tool({
         description: "Supprime un projet.",
         inputSchema: z.object({ id: z.string() }),
@@ -344,6 +406,19 @@ export async function POST(req: Request) {
           const content = (resume.content as any) ?? {};
           const projects = (content.projects as any[]).filter(proj => proj.id !== id);
           await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, projects }, updatedAt: new Date() }});
+          return { success: true };
+        },
+      }),
+
+      removeSkill: tool({
+        description: "Supprime une compétence de la liste.",
+        inputSchema: z.object({ skill: z.string() }),
+        execute: async ({ skill }) => {
+          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
+          if (!resume) return { success: false };
+          const content = (resume.content as any) ?? {};
+          const skills = (Array.isArray(content.skills) ? content.skills : []).filter((s: string) => s.toLowerCase() !== skill.toLowerCase());
+          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, skills }, updatedAt: new Date() }});
           return { success: true };
         },
       }),

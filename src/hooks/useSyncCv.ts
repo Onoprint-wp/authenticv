@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 const DEBOUNCE_MS = 2000;
 
 export function useSyncCv() {
-  const { cvData, isHydrated, setIsHydrated, setSyncStatus, setCvData } =
+  const { cvData, isHydrated, setIsHydrated, setSyncStatus, setCvData, saveCheckpoint } =
     useCvStore();
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resumeIdRef = useRef<string | null>(null);
@@ -77,6 +77,9 @@ export function useSyncCv() {
   // ── Auto-save: debounced write to API on cvData change ────────────
   const save = useCallback(async () => {
     if (!resumeIdRef.current) return;
+
+    // Créer un checkpoint avant chaque sauvegarde (max 10 conservés)
+    saveCheckpoint();
 
     setSyncStatus("saving");
     try {

@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
 import { Send, Loader2, Bot, User } from "lucide-react";
 
-export function ChatPanel({ onToolFinish }: { onToolFinish?: () => void }) {
+// Interface publique exposée via ref (utilisée par BuilderPage + JobMatchPanel)
+export interface ChatPanelHandle {
+  sendExternalMessage: (text: string) => void;
+}
+
+export const ChatPanel = forwardRef<
+  ChatPanelHandle,
+  { onToolFinish?: () => void }
+>(function ChatPanel({ onToolFinish }, ref) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isHydrated = useCvStore((s) => s.isHydrated);
   const [inputValue, setInputValue] = useState("");
@@ -29,6 +37,14 @@ export function ChatPanel({ onToolFinish }: { onToolFinish?: () => void }) {
       }
     },
   });
+
+  // Expose sendMessage via ref pour l'injection programmatique (ex: JobMatchPanel)
+  useImperativeHandle(ref, () => ({
+    sendExternalMessage: (text: string) => {
+      if (!text.trim() || isLoading) return;
+      sendMessage({ text });
+    },
+  }));
 
   const isLoading = status === "streaming" || status === "submitted";
 
@@ -179,4 +195,4 @@ export function ChatPanel({ onToolFinish }: { onToolFinish?: () => void }) {
       </div>
     </div>
   );
-}
+});
