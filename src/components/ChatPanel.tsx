@@ -5,7 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
 import { Send, Loader2, Bot, User } from "lucide-react";
 
-export function ChatPanel() {
+export function ChatPanel({ onToolFinish }: { onToolFinish?: () => void }) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isHydrated = useCvStore((s) => s.isHydrated);
   const [inputValue, setInputValue] = useState("");
@@ -20,6 +20,13 @@ export function ChatPanel() {
       // Debug: log final message structure to verify parts format
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.log("[Chat] Message finished - parts:", JSON.stringify((message as any).parts?.map((p: any) => p.type) ?? "no-parts"));
+      
+      // If we have tool calls, trigger a refetch of the CV data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const hasTools = (message as any).parts?.some((p: any) => p.type === "tool-invocation");
+      if (hasTools && onToolFinish) {
+        onToolFinish();
+      }
     },
   });
 

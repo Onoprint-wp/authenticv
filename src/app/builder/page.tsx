@@ -12,7 +12,7 @@ export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
 
   // Activate auto-save sync
-  useSyncCv();
+  const { refetch } = useSyncCv();
 
 
 
@@ -80,7 +80,7 @@ export default function BuilderPage() {
             </p>
           </div>
           <div className="flex-1 overflow-hidden">
-            <ChatPanel />
+            <ChatPanel onToolFinish={refetch} />
           </div>
         </div>
 

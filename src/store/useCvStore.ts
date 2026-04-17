@@ -31,6 +31,26 @@ export interface Education {
   endDate: string;
 }
 
+export interface Language {
+  id: string;
+  name: string;
+  level: string; // e.g. "Natif", "B1", etc.
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  link?: string;
+}
+
 export type SyncStatus = "idle" | "saving" | "saved" | "error";
 
 export interface CvData {
@@ -39,6 +59,9 @@ export interface CvData {
   experiences: Experience[];
   education: Education[];
   skills: string[];
+  languages: Language[];
+  certifications: Certification[];
+  projects: Project[];
 }
 
 interface CvStore {
@@ -58,6 +81,10 @@ interface CvStore {
   updateExperience: (id: string, data: Partial<Experience>) => void;
   setSkills: (skills: string[]) => void;
   addEducation: (edu: Omit<Education, "id">) => void;
+  addLanguage: (lang: Omit<Language, "id">) => void;
+  addCertification: (cert: Omit<Certification, "id">) => void;
+  addProject: (proj: Omit<Project, "id">) => void;
+  clearCv: () => void;
 }
 
 // ─── Default empty CV ────────────────────────────────────────────────────────
@@ -76,6 +103,9 @@ const defaultCvData: CvData = {
   experiences: [],
   education: [],
   skills: [],
+  languages: [],
+  certifications: [],
+  projects: [],
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -134,4 +164,39 @@ export const useCvStore = create<CvStore>((set) => ({
         ],
       },
     })),
+
+  addLanguage: (lang) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        languages: [
+          ...state.cvData.languages,
+          { ...lang, id: crypto.randomUUID() },
+        ],
+      },
+    })),
+
+  addCertification: (cert) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        certifications: [
+          ...state.cvData.certifications,
+          { ...cert, id: crypto.randomUUID() },
+        ],
+      },
+    })),
+
+  addProject: (proj) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        projects: [
+          ...state.cvData.projects,
+          { ...proj, id: crypto.randomUUID() },
+        ],
+      },
+    })),
+
+  clearCv: () => set({ cvData: defaultCvData }),
 }));
