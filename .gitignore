@@ -43,3 +43,11 @@ next-env.d.ts
 .vercel
 
 /src/generated/prisma
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+tests/report/
+test-output.log
