@@ -1,7 +1,7 @@
 "use client";
 
 import { useCvStore } from "@/store/useCvStore";
-import { Mail, Phone, MapPin, Linkedin, Briefcase, GraduationCap, Languages, Award, FolderGit2 } from "lucide-react";
+import { Mail, Phone, MapPin, Link, Briefcase, GraduationCap, Languages, Award, FolderGit2 } from "lucide-react";
 
 export function HtmlCvPreview() {
   const cvData = useCvStore((s) => s.cvData);
@@ -68,7 +68,7 @@ export function HtmlCvPreview() {
                 )}
                 {personalInfo.linkedin && (
                   <div className="flex items-center gap-2">
-                    <Linkedin className="w-4 h-4 text-indigo-300" />
+                    <Link className="w-4 h-4 text-indigo-300" />
                     {personalInfo.linkedin}
                   </div>
                 )}

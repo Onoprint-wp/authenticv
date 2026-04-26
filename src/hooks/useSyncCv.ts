@@ -18,7 +18,15 @@ export function useSyncCv() {
     const hydrate = async () => {
       try {
         const response = await fetch("/api/resumes");
-        if (!response.ok) throw new Error("Failed to fetch resume");
+        
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch resume: ${response.status} ${response.statusText}`);
+        }
         
         const data = await response.json();
 
@@ -39,9 +47,17 @@ export function useSyncCv() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ content: {} }),
           });
+          
+          if (createResponse.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+
           if (createResponse.ok) {
             const newResume = await createResponse.json();
             resumeIdRef.current = newResume.id;
+          } else {
+            throw new Error(`Failed to create resume: ${createResponse.status} ${createResponse.statusText}`);
           }
         }
       } catch (err) {
@@ -58,7 +74,14 @@ export function useSyncCv() {
   const refetch = useCallback(async () => {
     try {
       const response = await fetch("/api/resumes");
-      if (!response.ok) return;
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (!response.ok) {
+         console.warn(`[Sync] Refetch failed: ${response.status} ${response.statusText}`);
+         return;
+      }
       const data = await response.json();
       if (data && data.content) {
         isSavingFromServer.current = true;
@@ -87,7 +110,14 @@ export function useSyncCv() {
         body: JSON.stringify({ content: cvData }),
       });
 
-      if (!response.ok) throw new Error("Failed to save resume");
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to save resume: ${response.status} ${response.statusText}`);
+      }
       
       setSyncStatus("saved");
       // Reset to idle after 3s

@@ -38,7 +38,16 @@ export default defineConfig({
       use: { storageState: undefined },
     },
 
-    // 2. Bloc 1 (auth guards) — PAS de session
+    // 2. Bloc 0 (landing page) — PAS de session nécessaire
+    {
+      name: "bloc0-landing",
+      testMatch: /bloc0-.*\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+    },
+
+    // 3. Bloc 1 (auth guards) — PAS de session
     {
       name: "bloc1-noauth",
       testMatch: /bloc1-auth\.spec\.ts/,
@@ -49,10 +58,24 @@ export default defineConfig({
       dependencies: ["setup"],
     },
 
-    // 3. Blocs 2, 4, 5, 6 — AVEC session
+    // 4. Bloc 3 API (tests sans auth) — PAS de session
+    {
+      name: "bloc3-api-noauth",
+      testMatch: /bloc3-api\.spec\.ts/,
+      testIgnore: [],
+      grep: /sans auth/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: { cookies: [], origins: [] },
+      },
+      dependencies: ["setup"],
+    },
+
+    // 5. Blocs 2, 3 (auth), 4, 5, 6 — AVEC session
     {
       name: "blocs-with-auth",
-      testMatch: /bloc[2456]-.*\.spec\.ts/,
+      testMatch: /bloc[23456]-.*\.spec\.ts/,
+      grepInvert: /sans auth/,
       use: {
         ...devices["Desktop Chrome"],
         storageState: path.join(__dirname, "tests/.auth/user.json"),
@@ -61,8 +84,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command: "npm run dev",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
