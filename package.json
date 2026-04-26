@@ -15,7 +15,8 @@
     "test:bloc4": "playwright test tests/bloc4-upload.spec.ts",
     "test:bloc5": "playwright test tests/bloc5-jobmatch.spec.ts",
     "test:bloc6": "playwright test tests/bloc6-history.spec.ts",
-    "test:report": "playwright show-report tests/report"
+    "test:report": "playwright show-report tests/report",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.70",
