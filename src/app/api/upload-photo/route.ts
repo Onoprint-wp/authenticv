@@ -1,0 +1,84 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export async function POST(req: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let formData: FormData;
+  try {
+    formData = await req.formData();
+  } catch {
+    return NextResponse.json(
+      { error: "Requête invalide — multipart/form-data attendu" },
+      { status: 400 }
+    );
+  }
+
+  const file = formData.get("photo") as File | null;
+  if (!file) {
+    return NextResponse.json({ error: "Aucune photo fournie" }, { status: 400 });
+  }
+
+  if (file.size > MAX_SIZE_BYTES) {
+    return NextResponse.json(
+      { error: "Photo trop volumineuse (max 2 Mo)" },
+      { status: 413 }
+    );
+  }
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json(
+      { error: "Format non supporté. Utilisez JPG, PNG ou WebP." },
+      { status: 415 }
+    );
+  }
+
+  try {
+    const ext = file.name.split(".").pop() || "jpg";
+    const filePath = `${user.id}/photo.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Upload to Supabase Storage (upsert to overwrite previous photo)
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("[Upload Photo] Storage error:", uploadError);
+      return NextResponse.json(
+        { error: "Erreur lors de l'upload de la photo." },
+        { status: 500 }
+      );
+    }
+
+    // Get the public URL
+    const { data: urlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    return NextResponse.json({ 
+      success: true, 
+      photoUrl: urlData.publicUrl 
+    });
+  } catch (error) {
+    console.error("[Upload Photo] Error:", error);
+    return NextResponse.json(
+      { error: "Erreur inattendue lors de l'upload." },
+      { status: 500 }
+    );
+  }
+}

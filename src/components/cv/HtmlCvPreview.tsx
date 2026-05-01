@@ -34,17 +34,32 @@ export function HtmlCvPreview() {
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
           <div className="absolute bottom-0 left-10 -mb-20 w-48 h-48 rounded-full bg-white/5 blur-2xl"></div>
           
-          <div className="relative z-10 flex flex-col gap-6">
-            <div>
-              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2">
-                {personalInfo.firstName} <span className="text-indigo-300">{personalInfo.lastName}</span>
-              </h1>
-              {personalInfo.title && (
-                <h2 className="text-xl sm:text-2xl font-medium text-indigo-100 tracking-wide uppercase letter-spacing-2">
-                  {personalInfo.title}
-                </h2>
-              )}
-            </div>
+          <div className="relative z-10 flex items-center gap-8">
+            {/* Profile Photo */}
+            {personalInfo.photoUrl && (
+              <div className="shrink-0">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white/20 shadow-xl ring-2 ring-indigo-300/30">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={personalInfo.photoUrl}
+                    alt={`${personalInfo.firstName} ${personalInfo.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex flex-col gap-6 flex-1">
+              <div>
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2">
+                  {personalInfo.firstName} <span className="text-indigo-300">{personalInfo.lastName}</span>
+                </h1>
+                {personalInfo.title && (
+                  <h2 className="text-xl sm:text-2xl font-medium text-indigo-100 tracking-wide uppercase letter-spacing-2">
+                    {personalInfo.title}
+                  </h2>
+                )}
+              </div>
 
             {hasContactInfo && (
               <div className="flex flex-wrap gap-x-6 gap-y-3 mt-2 text-sm text-indigo-100/90 font-medium">
@@ -74,6 +89,7 @@ export function HtmlCvPreview() {
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
 

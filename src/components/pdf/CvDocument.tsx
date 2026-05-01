@@ -5,6 +5,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   Link,
 } from "@react-pdf/renderer";
@@ -29,6 +30,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "#6366f1",
     paddingBottom: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  profilePhoto: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    objectFit: "cover",
+    borderWidth: 2,
+    borderColor: "#c7d2fe",
+  },
+  headerContent: {
+    flex: 1,
   },
   name: {
     fontSize: 28,
@@ -245,30 +260,35 @@ export function CvDocument({ cvData }: CvDocumentProps) {
       <Page size="A4" style={styles.page}>
         {/* ── Header ── */}
         <View style={styles.header}>
-          <Text style={styles.name}>{fullName}</Text>
-          {personalInfo.title ? (
-            <Text style={styles.jobTitle}>{personalInfo.title}</Text>
+          {personalInfo.photoUrl ? (
+            <Image src={personalInfo.photoUrl} style={styles.profilePhoto} />
           ) : null}
-          {hasContact && (
-            <View style={styles.contactRow}>
-              {personalInfo.email ? (
-                <Text style={styles.contactItem}>{personalInfo.email}</Text>
-              ) : null}
-              {personalInfo.phone ? (
-                <Text style={styles.contactItem}>· {personalInfo.phone}</Text>
-              ) : null}
-              {personalInfo.location ? (
-                <Text style={styles.contactItem}>
-                  · {personalInfo.location}
-                </Text>
-              ) : null}
-              {personalInfo.linkedin ? (
-                <Text style={styles.contactItem}>
-                  · {personalInfo.linkedin}
-                </Text>
-              ) : null}
-            </View>
-          )}
+          <View style={styles.headerContent}>
+            <Text style={styles.name}>{fullName}</Text>
+            {personalInfo.title ? (
+              <Text style={styles.jobTitle}>{personalInfo.title}</Text>
+            ) : null}
+            {hasContact && (
+              <View style={styles.contactRow}>
+                {personalInfo.email ? (
+                  <Text style={styles.contactItem}>{personalInfo.email}</Text>
+                ) : null}
+                {personalInfo.phone ? (
+                  <Text style={styles.contactItem}>· {personalInfo.phone}</Text>
+                ) : null}
+                {personalInfo.location ? (
+                  <Text style={styles.contactItem}>
+                    · {personalInfo.location}
+                  </Text>
+                ) : null}
+                {personalInfo.linkedin ? (
+                  <Text style={styles.contactItem}>
+                    · {personalInfo.linkedin}
+                  </Text>
+                ) : null}
+              </View>
+            )}
+          </View>
         </View>
 
         {/* ── Summary ── */}

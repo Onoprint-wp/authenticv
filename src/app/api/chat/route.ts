@@ -2,7 +2,6 @@ import { streamText, tool } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { chatRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";

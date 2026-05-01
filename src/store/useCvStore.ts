@@ -10,6 +10,7 @@ export interface PersonalInfo {
   location: string;
   linkedin: string;
   title: string;
+  photoUrl: string;
 }
 
 export interface Experience {
@@ -121,6 +122,7 @@ const defaultCvData: CvData = {
     location: "",
     linkedin: "",
     title: "",
+    photoUrl: "",
   },
   summary: "",
   experiences: [],

@@ -59,6 +59,7 @@ const CvDataSchema = z.object({
     location: z.string().optional().default(""),
     linkedin: z.string().optional().default(""),
     title: z.string().optional().default(""),
+    photoUrl: z.string().optional().default(""),
   }),
   summary: z.string().optional().default(""),
   experiences: z.array(ExperienceSchema).default([]),
