@@ -3,6 +3,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { chatRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -82,348 +83,340 @@ const deepMerge = (
   return result;
 };
 
-const updateResume = async (userId: string, patch: Record<string, unknown>) => {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("resumes")
-    .select("id, content")
-    .eq("user_id", userId)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (!data) return false;
-
-  const content = (data.content as Record<string, unknown>) ?? {};
-  const updated = deepMerge(content, patch);
-
-  await supabase
-    .from("resumes")
-    .update({ content: updated, updated_at: new Date().toISOString() })
-    .eq("id", data.id);
-
-  return true;
-};
-
 export async function POST(req: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+    if (!user) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
-  const { messages } = await req.json();
+    const { success } = await chatRateLimit.limit(user.id);
+    if (!success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Too Many Requests", 
+          details: "Vous avez envoyé trop de messages. Veuillez patienter une minute pour protéger le système." 
+        }), 
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-  // Tronquer l'historique à 6 derniers messages pour contrôler les coûts en tokens
-  const MAX_HISTORY = 6;
-  const coreMessages = (messages as any[])
-    .filter((m) => m.role === "user" || m.role === "assistant")
-    .map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: extractText(m),
-    }))
-    .filter((m) => m.content.trim().length > 0)
-    .slice(-MAX_HISTORY);
+    const { messages } = await req.json();
 
-  const userId = user.id;
+    // Tronquer l'historique à 12 derniers messages pour garder une meilleure mémoire de conversation
+    // tout en contrôlant les coûts en tokens.
+    const MAX_HISTORY = 12;
+    const coreMessages = (messages as any[])
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: extractText(m),
+      }))
+      .filter((m) => m.content.trim().length > 0)
+      .slice(-MAX_HISTORY);
 
-  // Récupérer le CV actuel pour l'injecter dans le contexte du LLM
-  const currentResume = await prisma.resume.findFirst({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
-    select: { content: true },
-  });
-  const cvJson = (currentResume?.content as Record<string, unknown>) ?? {};
-  const dynamicSystemPrompt = buildSystemPrompt(cvJson);
+    const userId = user.id;
 
-  const result = streamText({
-    model: anthropic("claude-sonnet-4-5-20250929"),
-    system: dynamicSystemPrompt,
-    messages: coreMessages,
-    tools: {
-      // ── Tool: Update personal info ────────────────────────────────────────
-      updatePersonalInfo: tool({
-        description: "Met à jour les informations personnelles du candidat.",
-        inputSchema: z.object({
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
-          email: z.string().optional(),
-          phone: z.string().optional(),
-          location: z.string().optional(),
-          linkedin: z.string().optional(),
-          title: z.string().optional(),
+    // Récupérer le CV actuel pour l'injecter dans le contexte du LLM
+    const currentResume = await prisma.resume.findFirst({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+    });
+    
+    // Memory State to prevent race conditions during concurrent tool calls
+    let localContent = (currentResume?.content as Record<string, any>) ?? {};
+
+    // Helper unifié pour appliquer les modifications au CV
+    const applyUpdate = async (updater: (content: any) => any) => {
+      if (!currentResume) return false;
+      // Mise à jour de l'état local en mémoire (synchrone, donc thread-safe vis-à-vis des autres outils)
+      localContent = updater(localContent);
+      
+      // Sauvegarde asynchrone dans la base (Prisma va simplement écraser avec le dernier état de localContent complet)
+      await prisma.resume.update({
+        where: { id: currentResume.id },
+        data: { content: localContent, updatedAt: new Date() }
+      });
+      return true;
+    };
+
+    const dynamicSystemPrompt = buildSystemPrompt(localContent);
+
+    const result = streamText({
+      model: anthropic("claude-sonnet-4-5-20250929"),
+      system: dynamicSystemPrompt,
+      messages: coreMessages,
+      tools: {
+        // ── Tool: Update personal info ────────────────────────────────────────
+        updatePersonalInfo: tool({
+          description: "Met à jour les informations personnelles du candidat.",
+          inputSchema: z.object({
+            firstName: z.string().optional(),
+            lastName: z.string().optional(),
+            email: z.string().optional(),
+            phone: z.string().optional(),
+            location: z.string().optional(),
+            linkedin: z.string().optional(),
+            title: z.string().optional(),
+          }),
+          execute: async (args) => {
+            await applyUpdate((content) => deepMerge(content, { personalInfo: args }));
+            return { success: true };
+          },
         }),
-        execute: async (args) => {
-          await updateResume(userId, { personalInfo: args });
-          return { success: true };
-        },
-      }),
 
-      // ── Tool: Update summary ──────────────────────────────────────────────
-      updateSummary: tool({
-        description: "Met à jour le résumé professionnel.",
-        inputSchema: z.object({
-          summary: z.string(),
+        // ── Tool: Update summary ──────────────────────────────────────────────
+        updateSummary: tool({
+          description: "Met à jour le résumé professionnel.",
+          inputSchema: z.object({
+            summary: z.string(),
+          }),
+          execute: async ({ summary }) => {
+            await applyUpdate((content) => deepMerge(content, { summary }));
+            return { success: true };
+          },
         }),
-        execute: async ({ summary }) => {
-          await updateResume(userId, { summary });
-          return { success: true };
-        },
-      }),
 
-      // ── Tool: Set skills ──────────────────────────────────────────────────
-      setSkills: tool({
-        description: "Définit la liste complète des compétences.",
-        inputSchema: z.object({
-          skills: z.array(z.string()),
+        // ── Tool: Set skills ──────────────────────────────────────────────────
+        setSkills: tool({
+          description: "Définit la liste complète des compétences.",
+          inputSchema: z.object({
+            skills: z.array(z.string()),
+          }),
+          execute: async ({ skills }) => {
+            await applyUpdate((content) => deepMerge(content, { skills }));
+            return { success: true };
+          },
         }),
-        execute: async ({ skills }) => {
-          await updateResume(userId, { skills });
-          return { success: true };
-        },
-      }),
 
-      // ── Tool: Add experience ──────────────────────────────────────────────
-      addExperience: tool({
-        description: "Ajoute une expérience professionnelle.",
-        inputSchema: z.object({
-          company: z.string(),
-          position: z.string(),
-          startDate: z.string(),
-          endDate: z.string().optional(),
-          current: z.boolean().optional(),
-          description: z.string(),
-        }),
-        execute: async (args) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const existing = Array.isArray(content.experiences) ? content.experiences : [];
-          const updated = { ...content, experiences: [...existing, { ...args, id: crypto.randomUUID() }] };
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
-
-      // ── Tool: Update experience ───────────────────────────────────────────
-      updateExperience: tool({
-        description: "Modifie une expérience existante via son ID.",
-        inputSchema: z.object({
-          id: z.string().describe("L'ID de l'expérience à modifier"),
-          data: z.object({
-            company: z.string().optional(),
-            position: z.string().optional(),
-            startDate: z.string().optional(),
+        // ── Tool: Add experience ──────────────────────────────────────────────
+        addExperience: tool({
+          description: "Ajoute une expérience professionnelle.",
+          inputSchema: z.object({
+            company: z.string(),
+            position: z.string(),
+            startDate: z.string(),
             endDate: z.string().optional(),
             current: z.boolean().optional(),
-            description: z.string().optional(),
+            description: z.string(),
           }),
+          execute: async (args) => {
+            await applyUpdate((content) => {
+              const existing = Array.isArray(content.experiences) ? content.experiences : [];
+              return { ...content, experiences: [...existing, { ...args, id: crypto.randomUUID() }] };
+            });
+            return { success: true };
+          },
         }),
-        execute: async ({ id, data }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const experiences = (content.experiences as any[]).map(exp => exp.id === id ? { ...exp, ...data } : exp);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, experiences }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
 
-      // ── Tool: Remove experience ───────────────────────────────────────────
-      removeExperience: tool({
-        description: "Supprime une expérience via son ID.",
-        inputSchema: z.object({ id: z.string() }),
-        execute: async ({ id }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const experiences = (content.experiences as any[]).filter(exp => exp.id !== id);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, experiences }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Update experience ───────────────────────────────────────────
+        updateExperience: tool({
+          description: "Modifie une expérience existante via son ID.",
+          inputSchema: z.object({
+            id: z.string().describe("L'ID de l'expérience à modifier"),
+            data: z.object({
+              company: z.string().optional(),
+              position: z.string().optional(),
+              startDate: z.string().optional(),
+              endDate: z.string().optional(),
+              current: z.boolean().optional(),
+              description: z.string().optional(),
+            }),
+          }),
+          execute: async ({ id, data }) => {
+            await applyUpdate((content) => {
+              const experiences = (content.experiences as any[] || []).map(exp => exp.id === id ? { ...exp, ...data } : exp);
+              return { ...content, experiences };
+            });
+            return { success: true };
+          },
+        }),
 
-      // ── Tool: Education (Add/Update/Remove) ───────────────────────────────
-      addEducation: tool({
-        description: "Ajoute une formation.",
-        inputSchema: z.object({ institution: z.string(), degree: z.string(), field: z.string().optional(), startDate: z.string(), endDate: z.string().optional() }),
-        execute: async (args) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const existing = Array.isArray(content.education) ? content.education : [];
-          const updated = { ...content, education: [...existing, { ...args, id: crypto.randomUUID() }] };
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Remove experience ───────────────────────────────────────────
+        removeExperience: tool({
+          description: "Supprime une expérience via son ID.",
+          inputSchema: z.object({ id: z.string() }),
+          execute: async ({ id }) => {
+            await applyUpdate((content) => {
+              const experiences = (content.experiences as any[] || []).filter(exp => exp.id !== id);
+              return { ...content, experiences };
+            });
+            return { success: true };
+          },
+        }),
 
-      updateEducation: tool({
-        description: "Modifie une formation existante.",
-        inputSchema: z.object({ id: z.string(), data: z.object({ institution: z.string().optional(), degree: z.string().optional(), field: z.string().optional(), startDate: z.string().optional(), endDate: z.string().optional() }) }),
-        execute: async ({ id, data }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const education = (content.education as any[]).map(edu => edu.id === id ? { ...edu, ...data } : edu);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, education }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Education (Add/Update/Remove) ───────────────────────────────
+        addEducation: tool({
+          description: "Ajoute une formation.",
+          inputSchema: z.object({ institution: z.string(), degree: z.string(), field: z.string().optional(), startDate: z.string(), endDate: z.string().optional() }),
+          execute: async (args) => {
+            await applyUpdate((content) => {
+              const existing = Array.isArray(content.education) ? content.education : [];
+              return { ...content, education: [...existing, { ...args, id: crypto.randomUUID() }] };
+            });
+            return { success: true };
+          },
+        }),
 
-      removeEducation: tool({
-        description: "Supprime une formation.",
-        inputSchema: z.object({ id: z.string() }),
-        execute: async ({ id }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const education = (content.education as any[]).filter(edu => edu.id !== id);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, education }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        updateEducation: tool({
+          description: "Modifie une formation existante.",
+          inputSchema: z.object({ id: z.string(), data: z.object({ institution: z.string().optional(), degree: z.string().optional(), field: z.string().optional(), startDate: z.string().optional(), endDate: z.string().optional() }) }),
+          execute: async ({ id, data }) => {
+            await applyUpdate((content) => {
+              const education = (content.education as any[] || []).map(edu => edu.id === id ? { ...edu, ...data } : edu);
+              return { ...content, education };
+            });
+            return { success: true };
+          },
+        }),
 
-      // ── Tool: Languages (Add/Update/Remove) ──────────────────────────────
-      addLanguage: tool({
-        description: "Ajoute une langue.",
-        inputSchema: z.object({ name: z.string(), level: z.string() }),
-        execute: async (args) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const existing = Array.isArray(content.languages) ? content.languages : [];
-          const updated = { ...content, languages: [...existing, { ...args, id: crypto.randomUUID() }] };
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        removeEducation: tool({
+          description: "Supprime une formation.",
+          inputSchema: z.object({ id: z.string() }),
+          execute: async ({ id }) => {
+            await applyUpdate((content) => {
+              const education = (content.education as any[] || []).filter(edu => edu.id !== id);
+              return { ...content, education };
+            });
+            return { success: true };
+          },
+        }),
 
-      updateLanguage: tool({
-        description: "Modifie une langue existante.",
-        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), level: z.string().optional() }) }),
-        execute: async ({ id, data }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const languages = (content.languages as any[]).map(lang => lang.id === id ? { ...lang, ...data } : lang);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, languages }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Languages (Add/Update/Remove) ──────────────────────────────
+        addLanguage: tool({
+          description: "Ajoute une langue.",
+          inputSchema: z.object({ name: z.string(), level: z.string() }),
+          execute: async (args) => {
+            await applyUpdate((content) => {
+              const existing = Array.isArray(content.languages) ? content.languages : [];
+              return { ...content, languages: [...existing, { ...args, id: crypto.randomUUID() }] };
+            });
+            return { success: true };
+          },
+        }),
 
-      removeLanguage: tool({
-        description: "Supprime une langue.",
-        inputSchema: z.object({ id: z.string() }),
-        execute: async ({ id }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const languages = (content.languages as any[]).filter(lang => lang.id !== id);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, languages }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        updateLanguage: tool({
+          description: "Modifie une langue existante.",
+          inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), level: z.string().optional() }) }),
+          execute: async ({ id, data }) => {
+            await applyUpdate((content) => {
+              const languages = (content.languages as any[] || []).map(lang => lang.id === id ? { ...lang, ...data } : lang);
+              return { ...content, languages };
+            });
+            return { success: true };
+          },
+        }),
 
-      // ── Tool: Certifications (Add/Update/Remove) ─────────────────────────
-      addCertification: tool({
-        description: "Ajoute une certification.",
-        inputSchema: z.object({ name: z.string(), issuer: z.string(), date: z.string().optional() }),
-        execute: async (args) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const existing = Array.isArray(content.certifications) ? content.certifications : [];
-          const updated = { ...content, certifications: [...existing, { ...args, id: crypto.randomUUID() }] };
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        removeLanguage: tool({
+          description: "Supprime une langue.",
+          inputSchema: z.object({ id: z.string() }),
+          execute: async ({ id }) => {
+            await applyUpdate((content) => {
+              const languages = (content.languages as any[] || []).filter(lang => lang.id !== id);
+              return { ...content, languages };
+            });
+            return { success: true };
+          },
+        }),
 
-      updateCertification: tool({
-        description: "Modifie une certification existante.",
-        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), issuer: z.string().optional(), date: z.string().optional() }) }),
-        execute: async ({ id, data }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const certifications = (content.certifications as any[]).map(cert => cert.id === id ? { ...cert, ...data } : cert);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, certifications }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Certifications (Add/Update/Remove) ─────────────────────────
+        addCertification: tool({
+          description: "Ajoute une certification.",
+          inputSchema: z.object({ name: z.string(), issuer: z.string(), date: z.string().optional() }),
+          execute: async (args) => {
+            await applyUpdate((content) => {
+              const existing = Array.isArray(content.certifications) ? content.certifications : [];
+              return { ...content, certifications: [...existing, { ...args, id: crypto.randomUUID() }] };
+            });
+            return { success: true };
+          },
+        }),
 
-      removeCertification: tool({
-        description: "Supprime une certification.",
-        inputSchema: z.object({ id: z.string() }),
-        execute: async ({ id }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const certifications = (content.certifications as any[]).filter(cert => cert.id !== id);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, certifications }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        updateCertification: tool({
+          description: "Modifie une certification existante.",
+          inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), issuer: z.string().optional(), date: z.string().optional() }) }),
+          execute: async ({ id, data }) => {
+            await applyUpdate((content) => {
+              const certifications = (content.certifications as any[] || []).map(cert => cert.id === id ? { ...cert, ...data } : cert);
+              return { ...content, certifications };
+            });
+            return { success: true };
+          },
+        }),
 
-      // ── Tool: Projects (Add/Update/Remove) ───────────────────────────────
-      addProject: tool({
-        description: "Ajoute un projet.",
-        inputSchema: z.object({ name: z.string(), description: z.string(), link: z.string().optional() }),
-        execute: async (args) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const existing = Array.isArray(content.projects) ? content.projects : [];
-          const updated = { ...content, projects: [...existing, { ...args, id: crypto.randomUUID() }] };
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: updated, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        removeCertification: tool({
+          description: "Supprime une certification.",
+          inputSchema: z.object({ id: z.string() }),
+          execute: async ({ id }) => {
+            await applyUpdate((content) => {
+              const certifications = (content.certifications as any[] || []).filter(cert => cert.id !== id);
+              return { ...content, certifications };
+            });
+            return { success: true };
+          },
+        }),
 
-      updateProject: tool({
-        description: "Modifie un projet existant.",
-        inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), description: z.string().optional(), link: z.string().optional() }) }),
-        execute: async ({ id, data }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const projects = (content.projects as any[]).map(proj => proj.id === id ? { ...proj, ...data } : proj);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, projects }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        // ── Tool: Projects (Add/Update/Remove) ───────────────────────────────
+        addProject: tool({
+          description: "Ajoute un projet.",
+          inputSchema: z.object({ name: z.string(), description: z.string(), link: z.string().optional() }),
+          execute: async (args) => {
+            await applyUpdate((content) => {
+              const existing = Array.isArray(content.projects) ? content.projects : [];
+              return { ...content, projects: [...existing, { ...args, id: crypto.randomUUID() }] };
+            });
+            return { success: true };
+          },
+        }),
 
-      removeProject: tool({
-        description: "Supprime un projet.",
-        inputSchema: z.object({ id: z.string() }),
-        execute: async ({ id }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const projects = (content.projects as any[]).filter(proj => proj.id !== id);
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, projects }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
+        updateProject: tool({
+          description: "Modifie un projet existant.",
+          inputSchema: z.object({ id: z.string(), data: z.object({ name: z.string().optional(), description: z.string().optional(), link: z.string().optional() }) }),
+          execute: async ({ id, data }) => {
+            await applyUpdate((content) => {
+              const projects = (content.projects as any[] || []).map(proj => proj.id === id ? { ...proj, ...data } : proj);
+              return { ...content, projects };
+            });
+            return { success: true };
+          },
+        }),
 
-      removeSkill: tool({
-        description: "Supprime une compétence de la liste.",
-        inputSchema: z.object({ skill: z.string() }),
-        execute: async ({ skill }) => {
-          const resume = await prisma.resume.findFirst({ where: { userId }, orderBy: { updatedAt: "desc" }});
-          if (!resume) return { success: false };
-          const content = (resume.content as any) ?? {};
-          const skills = (Array.isArray(content.skills) ? content.skills : []).filter((s: string) => s.toLowerCase() !== skill.toLowerCase());
-          await prisma.resume.update({ where: { id: resume.id }, data: { content: { ...content, skills }, updatedAt: new Date() }});
-          return { success: true };
-        },
-      }),
-    },
-  });
+        removeProject: tool({
+          description: "Supprime un projet.",
+          inputSchema: z.object({ id: z.string() }),
+          execute: async ({ id }) => {
+            await applyUpdate((content) => {
+              const projects = (content.projects as any[] || []).filter(proj => proj.id !== id);
+              return { ...content, projects };
+            });
+            return { success: true };
+          },
+        }),
 
-  return result.toUIMessageStreamResponse();
+        removeSkill: tool({
+          description: "Supprime une compétence de la liste.",
+          inputSchema: z.object({ skill: z.string() }),
+          execute: async ({ skill }) => {
+            await applyUpdate((content) => {
+              const skills = (Array.isArray(content.skills) ? content.skills : []).filter((s: string) => s.toLowerCase() !== skill.toLowerCase());
+              return { ...content, skills };
+            });
+            return { success: true };
+          },
+        }),
+      },
+    });
+
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error("[API Chat POST Error]:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 }

@@ -10,7 +10,7 @@ import { UploadCvButton } from "@/components/UploadCvButton";
 import { JobMatchPanel } from "@/components/JobMatchPanel";
 import { VersionHistoryPanel } from "@/components/VersionHistoryPanel";
 import { logout } from "@/app/login/actions";
-import { FileText, LogOut, Sparkles, Briefcase } from "lucide-react";
+import { FileText, LogOut, Sparkles, Briefcase, Download } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
@@ -147,6 +147,15 @@ export default function BuilderPage() {
                 Édition Manuelle
               </button>
             </div>
+            
+            <a
+              href="/api/export-pdf"
+              download
+              className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Télécharger PDF
+            </a>
           </div>
           <div className="flex-1 overflow-hidden flex flex-col">
             {viewMode === "preview-web" && <HtmlCvPreview />}

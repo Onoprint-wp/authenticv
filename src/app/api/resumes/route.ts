@@ -6,54 +6,70 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const resume = await prisma.resume.findFirst({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    return NextResponse.json(resume || {});
+  } catch (error) {
+    console.error("[API Resumes GET Error]:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
-
-  const resume = await prisma.resume.findFirst({
-    where: { userId: user.id },
-    orderBy: { updatedAt: "desc" },
-  });
-
-  return NextResponse.json(resume);
 }
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const { content } = await req.json();
+    const { content } = await req.json();
 
-  // Create or Update
-  const resume = await prisma.resume.findFirst({
-    where: { userId: user.id },
-    orderBy: { updatedAt: "desc" },
-  });
-
-  let response;
-  if (resume) {
-    response = await prisma.resume.update({
-      where: { id: resume.id },
-      data: {
-        content: content ?? resume.content,
-        updatedAt: new Date(),
-      },
+    // Create or Update
+    const resume = await prisma.resume.findFirst({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
     });
-  } else {
-    response = await prisma.resume.create({
-      data: {
-        userId: user.id,
-        content: content ?? {},
-      },
-    });
-  }
 
-  return NextResponse.json(response);
+    let response;
+    if (resume) {
+      response = await prisma.resume.update({
+        where: { id: resume.id },
+        data: {
+          content: content ?? resume.content,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      response = await prisma.resume.create({
+        data: {
+          userId: user.id,
+          content: content ?? {},
+        },
+      });
+    }
+
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error("[API Resumes POST Error]:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
+  }
 }

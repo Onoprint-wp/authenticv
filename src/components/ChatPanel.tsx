@@ -20,9 +20,9 @@ export const ChatPanel = forwardRef<
 
   // AI SDK v6 useChat hook — handles UIMessageStream automatically
   // NOTE: tools have server-side `execute` functions, so onToolCall is NOT needed here
-  const { messages, status, sendMessage } = useChat({
-    onError(error) {
-      console.error("[Chat] Error:", error);
+  const { messages, status, sendMessage, error } = useChat({
+    onError(err) {
+      console.error("[Chat] Error:", err);
     },
     onFinish({ message }) {
       // Debug: log final message structure to verify parts format
@@ -160,6 +160,23 @@ export const ChatPanel = forwardRef<
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0ms]" />
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:150ms]" />
               <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:300ms]" />
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex gap-3">
+            <div className="w-7 h-7 rounded-full bg-red-900/50 border border-red-700 text-red-400 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-3.5 h-3.5" />
+            </div>
+            <div className="bg-red-950/40 border border-red-900/50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-red-200">
+              <p className="mb-2">Oups, une erreur réseau est survenue avec le serveur.</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-xs bg-red-900/60 hover:bg-red-800 text-white px-3 py-1.5 rounded-lg transition-colors border border-red-700/50"
+              >
+                Recharger la page
+              </button>
             </div>
           </div>
         )}
