@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
-import { Send, Loader2, Bot, User } from "lucide-react";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
 
 // Interface publique exposée via ref (utilisée par BuilderPage + JobMatchPanel)
 export interface ChatPanelHandle {
@@ -47,6 +48,21 @@ export const ChatPanel = forwardRef<
   }));
 
   const isLoading = status === "streaming" || status === "submitted";
+
+  // ── Speech-to-Text ────────────────────────────────────────────────────────
+  const { transcript, isListening, isSupported, error: speechError, toggle: toggleMic, reset: resetSpeech } = useSpeechRecognition("fr-FR");
+
+  // Sync transcript → inputValue
+  useEffect(() => {
+    if (transcript) {
+      setInputValue(transcript);
+    }
+  }, [transcript]);
+
+  // Reset speech state after sending a message
+  const handleSendAndReset = () => {
+    resetSpeech();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,17 +202,41 @@ export const ChatPanel = forwardRef<
 
       {/* Input */}
       <div className="p-4 border-t border-slate-800">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={(e) => { handleSubmit(e); handleSendAndReset(); }} className="flex gap-2">
           <input
             id="chat-input"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading || !isHydrated}
             placeholder={
+              isListening ? "🎤 Je vous écoute…" :
               !isHydrated ? "Chargement…" : "Écrivez votre message…"
             }
-            className="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 transition-all"
+            className={`flex-1 px-4 py-2.5 bg-slate-800 border rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 transition-all ${
+              isListening ? "border-red-500/50 ring-1 ring-red-500/30" : "border-slate-700"
+            }`}
           />
+          {/* Microphone Button */}
+          {isSupported && (
+            <button
+              id="chat-mic-btn"
+              type="button"
+              onClick={toggleMic}
+              disabled={isLoading}
+              title={speechError || (isListening ? "Arrêter l'écoute" : "Dicter un message")}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
+                isListening
+                  ? "mic-recording text-white"
+                  : "bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white"
+              }`}
+            >
+              {isListening ? (
+                <MicOff className="w-4 h-4" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </button>
+          )}
           <button
             id="chat-send-btn"
             type="submit"
