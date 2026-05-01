@@ -1,13 +1,12 @@
 import { renderToStream } from "@react-pdf/renderer";
 import { CvDocument } from "@/components/pdf/CvDocument";
 import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
 import React from "react";
 
 export const runtime = "nodejs"; // Requis pour @react-pdf/renderer sur le serveur
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -16,10 +15,17 @@ export async function GET(req: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const resume = await prisma.resume.findFirst({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-    });
+    // Récupérer le CV via Supabase
+    const { data: resumes, error } = await supabase
+      .from("resumes")
+      .select("content")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    const resume = resumes && resumes.length > 0 ? resumes[0] : null;
 
     if (!resume) {
       return new Response("Not found", { status: 404 });

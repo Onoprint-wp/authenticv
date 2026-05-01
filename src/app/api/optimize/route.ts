@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
@@ -60,14 +59,15 @@ export async function POST(req: Request) {
 
   const { jobDescription } = body as { jobDescription: string };
 
-  // Récupérer le CV actuel
-  const resume = await prisma.resume.findFirst({
-    where: { userId: user.id },
-    orderBy: { updatedAt: "desc" },
-    select: { content: true },
-  });
+  // Récupérer le CV actuel via Supabase
+  const { data: resumes } = await supabase
+    .from("resumes")
+    .select("content")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false })
+    .limit(1);
 
-  const cvJson = JSON.stringify(resume?.content ?? {}, null, 2);
+  const cvJson = JSON.stringify(resumes?.[0]?.content ?? {}, null, 2);
   const truncatedJob = jobDescription.slice(0, 5000);
 
   try {
