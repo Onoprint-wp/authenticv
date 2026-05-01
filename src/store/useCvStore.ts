@@ -76,11 +76,13 @@ interface CvStore {
   isHydrated: boolean;
   syncStatus: SyncStatus;
   history: CvDataSnapshot[];
+  coachLanguage: "fr" | "en";
 
   // State setters
   setIsHydrated: (value: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setCvData: (data: CvData) => void;
+  setCoachLanguage: (lang: "fr" | "en") => void;
 
   // Version history
   saveCheckpoint: () => void;
@@ -140,9 +142,11 @@ export const useCvStore = create<CvStore>((set) => ({
   isHydrated: false,
   syncStatus: "idle",
   history: [],
+  coachLanguage: "fr",
 
   setIsHydrated: (value) => set({ isHydrated: value }),
   setSyncStatus: (status) => set({ syncStatus: status }),
+  setCoachLanguage: (lang) => set({ coachLanguage: lang }),
   setCvData: (data) => set({ 
     cvData: {
       ...defaultCvData,

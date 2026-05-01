@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "re
 import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
+import { Send, Loader2, Bot, User, Mic, MicOff, Globe } from "lucide-react";
 
 // Interface publique exposée via ref (utilisée par BuilderPage + JobMatchPanel)
 export interface ChatPanelHandle {
@@ -17,11 +17,14 @@ export const ChatPanel = forwardRef<
 >(function ChatPanel({ onToolFinish }, ref) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isHydrated = useCvStore((s) => s.isHydrated);
+  const coachLanguage = useCvStore((s) => s.coachLanguage);
+  const setCoachLanguage = useCvStore((s) => s.setCoachLanguage);
   const [inputValue, setInputValue] = useState("");
 
   // AI SDK v6 useChat hook — handles UIMessageStream automatically
   // NOTE: tools have server-side `execute` functions, so onToolCall is NOT needed here
   const { messages, status, sendMessage, error } = useChat({
+    body: { coachLanguage },
     onError(err) {
       console.error("[Chat] Error:", err);
     },
@@ -50,7 +53,8 @@ export const ChatPanel = forwardRef<
   const isLoading = status === "streaming" || status === "submitted";
 
   // ── Speech-to-Text ────────────────────────────────────────────────────────
-  const { transcript, isListening, isSupported, error: speechError, toggle: toggleMic, reset: resetSpeech } = useSpeechRecognition("fr-FR");
+  const speechLang = coachLanguage === "en" ? "en-US" : "fr-FR";
+  const { transcript, isListening, isSupported, error: speechError, toggle: toggleMic, reset: resetSpeech } = useSpeechRecognition(speechLang);
 
   // Sync transcript → inputValue
   useEffect(() => {
@@ -88,16 +92,18 @@ export const ChatPanel = forwardRef<
             </div>
             <div>
               <p className="text-white font-semibold mb-1">
-                Bonjour ! Je suis Alex 👋
+                {coachLanguage === "en" ? "Hi! I'm Alex 👋" : "Bonjour ! Je suis Alex 👋"}
               </p>
               <p className="text-slate-400 text-sm leading-relaxed">
-                Votre coach CV personnel. Je vais vous poser des questions pour
-                construire un CV percutant, étape par étape.
+                {coachLanguage === "en" 
+                  ? "Your personal CV coach. I'll ask you questions to build a compelling resume, step by step."
+                  : "Votre coach CV personnel. Je vais vous poser des questions pour construire un CV percutant, étape par étape."
+                }
               </p>
             </div>
             {isHydrated && (
               <p className="text-xs text-indigo-400 animate-pulse">
-                Commencez par me dire votre prénom !
+                {coachLanguage === "en" ? "Start by telling me your first name!" : "Commencez par me dire votre prénom !"}
               </p>
             )}
           </div>
@@ -202,15 +208,28 @@ export const ChatPanel = forwardRef<
 
       {/* Input */}
       <div className="p-4 border-t border-slate-800">
-        <form onSubmit={(e) => { handleSubmit(e); handleSendAndReset(); }} className="flex gap-2">
+        <form onSubmit={(e) => { handleSubmit(e); handleSendAndReset(); }} className="flex gap-2 items-center">
+          {/* Language Toggle */}
+          <button
+            id="chat-lang-btn"
+            type="button"
+            onClick={() => setCoachLanguage(coachLanguage === "fr" ? "en" : "fr")}
+            title={coachLanguage === "fr" ? "Passer en anglais" : "Switch to French"}
+            className="shrink-0 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-sm transition-all active:scale-95"
+          >
+            {coachLanguage === "fr" ? "🇫🇷" : "🇬🇧"}
+          </button>
           <input
             id="chat-input"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading || !isHydrated}
             placeholder={
-              isListening ? "🎤 Je vous écoute…" :
-              !isHydrated ? "Chargement…" : "Écrivez votre message…"
+              isListening 
+                ? (coachLanguage === "en" ? "🎤 Listening..." : "🎤 Je vous écoute…") 
+                : !isHydrated 
+                  ? (coachLanguage === "en" ? "Loading..." : "Chargement…") 
+                  : (coachLanguage === "en" ? "Type your message..." : "Écrivez votre message…")
             }
             className={`flex-1 px-4 py-2.5 bg-slate-800 border rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 transition-all ${
               isListening ? "border-red-500/50 ring-1 ring-red-500/30" : "border-slate-700"

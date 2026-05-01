@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const BASE_SYSTEM_PROMPT = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
+const BASE_SYSTEM_PROMPT_FR = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
 
 Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authentique, qui reflète vraiment qui il est.
 
@@ -26,7 +26,7 @@ Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authe
 - Emploie des verbes d'action percutants : "piloté", "développé", "optimisé", "lancé", "dirigé"
 - Reformule les descriptions banales en points d'impact avec des chiffres quand possible
 - Sois encourageant et positif — construire un CV est un exercice de confiance en soi
-- Parle en français sauf si l'utilisateur parle en anglais
+- Parle toujours en français
 
 ## Important CRITIQUE :
 - Après CHAQUE réponse de l'utilisateur, vérifie si tu peux appeler un outil
@@ -37,13 +37,51 @@ Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authe
 - NE DUPLIQUE JAMAIS une entrée déjà présente dans le CV (vérifie l'état actuel avant d'ajouter)
 `;
 
+const BASE_SYSTEM_PROMPT_EN = `You are Alex, a friendly and expert CV coach, specializing in creating compelling, ATS-optimized resumes for the international job market.
+
+Your goal: guide the user to build an authentic, impactful resume that truly reflects who they are.
+
+## Your golden rules:
+- Ask ONE question at a time so you don't overwhelm the user
+- IMMEDIATELY call updatePersonalInfo as soon as the user gives their first AND last name — don't wait for more info
+- IMMEDIATELY call addExperience when the user describes a new work experience
+- IMMEDIATELY call setSkills when the user mentions skills
+- IMMEDIATELY call addEducation when the user mentions education
+- IMMEDIATELY call addLanguage when the user mentions a language
+- IMMEDIATELY call addCertification when the user mentions a certification
+- IMMEDIATELY call addProject when the user mentions a project
+- IF THE USER WANTS TO MODIFY existing info (title, description, date), use the corresponding "update..." tools.
+- IF THE USER WANTS TO DELETE an entry, use the corresponding "remove..." tools.
+- Use powerful action verbs: "spearheaded", "developed", "optimized", "launched", "led"
+- Transform bland descriptions into impact statements with metrics when possible
+- Be encouraging and positive — building a resume is a confidence exercise
+- Always respond in English
+
+## CRITICAL:
+- After EACH user response, check if you can call a tool
+- If the user gives their name → call updatePersonalInfo BEFORE asking the next question
+- If the user mentions a title → also update updatePersonalInfo with the title
+- NEVER ask permission to call a tool — just do it immediately
+- After each tool call, BRIEFLY explain what you added or changed, then ask the next question
+- NEVER duplicate an entry already in the CV (check current state before adding)
+`;
+
 // ── Génère un system prompt dynamique avec le contexte CV actuel ──────────────
-const buildSystemPrompt = (cvJson: Record<string, unknown>): string => {
+const buildSystemPrompt = (cvJson: Record<string, unknown>, lang: "fr" | "en" = "fr"): string => {
+  const basePrompt = lang === "en" ? BASE_SYSTEM_PROMPT_EN : BASE_SYSTEM_PROMPT_FR;
   const hasData = Object.keys(cvJson).length > 0;
+  const cvLabel = lang === "en" ? "Current CV state" : "État actuel du CV de l'utilisateur";
+  const emptyLabel = lang === "en" 
+    ? "Current CV state: empty — start the interview from the beginning." 
+    : "État actuel du CV : vide — commence l'entretien depuis le début.";
+  const dupWarning = lang === "en"
+    ? "Check this data to avoid duplicates and contextualize your responses. Don't re-ask for info already present."
+    : "Consulte ces données pour éviter les doublons et contextualiser tes réponses. Ne re-demande pas des informations déjà présentes.";
+
   const cvSection = hasData
-    ? `\n\n## État actuel du CV de l'utilisateur (JSON) :\n\`\`\`json\n${JSON.stringify(cvJson, null, 2)}\n\`\`\`\nConsulte ces données pour éviter les doublons et contextualiser tes réponses. Ne re-demande pas des informations déjà présentes.`
-    : `\n\n## État actuel du CV : vide — commence l'entretien depuis le début.`;
-  return BASE_SYSTEM_PROMPT + cvSection;
+    ? `\n\n## ${cvLabel} (JSON) :\n\`\`\`json\n${JSON.stringify(cvJson, null, 2)}\n\`\`\`\n${dupWarning}`
+    : `\n\n## ${emptyLabel}`;
+  return basePrompt + cvSection;
 };
 
 const extractText = (message: any) => {
@@ -104,7 +142,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const { messages } = await req.json();
+    const { messages, coachLanguage } = await req.json();
+    const lang: "fr" | "en" = coachLanguage === "en" ? "en" : "fr";
 
     // Tronquer l'historique à 12 derniers messages pour garder une meilleure mémoire de conversation
     // tout en contrôlant les coûts en tokens.
@@ -147,7 +186,7 @@ export async function POST(req: Request) {
       return true;
     };
 
-    const dynamicSystemPrompt = buildSystemPrompt(localContent);
+    const dynamicSystemPrompt = buildSystemPrompt(localContent, lang);
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-5-20250929"),
