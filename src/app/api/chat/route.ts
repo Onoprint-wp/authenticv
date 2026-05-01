@@ -122,10 +122,14 @@ export async function POST(req: Request) {
     const userId = user.id;
 
     // Récupérer le CV actuel pour l'injecter dans le contexte du LLM
-    const currentResume = await prisma.resume.findFirst({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-    });
+    const { data: resumes } = await supabase
+      .from("resumes")
+      .select("*")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+
+    const currentResume = resumes && resumes.length > 0 ? resumes[0] : null;
     
     // Memory State to prevent race conditions during concurrent tool calls
     let localContent = (currentResume?.content as Record<string, any>) ?? {};
@@ -136,11 +140,11 @@ export async function POST(req: Request) {
       // Mise à jour de l'état local en mémoire (synchrone, donc thread-safe vis-à-vis des autres outils)
       localContent = updater(localContent);
       
-      // Sauvegarde asynchrone dans la base (Prisma va simplement écraser avec le dernier état de localContent complet)
-      await prisma.resume.update({
-        where: { id: currentResume.id },
-        data: { content: localContent, updatedAt: new Date() }
-      });
+      // Sauvegarde asynchrone dans la base (Supabase va simplement écraser avec le dernier état de localContent complet)
+      await supabase
+        .from("resumes")
+        .update({ content: localContent, updated_at: new Date().toISOString() })
+        .eq("id", currentResume.id);
       return true;
     };
 

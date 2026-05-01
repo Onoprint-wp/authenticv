@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -14,10 +13,16 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const resume = await prisma.resume.findFirst({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-    });
+    const { data: resumes, error } = await supabase
+      .from("resumes")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    const resume = resumes && resumes.length > 0 ? resumes[0] : null;
 
     return NextResponse.json(resume || {});
   } catch (error) {
@@ -41,27 +46,43 @@ export async function POST(req: Request) {
     const { content } = await req.json();
 
     // Create or Update
-    const resume = await prisma.resume.findFirst({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-    });
+    const { data: resumes, error: fetchError } = await supabase
+      .from("resumes")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+
+    if (fetchError) throw fetchError;
+
+    const resume = resumes && resumes.length > 0 ? resumes[0] : null;
 
     let response;
     if (resume) {
-      response = await prisma.resume.update({
-        where: { id: resume.id },
-        data: {
+      const { data, error } = await supabase
+        .from("resumes")
+        .update({
           content: content ?? resume.content,
-          updatedAt: new Date(),
-        },
-      });
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", resume.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      response = data;
     } else {
-      response = await prisma.resume.create({
-        data: {
-          userId: user.id,
+      const { data, error } = await supabase
+        .from("resumes")
+        .insert({
+          user_id: user.id,
           content: content ?? {},
-        },
-      });
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      response = data;
     }
 
     return NextResponse.json(response);

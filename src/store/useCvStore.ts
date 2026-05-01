@@ -141,7 +141,19 @@ export const useCvStore = create<CvStore>((set) => ({
 
   setIsHydrated: (value) => set({ isHydrated: value }),
   setSyncStatus: (status) => set({ syncStatus: status }),
-  setCvData: (data) => set({ cvData: data }),
+  setCvData: (data) => set({ 
+    cvData: {
+      ...defaultCvData,
+      ...data,
+      personalInfo: { ...defaultCvData.personalInfo, ...(data.personalInfo || {}) },
+      experiences: data.experiences || [],
+      education: data.education || [],
+      skills: data.skills || [],
+      languages: data.languages || [],
+      certifications: data.certifications || [],
+      projects: data.projects || [],
+    } 
+  }),
 
   saveCheckpoint: () =>
     set((state) => {
