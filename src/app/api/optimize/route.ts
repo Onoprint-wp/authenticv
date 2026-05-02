@@ -1,11 +1,26 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
+const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
+
+const OPTIMIZE_MODELS = [
+  "claude-haiku-4-5",
+  "claude-3-5-haiku-20241022",
+  "claude-3-haiku-20240307",
+] as const;
+
+const getOptimizeModel = () => {
+  const provider = createAnthropic({ apiKey: sanitizedApiKey });
+  const modelId = process.env.ANTHROPIC_OPTIMIZE_MODEL ?? OPTIMIZE_MODELS[0];
+  return provider(modelId);
+};
 
 // ─── Schéma de suggestion ─────────────────────────────────────────────────────
 
@@ -72,7 +87,7 @@ export async function POST(req: Request) {
 
   try {
     const { object } = await generateObject({
-      model: anthropic("claude-haiku-4-5"),
+      model: getOptimizeModel(),
       schema: SuggestionSchema,
       prompt: `Tu es un expert en recrutement qui analyse la compatibilité entre un CV et une offre d'emploi.
 
@@ -100,9 +115,25 @@ RÈGLES :
     return NextResponse.json({ success: true, ...object });
   } catch (err) {
     console.error("[Optimize] Erreur LLM:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    
+    let status = 500;
+    let errorCode = "internal_error";
+    let userMessage = "Erreur lors de l'analyse par l'IA. Réessayez.";
+    
+    if (errMsg.includes("401") || errMsg.includes("authentication") || errMsg.includes("invalid x-api-key")) {
+      status = 502;
+      errorCode = "auth_error";
+      userMessage = "Erreur d'authentification avec le service IA. Contactez le support.";
+    } else if (errMsg.includes("rate") || errMsg.includes("429")) {
+      status = 429;
+      errorCode = "rate_limit";
+      userMessage = "Le service IA est surchargé. Réessayez dans quelques secondes.";
+    }
+    
     return NextResponse.json(
-      { error: "Erreur lors de l'analyse par l'IA." },
-      { status: 500 }
+      { error: errorCode, message: userMessage, details: process.env.NODE_ENV === "development" ? errMsg : undefined },
+      { status }
     );
   }
 }

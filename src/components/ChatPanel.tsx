@@ -22,9 +22,8 @@ export const ChatPanel = forwardRef<
   const [inputValue, setInputValue] = useState("");
 
   // AI SDK v6 useChat hook — handles UIMessageStream automatically
-  // NOTE: tools have server-side `execute` functions, so onToolCall is NOT needed here
+  // NOTE: headers are passed per-call via sendMessage's ChatRequestOptions
   const { messages, status, sendMessage, error } = useChat({
-    body: { coachLanguage },
     onError(err) {
       console.error("[Chat] Error:", err);
     },
@@ -42,11 +41,16 @@ export const ChatPanel = forwardRef<
     },
   });
 
+  // Helper: build per-request options with current coach language header
+  const chatRequestOptions = (): { headers: Record<string, string> } => ({
+    headers: { "X-Coach-Language": coachLanguage },
+  });
+
   // Expose sendMessage via ref pour l'injection programmatique (ex: JobMatchPanel)
   useImperativeHandle(ref, () => ({
     sendExternalMessage: (text: string) => {
       if (!text.trim() || isLoading) return;
-      sendMessage({ text });
+      sendMessage({ text }, chatRequestOptions());
     },
   }));
 
@@ -72,7 +76,7 @@ export const ChatPanel = forwardRef<
     e.preventDefault();
     const text = inputValue.trim();
     if (!text || isLoading) return;
-    sendMessage({ text });
+    sendMessage({ text }, chatRequestOptions());
     setInputValue("");
   };
 
@@ -186,22 +190,67 @@ export const ChatPanel = forwardRef<
           </div>
         )}
 
-        {error && (
-          <div className="flex gap-3">
-            <div className="w-7 h-7 rounded-full bg-red-900/50 border border-red-700 text-red-400 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-3.5 h-3.5" />
+        {error && (() => {
+          // Parse error details from the API response
+          const errorMessage = error.message || "";
+          const isAuthError = errorMessage.includes("auth_error") || errorMessage.includes("502");
+          const isRateLimit = errorMessage.includes("rate_limit") || errorMessage.includes("429");
+          const isModelError = errorMessage.includes("model_error");
+          const isTimeout = errorMessage.includes("timeout") || errorMessage.includes("504");
+          
+          const getErrorText = () => {
+            if (coachLanguage === "en") {
+              if (isAuthError) return "AI service authentication error. Please try again or contact support.";
+              if (isRateLimit) return "Too many requests. Please wait a few seconds and try again.";
+              if (isModelError) return "The AI model is temporarily unavailable. Please retry shortly.";
+              if (isTimeout) return "The AI service is taking too long to respond. Please retry.";
+              return "A network error occurred. Please try again.";
+            }
+            if (isAuthError) return "Erreur d'authentification avec le service IA. Réessayez ou contactez le support.";
+            if (isRateLimit) return "Trop de requêtes. Patientez quelques secondes et réessayez.";
+            if (isModelError) return "Le modèle IA est temporairement indisponible. Réessayez dans quelques instants.";
+            if (isTimeout) return "Le service IA met trop de temps à répondre. Réessayez.";
+            return "Une erreur réseau est survenue. Veuillez réessayer.";
+          };
+
+          // Find last user message for retry
+          const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+
+          return (
+            <div className="flex gap-3">
+              <div className="w-7 h-7 rounded-full bg-red-900/50 border border-red-700 text-red-400 flex items-center justify-center flex-shrink-0">
+                <Bot className="w-3.5 h-3.5" />
+              </div>
+              <div className="bg-red-950/40 border border-red-900/50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-red-200">
+                <p className="mb-2">{getErrorText()}</p>
+                <div className="flex gap-2">
+                  {lastUserMsg && (
+                    <button 
+                      onClick={() => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const text = typeof (lastUserMsg as any).content === "string" 
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          ? (lastUserMsg as any).content 
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          : (lastUserMsg as any).parts?.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") ?? "";
+                        if (text) sendMessage({ text }, chatRequestOptions());
+                      }} 
+                      className="text-xs bg-indigo-600/80 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-indigo-500/50"
+                    >
+                      {coachLanguage === "en" ? "🔄 Retry" : "🔄 Réessayer"}
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="text-xs bg-red-900/60 hover:bg-red-800 text-white px-3 py-1.5 rounded-lg transition-colors border border-red-700/50"
+                  >
+                    {coachLanguage === "en" ? "Reload page" : "Recharger la page"}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="bg-red-950/40 border border-red-900/50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-red-200">
-              <p className="mb-2">Oups, une erreur réseau est survenue avec le serveur.</p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="text-xs bg-red-900/60 hover:bg-red-800 text-white px-3 py-1.5 rounded-lg transition-colors border border-red-700/50"
-              >
-                Recharger la page
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div ref={messagesEndRef} />
       </div>

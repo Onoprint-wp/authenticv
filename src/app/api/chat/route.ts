@@ -1,5 +1,5 @@
 import { streamText, tool } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { chatRateLimit } from "@/lib/rate-limit";
@@ -7,6 +7,24 @@ import { chatRateLimit } from "@/lib/rate-limit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+// ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
+const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
+
+// ── Claude model fallback chain ──────────────────────────────────────────────
+// Try models in order — if one is unavailable/deprecated, the next is used.
+const CLAUDE_MODELS = [
+  "claude-sonnet-4-5-20250929",
+  "claude-sonnet-4-20250514",
+  "claude-3-5-sonnet-20241022",
+  "claude-3-5-haiku-20241022",
+] as const;
+
+const getAnthropicModel = () => {
+  const provider = createAnthropic({ apiKey: sanitizedApiKey });
+  const modelId = process.env.ANTHROPIC_MODEL ?? CLAUDE_MODELS[0];
+  return provider(modelId);
+};
 
 const BASE_SYSTEM_PROMPT_FR = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
 
@@ -142,8 +160,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const { messages, coachLanguage } = await req.json();
-    const lang: "fr" | "en" = coachLanguage === "en" ? "en" : "fr";
+    const { messages } = await req.json();
+    const headerLang = req.headers.get("X-Coach-Language");
+    const lang: "fr" | "en" = headerLang === "en" ? "en" : "fr";
 
     // Tronquer l'historique à 12 derniers messages pour garder une meilleure mémoire de conversation
     // tout en contrôlant les coûts en tokens.
@@ -189,7 +208,7 @@ export async function POST(req: Request) {
     const dynamicSystemPrompt = buildSystemPrompt(localContent, lang);
 
     const result = streamText({
-      model: anthropic("claude-sonnet-4-5-20250929"),
+      model: getAnthropicModel(),
       system: dynamicSystemPrompt,
       messages: coreMessages,
       tools: {
@@ -456,8 +475,37 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error("[API Chat POST Error]:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" }), { 
-      status: 500,
+    
+    // Classify the error for better frontend feedback
+    const errMsg = error instanceof Error ? error.message : String(error);
+    let status = 500;
+    let errorCode = "internal_error";
+    let userMessage = "Une erreur interne est survenue. Veuillez réessayer.";
+    
+    if (errMsg.includes("401") || errMsg.includes("authentication") || errMsg.includes("invalid x-api-key")) {
+      status = 502;
+      errorCode = "auth_error";
+      userMessage = "Erreur d'authentification avec le service IA. Contactez le support.";
+    } else if (errMsg.includes("model") || errMsg.includes("not_found")) {
+      status = 502;
+      errorCode = "model_error";
+      userMessage = "Le modèle IA est temporairement indisponible. Réessayez dans quelques instants.";
+    } else if (errMsg.includes("rate") || errMsg.includes("429")) {
+      status = 429;
+      errorCode = "rate_limit";
+      userMessage = "Le service IA est surchargé. Patientez quelques secondes et réessayez.";
+    } else if (errMsg.includes("timeout") || errMsg.includes("ECONNREFUSED")) {
+      status = 504;
+      errorCode = "timeout";
+      userMessage = "Le service IA met trop de temps à répondre. Réessayez.";
+    }
+    
+    return new Response(JSON.stringify({ 
+      error: errorCode, 
+      message: userMessage,
+      details: process.env.NODE_ENV === "development" ? errMsg : undefined 
+    }), { 
+      status,
       headers: { "Content-Type": "application/json" }
     });
   }
