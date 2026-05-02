@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { uploadRateLimit } from "@/lib/rate-limit";
@@ -171,9 +171,9 @@ export async function POST(req: Request) {
 
   // Demander au LLM de structurer le texte en JSON CV
   try {
-    const { output: parsedCv } = await generateText({
+    const { object: parsedCv } = await generateObject({
       model: createAnthropic({ apiKey: sanitizedApiKey })(process.env.ANTHROPIC_UPLOAD_MODEL ?? DEFAULT_UPLOAD_MODEL),
-      output: Output.object({ schema: CvDataSchema }),
+      schema: CvDataSchema,
       prompt: `Tu es un expert en parsing de CVs. Analyse le texte brut suivant extrait d'un CV et extrais toutes les informations structurées.
 
 RÈGLES IMPORTANTES :
