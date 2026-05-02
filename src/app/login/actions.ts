@@ -4,6 +4,24 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    redirect(`/login?reset=true&error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect(
+    `/login?message=${encodeURIComponent("Un email de réinitialisation a été envoyé. Vérifiez votre boîte mail.")}`
+  );
+}
+
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
