@@ -117,6 +117,7 @@ export function JobMatchPanel({
 
       {/* Panel slide-in depuis la droite */}
       <aside
+        data-testid="job-match-panel"
         className="fixed right-0 top-0 h-full w-full max-w-md z-50
           bg-slate-950 border-l border-slate-800 flex flex-col
           shadow-2xl shadow-black/60"
@@ -153,7 +154,7 @@ export function JobMatchPanel({
               Colle le texte de l&apos;offre d&apos;emploi
             </label>
             <textarea
-              id="job-description-textarea"
+              id="job-description-input"
               value={jobText}
               onChange={(e) => setJobText(e.target.value)}
               placeholder="Nous recherchons un développeur Frontend React avec 3 ans d'expérience..."
@@ -226,6 +227,7 @@ export function JobMatchPanel({
                 return (
                   <div
                     key={i}
+                    data-testid="job-suggestion"
                     className={`
                       bg-slate-900 border border-slate-800 border-l-2 ${impact.borderClass}
                       rounded-xl p-4 space-y-3 transition-opacity

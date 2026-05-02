@@ -85,7 +85,7 @@ export const ChatPanel = forwardRef<
   return (
     <div className="flex flex-col h-full bg-slate-950">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div data-testid="chat-messages" className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
             <div className="w-14 h-14 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">

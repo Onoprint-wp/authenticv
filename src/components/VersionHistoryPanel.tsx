@@ -52,6 +52,7 @@ export function VersionHistoryPanel() {
             onClick={() => setIsOpen(false)}
           />
           <div
+            data-testid="history-dropdown"
             className="absolute right-0 top-full mt-2 z-40
               w-72 bg-slate-900 border border-slate-700 rounded-xl
               shadow-2xl shadow-black/60 overflow-hidden"
