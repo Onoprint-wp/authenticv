@@ -103,6 +103,7 @@ export function UploadCvButton() {
       {/* Bouton visible */}
       <button
         id="upload-cv-btn"
+        data-testid="upload-btn"
         type="button"
         disabled={status === "uploading"}
         onClick={() => inputRef.current?.click()}
