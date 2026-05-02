@@ -11,18 +11,11 @@ export const maxDuration = 60;
 // ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
-// ── Claude model fallback chain ──────────────────────────────────────────────
-// Try models in order — if one is unavailable/deprecated, the next is used.
-const CLAUDE_MODELS = [
-  "claude-sonnet-4-5-20250929",
-  "claude-sonnet-4-20250514",
-  "claude-3-5-sonnet-20241022",
-  "claude-3-5-haiku-20241022",
-] as const;
+const DEFAULT_MODEL = "claude-sonnet-4-6";
 
 const getAnthropicModel = () => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });
-  const modelId = process.env.ANTHROPIC_MODEL ?? CLAUDE_MODELS[0];
+  const modelId = process.env.ANTHROPIC_MODEL ?? DEFAULT_MODEL;
   return provider(modelId);
 };
 
@@ -104,6 +97,12 @@ const buildSystemPrompt = (cvJson: Record<string, unknown>, lang: "fr" | "en" = 
 
 const extractText = (message: any) => {
   if (typeof message.content === "string") return message.content;
+  if (Array.isArray(message.parts)) {
+    return message.parts
+      .filter((part: any) => part.type === "text")
+      .map((part: any) => part.text)
+      .join("\n");
+  }
   if (Array.isArray(message.content)) {
     return message.content
       .filter((part: any) => part.type === "text")
@@ -193,15 +192,19 @@ export async function POST(req: Request) {
 
     // Helper unifié pour appliquer les modifications au CV
     const applyUpdate = async (updater: (content: any) => any) => {
-      if (!currentResume) return false;
-      // Mise à jour de l'état local en mémoire (synchrone, donc thread-safe vis-à-vis des autres outils)
       localContent = updater(localContent);
-      
-      // Sauvegarde asynchrone dans la base (Supabase va simplement écraser avec le dernier état de localContent complet)
-      await supabase
-        .from("resumes")
-        .update({ content: localContent, updated_at: new Date().toISOString() })
-        .eq("id", currentResume.id);
+
+      if (currentResume) {
+        await supabase
+          .from("resumes")
+          .update({ content: localContent, updated_at: new Date().toISOString() })
+          .eq("id", currentResume.id);
+      } else {
+        // Crée automatiquement le CV si l'utilisateur n'en a pas encore
+        await supabase
+          .from("resumes")
+          .insert({ user_id: userId, content: localContent, updated_at: new Date().toISOString() });
+      }
       return true;
     };
 
