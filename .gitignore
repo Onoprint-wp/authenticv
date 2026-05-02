@@ -50,4 +50,5 @@ playwright-report/
 playwright/.cache/
 blob-report/
 tests/report/
+tests/.auth/
 test-output.log

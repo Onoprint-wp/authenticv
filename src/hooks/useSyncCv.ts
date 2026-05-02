@@ -8,6 +8,7 @@ const DEBOUNCE_MS = 2000;
 export function useSyncCv() {
   const { cvData, isHydrated, setIsHydrated, setSyncStatus, setCvData, saveCheckpoint } =
     useCvStore();
+
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resumeIdRef = useRef<string | null>(null);
   const isFirstRender = useRef(true);
@@ -99,9 +100,6 @@ export function useSyncCv() {
   const save = useCallback(async () => {
     if (!resumeIdRef.current) return;
 
-    // Créer un checkpoint avant chaque sauvegarde (max 10 conservés)
-    saveCheckpoint();
-
     setSyncStatus("saving");
     try {
       const response = await fetch("/api/resumes", {
@@ -118,7 +116,7 @@ export function useSyncCv() {
       if (!response.ok) {
         throw new Error(`Failed to save resume: ${response.status} ${response.statusText}`);
       }
-      
+
       setSyncStatus("saved");
       // Reset to idle after 3s
       setTimeout(() => setSyncStatus("idle"), 3000);
@@ -126,7 +124,7 @@ export function useSyncCv() {
       console.error("Save error:", err);
       setSyncStatus("error");
     }
-  }, [cvData, setSyncStatus, saveCheckpoint]);
+  }, [cvData, setSyncStatus]);
 
   useEffect(() => {
     // Skip the very first render (hydration phase)
@@ -148,5 +146,5 @@ export function useSyncCv() {
     };
   }, [cvData, isHydrated, save, setSyncStatus]);
 
-  return { refetch };
+  return { refetch, saveCheckpoint };
 }

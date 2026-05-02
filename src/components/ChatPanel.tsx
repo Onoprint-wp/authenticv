@@ -13,8 +13,8 @@ export interface ChatPanelHandle {
 
 export const ChatPanel = forwardRef<
   ChatPanelHandle,
-  { onToolFinish?: () => void }
->(function ChatPanel({ onToolFinish }, ref) {
+  { onToolFinish?: () => void; onCheckpoint?: () => void }
+>(function ChatPanel({ onToolFinish, onCheckpoint }, ref) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isHydrated = useCvStore((s) => s.isHydrated);
   const coachLanguage = useCvStore((s) => s.coachLanguage);
@@ -28,16 +28,13 @@ export const ChatPanel = forwardRef<
       console.error("[Chat] Error:", err);
     },
     onFinish({ message }) {
-      // Debug: log final message structure to verify parts format
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      console.log("[Chat] Message finished - parts:", JSON.stringify((message as any).parts?.map((p: any) => p.type) ?? "no-parts"));
-      
-      // If we have tool calls, trigger a refetch of the CV data
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const hasTools = (message as any).parts?.some((p: any) => p.type === "tool-invocation");
       if (hasTools && onToolFinish) {
         onToolFinish();
       }
+      // Save a version checkpoint after each complete coach response
+      onCheckpoint?.();
     },
   });
 

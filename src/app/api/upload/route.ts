@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
+import { uploadRateLimit } from "@/lib/rate-limit";
+
+const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
+const DEFAULT_UPLOAD_MODEL = "claude-haiku-4-5";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -98,6 +102,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { success: uploadOk } = await uploadRateLimit.limit(user.id);
+  if (!uploadOk) {
+    return NextResponse.json(
+      { error: "Trop de fichiers envoyés. Patientez une minute." },
+      { status: 429 }
+    );
+  }
+
   // Parse multipart form data
   let formData: FormData;
   try {
@@ -160,7 +172,7 @@ export async function POST(req: Request) {
   // Demander au LLM de structurer le texte en JSON CV
   try {
     const { object: parsedCv } = await generateObject({
-      model: anthropic("claude-haiku-4-5"),
+      model: createAnthropic({ apiKey: sanitizedApiKey })(process.env.ANTHROPIC_UPLOAD_MODEL ?? DEFAULT_UPLOAD_MODEL),
       schema: CvDataSchema,
       prompt: `Tu es un expert en parsing de CVs. Analyse le texte brut suivant extrait d'un CV et extrais toutes les informations structurées.
 

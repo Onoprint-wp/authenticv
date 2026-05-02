@@ -9,19 +9,39 @@ import { Redis } from "@upstash/redis";
  * 
  * Configuration recommandée pour le chat : 15 requêtes par minute par utilisateur.
  */
-export const chatRateLimit = 
-  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-    ? new Ratelimit({
-        redis: Redis.fromEnv(),
-        limiter: Ratelimit.slidingWindow(15, "1 m"),
-        analytics: true,
-      })
-    : {
-        // Mock fallback pour éviter de crasher en l'absence de configuration Redis
-        limit: async (identifier: string) => ({ 
-          success: true, 
-          limit: 15, 
-          remaining: 15, 
-          reset: Date.now() + 60000 
-        }),
-      };
+const hasUpstash = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+
+const mockLimiter = (limit: number) => ({
+  limit: async (_identifier: string) => ({
+    success: true,
+    limit,
+    remaining: limit,
+    reset: Date.now() + 60000,
+  }),
+});
+
+export const chatRateLimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(15, "1 m"),
+      analytics: true,
+    })
+  : mockLimiter(15);
+
+// 5 uploads par minute par utilisateur (chaque upload appelle un LLM)
+export const uploadRateLimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(5, "1 m"),
+      analytics: true,
+    })
+  : mockLimiter(5);
+
+// 10 analyses job-match par minute par utilisateur
+export const optimizeRateLimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, "1 m"),
+      analytics: true,
+    })
+  : mockLimiter(10);

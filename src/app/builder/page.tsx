@@ -22,7 +22,7 @@ export default function BuilderPage() {
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
 
   // Activate auto-save sync
-  const { refetch } = useSyncCv();
+  const { refetch, saveCheckpoint } = useSyncCv();
 
   // Injecte un message dans le chat depuis le JobMatchPanel
   const handleApplySuggestion = (chatPrompt: string) => {
@@ -108,7 +108,7 @@ export default function BuilderPage() {
             </p>
           </div>
           <div className="flex-1 overflow-hidden">
-            <ChatPanel ref={chatRef} onToolFinish={refetch} />
+            <ChatPanel ref={chatRef} onToolFinish={refetch} onCheckpoint={saveCheckpoint} />
           </div>
         </div>
 

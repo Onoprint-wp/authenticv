@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { generateObject } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
+import { optimizeRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,15 +11,11 @@ export const dynamic = "force-dynamic";
 // ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
-const OPTIMIZE_MODELS = [
-  "claude-haiku-4-5",
-  "claude-3-5-haiku-20241022",
-  "claude-3-haiku-20240307",
-] as const;
+const DEFAULT_OPTIMIZE_MODEL = "claude-haiku-4-5";
 
 const getOptimizeModel = () => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });
-  const modelId = process.env.ANTHROPIC_OPTIMIZE_MODEL ?? OPTIMIZE_MODELS[0];
+  const modelId = process.env.ANTHROPIC_OPTIMIZE_MODEL ?? DEFAULT_OPTIMIZE_MODEL;
   return provider(modelId);
 };
 
@@ -62,6 +59,14 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { success: optimizeOk } = await optimizeRateLimit.limit(user.id);
+  if (!optimizeOk) {
+    return NextResponse.json(
+      { error: "Trop d'analyses. Patientez une minute." },
+      { status: 429 }
+    );
   }
 
   const body = await req.json().catch(() => null);
