@@ -12,6 +12,7 @@ export function UploadCvButton() {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const setCvData = useCvStore((s) => s.setCvData);
+  const saveCheckpoint = useCvStore((s) => s.saveCheckpoint);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,8 +36,20 @@ export function UploadCvButton() {
         throw new Error(data.error ?? "Erreur lors de l'import");
       }
 
-      // Pré-remplir le store Zustand avec les données parsées
+      // Sauvegarder l'état actuel avant d'écraser (permet l'undo via VersionHistoryPanel)
+      saveCheckpoint();
+
+      // Mettre à jour le store Zustand avec les données parsées
       setCvData(data.cvData as CvData);
+
+      // Persister immédiatement en DB pour éviter la race condition avec les tool calls du coach
+      // (sans ce POST, le debounce de 2s pourrait laisser le chat lire l'ancienne version)
+      await fetch("/api/resumes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: data.cvData }),
+      });
+
       setStatus("success");
 
       // Retour à l'état normal après 3s
