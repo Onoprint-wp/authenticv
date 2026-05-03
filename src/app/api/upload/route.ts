@@ -10,6 +10,7 @@ const DEFAULT_UPLOAD_MODEL = "claude-haiku-4-5";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 // ─── Schéma Zod du CV (miroir de CvData dans useCvStore) ─────────────────────
 
