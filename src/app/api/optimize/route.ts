@@ -4,6 +4,7 @@ import { generateObject } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { optimizeRateLimit } from "@/lib/rate-limit";
+import { getUserPlan } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,6 +61,14 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const plan = await getUserPlan(user.id);
+  if (plan !== "pro") {
+    return NextResponse.json(
+      { error: "pro_required", details: "L'optimisation pour offre d'emploi est réservée aux abonnés Pro." },
+      { status: 402 }
+    );
   }
 
   const { success: optimizeOk } = await optimizeRateLimit.limit(user.id);

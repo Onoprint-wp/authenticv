@@ -4,6 +4,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { chatRateLimit } from "@/lib/rate-limit";
+import { getUserPlan, getMonthlyMessageCount, incrementMessageCount, FREE_MONTHLY_MESSAGES } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -152,15 +153,36 @@ export async function POST(req: Request) {
     const { success } = await chatRateLimit.limit(user.id);
     if (!success) {
       return new Response(
-        JSON.stringify({ 
-          error: "Too Many Requests", 
-          details: "Vous avez envoyé trop de messages. Veuillez patienter une minute pour protéger le système." 
-        }), 
+        JSON.stringify({
+          error: "Too Many Requests",
+          details: "Vous avez envoyé trop de messages. Veuillez patienter une minute pour protéger le système."
+        }),
         { status: 429, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    // Vérification du quota mensuel pour les utilisateurs Free
+    const [plan, messageCount] = await Promise.all([
+      getUserPlan(user.id),
+      getMonthlyMessageCount(user.id),
+    ]);
+
+    if (plan === "free" && messageCount >= FREE_MONTHLY_MESSAGES) {
+      return new Response(
+        JSON.stringify({
+          error: "quota_exceeded",
+          details: `Vous avez atteint la limite de ${FREE_MONTHLY_MESSAGES} messages gratuits ce mois-ci. Passez à Pro pour continuer.`,
+        }),
+        { status: 402, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages } = await req.json();
+
+    // Incrémenter le compteur après lecture du body (évite d'incrémenter si body invalide)
+    if (plan === "free") {
+      await incrementMessageCount(user.id);
+    }
     const headerLang = req.headers.get("X-Coach-Language");
     const lang: "fr" | "en" = headerLang === "en" ? "en" : "fr";
 

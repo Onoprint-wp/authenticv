@@ -3,16 +3,17 @@
 import { useRef, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
+import { usePlan } from "@/hooks/usePlan";
 import { ChatPanel, type ChatPanelHandle } from "@/components/ChatPanel";
 import { DynamicPdfViewer } from "@/components/pdf/DynamicPdfViewer";
 import { SyncIndicator } from "@/components/SyncIndicator";
 import { UploadCvButton } from "@/components/UploadCvButton";
 import { JobMatchPanel } from "@/components/JobMatchPanel";
 import { VersionHistoryPanel } from "@/components/VersionHistoryPanel";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
-import { FileText, LogOut, Sparkles, Briefcase, Download } from "lucide-react";
+import { FileText, LogOut, Sparkles, Briefcase, Download, Zap } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
-
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
 
 export default function BuilderPage() {
@@ -20,6 +21,9 @@ export default function BuilderPage() {
   const chatRef = useRef<ChatPanelHandle>(null);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
+  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" }>({ open: false, reason: "pdf" });
+
+  const plan = usePlan();
 
   // Activate auto-save sync
   const { refetch, saveCheckpoint } = useSyncCv();
@@ -27,6 +31,30 @@ export default function BuilderPage() {
   // Injecte un message dans le chat depuis le JobMatchPanel
   const handleApplySuggestion = (chatPrompt: string) => {
     chatRef.current?.sendExternalMessage(chatPrompt);
+  };
+
+  const handleDownloadPdf = async () => {
+    if (plan.plan !== "pro") {
+      setUpgradeModal({ open: true, reason: "pdf" });
+      return;
+    }
+    const res = await fetch("/api/export-pdf");
+    if (res.status === 402) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "CV.pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleOpenJobMatch = () => {
+    if (plan.plan !== "pro") {
+      setUpgradeModal({ open: true, reason: "jobmatch" });
+      return;
+    }
+    setIsJobMatchOpen(true);
   };
 
   // Loading screen while hydrating from Supabase
@@ -72,10 +100,23 @@ export default function BuilderPage() {
           <VersionHistoryPanel />
           <UploadCvButton />
 
+          {/* Badge Pro ou lien upgrade */}
+          {!plan.loading && (
+            plan.plan === "pro" ? (
+              <span className="flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-700/40 px-2 py-0.5 rounded-full">
+                <Zap className="w-3 h-3" />Pro
+              </span>
+            ) : (
+              <span className="text-xs text-slate-500">
+                {plan.messagesRemaining ?? 0}/{plan.messageLimit} msg
+              </span>
+            )
+          )}
+
           {/* Bouton Match Offre */}
           <button
             id="open-job-match-btn"
-            onClick={() => setIsJobMatchOpen(true)}
+            onClick={handleOpenJobMatch}
             className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
               border border-slate-700/50 text-slate-400 hover:text-violet-300
               hover:bg-violet-950/40 hover:border-violet-800/50 transition-all duration-200"
@@ -148,14 +189,13 @@ export default function BuilderPage() {
               </button>
             </div>
             
-            <a
-              href="/api/export-pdf"
-              download
+            <button
+              onClick={handleDownloadPdf}
               className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
             >
               <Download className="w-3.5 h-3.5" />
-              Télécharger PDF
-            </a>
+              {plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+            </button>
           </div>
           <div className="flex-1 overflow-hidden flex flex-col">
             {viewMode === "preview-web" && <HtmlCvPreview />}
@@ -170,6 +210,13 @@ export default function BuilderPage() {
         isOpen={isJobMatchOpen}
         onClose={() => setIsJobMatchOpen(false)}
         onApplySuggestion={handleApplySuggestion}
+      />
+
+      {/* ── Upgrade Modal ── */}
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal((p) => ({ ...p, open: false }))}
+        reason={upgradeModal.reason}
       />
     </div>
   );

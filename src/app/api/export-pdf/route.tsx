@@ -1,6 +1,7 @@
 import { renderToStream } from "@react-pdf/renderer";
 import { CvDocument } from "@/components/pdf/CvDocument";
 import { createClient } from "@/utils/supabase/server";
+import { getUserPlan } from "@/lib/plan";
 import React from "react";
 
 export const runtime = "nodejs"; // Requis pour @react-pdf/renderer sur le serveur
@@ -13,6 +14,14 @@ export async function GET() {
 
     if (!user) {
       return new Response("Unauthorized", { status: 401 });
+    }
+
+    const plan = await getUserPlan(user.id);
+    if (plan !== "pro") {
+      return new Response(
+        JSON.stringify({ error: "pro_required", details: "L'export PDF est réservé aux abonnés Pro." }),
+        { status: 402, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     // Récupérer le CV via Supabase
