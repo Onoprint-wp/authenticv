@@ -14,18 +14,18 @@ export const maxDuration = 60;
 
 // ─── Schéma Zod du CV (miroir de CvData dans useCvStore) ─────────────────────
 
+// IDs excluded from LLM schema — added in post-processing to stay under the
+// 24 optional-parameter limit enforced by Claude's grammar compilation.
 const ExperienceSchema = z.object({
-  id: z.string().default(() => crypto.randomUUID()),
   company: z.string().describe("Nom de l'entreprise"),
   position: z.string().describe("Intitulé du poste"),
   startDate: z.string().describe("Date de début au format YYYY-MM ou YYYY"),
   endDate: z.string().optional().describe("Date de fin, vide si poste actuel"),
-  current: z.boolean().optional().default(false),
+  current: z.boolean().default(false),
   description: z.string().describe("Description des missions et réalisations"),
 });
 
 const EducationSchema = z.object({
-  id: z.string().default(() => crypto.randomUUID()),
   institution: z.string(),
   degree: z.string().describe("Diplôme ou titre obtenu"),
   field: z.string().optional().describe("Domaine d'études"),
@@ -34,22 +34,17 @@ const EducationSchema = z.object({
 });
 
 const LanguageSchema = z.object({
-  id: z.string().default(() => crypto.randomUUID()),
   name: z.string().describe("Nom de la langue (ex: Français, Anglais)"),
-  level: z
-    .string()
-    .describe("Niveau (ex: Natif, Courant, B2, Intermédiaire)"),
+  level: z.string().describe("Niveau (ex: Natif, Courant, B2, Intermédiaire)"),
 });
 
 const CertificationSchema = z.object({
-  id: z.string().default(() => crypto.randomUUID()),
   name: z.string(),
   issuer: z.string().describe("Organisme émetteur"),
   date: z.string().optional().describe("Date d'obtention"),
 });
 
 const ProjectSchema = z.object({
-  id: z.string().default(() => crypto.randomUUID()),
   name: z.string(),
   description: z.string(),
   link: z.string().optional().describe("Lien vers le projet (URL)"),
@@ -57,16 +52,16 @@ const ProjectSchema = z.object({
 
 const CvDataSchema = z.object({
   personalInfo: z.object({
-    firstName: z.string().optional().default(""),
-    lastName: z.string().optional().default(""),
-    email: z.string().optional().default(""),
-    phone: z.string().optional().default(""),
-    location: z.string().optional().default(""),
-    linkedin: z.string().optional().default(""),
-    title: z.string().optional().default(""),
-    photoUrl: z.string().optional().default(""),
+    firstName: z.string().default(""),
+    lastName: z.string().default(""),
+    email: z.string().default(""),
+    phone: z.string().default(""),
+    location: z.string().default(""),
+    linkedin: z.string().default(""),
+    title: z.string().default(""),
+    photoUrl: z.string().default(""),
   }),
-  summary: z.string().optional().default(""),
+  summary: z.string().default(""),
   experiences: z.array(ExperienceSchema).default([]),
   education: z.array(EducationSchema).default([]),
   skills: z.array(z.string()).default([]),
@@ -172,7 +167,7 @@ export async function POST(req: Request) {
 
   // Demander au LLM de structurer le texte en JSON CV
   try {
-    const { output: parsedCv } = await generateText({
+    const { output: raw } = await generateText({
       model: createAnthropic({ apiKey: sanitizedApiKey })(process.env.ANTHROPIC_UPLOAD_MODEL ?? DEFAULT_UPLOAD_MODEL),
       output: Output.object({ schema: CvDataSchema }),
       prompt: `Tu es un expert en parsing de CVs. Analyse le texte brut suivant extrait d'un CV et extrais toutes les informations structurées.
@@ -189,6 +184,15 @@ TEXTE DU CV :
 ${truncatedText}
 ---`,
     });
+
+    const parsedCv = {
+      ...raw,
+      experiences: raw.experiences.map((e) => ({ id: crypto.randomUUID(), ...e })),
+      education: raw.education.map((e) => ({ id: crypto.randomUUID(), ...e })),
+      languages: raw.languages.map((e) => ({ id: crypto.randomUUID(), ...e })),
+      certifications: raw.certifications.map((e) => ({ id: crypto.randomUUID(), ...e })),
+      projects: raw.projects.map((e) => ({ id: crypto.randomUUID(), ...e })),
+    };
 
     return NextResponse.json({ success: true, cvData: parsedCv });
   } catch (llmError) {
