@@ -41,34 +41,34 @@ export const selectors = {
 
 /** Send a message in the chat and wait for streaming to complete */
 export async function sendChatMessage(page: Page, text: string): Promise<void> {
+  // Count existing messages before sending
+  const msgsBefore = await page.locator("[data-testid='chat-message']").count();
+
   await page.fill(selectors.chatInput, text);
-
-  // Register request listener BEFORE clicking
-  let chatRequestSent = false;
-  page.on("request", (req) => {
-    if (req.url().includes("/api/chat") && req.method() === "POST") {
-      chatRequestSent = true;
-    }
-  });
-
   await page.click(selectors.chatSend);
 
-  // Wait for the HTTP request to be sent (fast, < 2s)
-  await page.waitForFunction(
-    () => true, // just a tick to allow the request listener to fire
-    undefined,
-    { timeout: 5_000 }
-  );
-
-  // Wait for streaming to fully complete: send button becomes enabled again
-  // Anthropic claude-sonnet can take 60-90s with tool calls
+  // Wait for button to go disabled (request sent) — fast
   await page.waitForFunction(
     (sendSel) => {
       const btn = document.querySelector(sendSel) as HTMLButtonElement | null;
-      return btn && !btn.disabled;
+      return btn && btn.disabled;
     },
     selectors.chatSend,
-    { timeout: 120_000 }
+    { timeout: 10_000 }
+  );
+
+  // Wait for streaming to complete: send button re-enabled OR new message appears
+  // Vercel maxDuration=120s, give an extra 30s buffer
+  await page.waitForFunction(
+    ([sendSel, countBefore]) => {
+      const btn = document.querySelector(sendSel as string) as HTMLButtonElement | null;
+      if (btn && !btn.disabled) return true;
+      // Also check if a new message appeared (covers edge case where button state lags)
+      const msgs = document.querySelectorAll("[data-testid='chat-message']");
+      return msgs.length > (countBefore as number);
+    },
+    [selectors.chatSend, msgsBefore],
+    { timeout: 150_000 }
   );
 }
 

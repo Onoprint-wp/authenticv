@@ -7,10 +7,11 @@ dotenv.config({ path: path.resolve(__dirname, ".env.test") });
 dotenv.config({ path: path.resolve(__dirname, ".env.local"), override: false });
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+const isExternalUrl = baseURL.startsWith("https://");
 
 export default defineConfig({
   testDir: "./tests",
-  timeout: 90_000,        // 90s pour laisser le temps au LLM de streamer
+  timeout: 180_000,       // 180s pour production LLM streaming (Vercel maxDuration=120s + marge)
   expect: { timeout: 20_000 },
   fullyParallel: false,   // tests séquentiels : partagent la DB Supabase
   retries: 1,
@@ -83,7 +84,7 @@ export default defineConfig({
       dependencies: ["setup"],
     },
   ],
-  webServer: {
+  webServer: isExternalUrl ? undefined : {
     command: "npm run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
