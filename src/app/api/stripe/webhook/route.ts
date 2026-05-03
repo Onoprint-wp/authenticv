@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +34,8 @@ export async function POST(req: Request) {
 
   console.log(`[Stripe Webhook] Received event: ${event.type} (${event.id})`);
 
-  const supabase = await createClient();
+  // Use admin client (service_role_key) to bypass RLS — webhook has no user session
+  const supabase = createAdminClient();
 
   try {
     switch (event.type) {
