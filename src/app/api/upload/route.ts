@@ -162,8 +162,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // Limiter le texte pour éviter de dépasser la fenêtre de contexte
-  const truncatedText = rawText.slice(0, 12000);
+  // 40 000 chars ≈ 10K tokens — covers up to ~10-page CVs within Haiku's 200K context
+  const truncatedText = rawText.slice(0, 40000);
 
   // Demander au LLM de structurer le texte en JSON CV
   try {
