@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { optimizeRateLimit } from "@/lib/rate-limit";
@@ -101,9 +101,9 @@ export async function POST(req: Request) {
   const truncatedJob = jobDescription.slice(0, 5000);
 
   try {
-    const { object } = await generateObject({
+    const { output: object } = await generateText({
       model: getOptimizeModel(),
-      schema: SuggestionSchema,
+      output: Output.object({ schema: SuggestionSchema }),
       prompt: `Tu es un expert en recrutement qui analyse la compatibilité entre un CV et une offre d'emploi.
 
 ## CV actuel (JSON) :
