@@ -62,8 +62,8 @@ test.describe("Bloc 2 — Cycle Chat → Mise à jour CV", () => {
     await page.waitForTimeout(5000); // Laisser le temps au PDF de se re-render
     // Vérification alternative : le store Zustand via window
     const name = await page.evaluate(() => {
-      // @ts-ignore
-      return (window as any).__ZUSTAND_CV_STORE__?.getState?.()?.cvData?.personalInfo?.firstName;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (window as unknown as any).__ZUSTAND_CV_STORE__?.getState?.()?.cvData?.personalInfo?.firstName;
     });
     // Si le store n'est pas exposé, on vérifie juste qu'aucune erreur n'est apparue
     console.log("📋 firstName in store:", name);

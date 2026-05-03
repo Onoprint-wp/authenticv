@@ -109,6 +109,7 @@ test.describe("Bloc 5 — Job Match Panel", () => {
     }
 
     // Les suggestions HIGH doivent précéder MEDIUM
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const impacts = body.suggestions.map((s: any) => s.impact);
     const highIdx = impacts.lastIndexOf("high");
     const mediumIdx = impacts.indexOf("medium");

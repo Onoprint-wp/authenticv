@@ -2,10 +2,11 @@
 
 import React, { useState, useRef } from "react";
 import { useCvStore } from "@/store/useCvStore";
-import { 
-  User, Briefcase, GraduationCap, Code, 
-  Globe, Award, FolderTree, Plus, Trash2, 
-  ChevronDown, ChevronUp, FileText, Camera, Loader2
+import {
+  User, Briefcase, GraduationCap, Code,
+  Globe, Award, FolderTree, Plus, Trash2,
+  ChevronDown, ChevronUp, FileText, Camera, Loader2,
+  type LucideIcon
 } from "lucide-react";
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
@@ -28,14 +29,14 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </label>
 );
 
-const SectionCard = ({ 
-  title, 
-  icon: Icon, 
+const SectionCard = ({
+  title,
+  icon: Icon,
   children,
   defaultOpen = false
-}: { 
-  title: string; 
-  icon: any; 
+}: {
+  title: string;
+  icon: LucideIcon;
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) => {

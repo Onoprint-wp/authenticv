@@ -31,6 +31,7 @@ export async function GET() {
       return new Response("Not found", { status: 404 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cvData = resume.content as any;
     
     // Génération du flux PDF côté serveur
@@ -41,6 +42,7 @@ export async function GET() {
     const lastName = cvData.personalInfo?.lastName?.trim() || "CV";
     const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, '_');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Response(stream as any, {
       headers: {
         "Content-Type": "application/pdf",

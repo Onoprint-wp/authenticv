@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "re
 import { useChat } from "@ai-sdk/react";
 import { useCvStore } from "@/store/useCvStore";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { Send, Loader2, Bot, User, Mic, MicOff, Globe } from "lucide-react";
+import { Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
 
 // Interface publique exposée via ref (utilisée par BuilderPage + JobMatchPanel)
 export interface ChatPanelHandle {
@@ -60,6 +60,7 @@ export const ChatPanel = forwardRef<
   // Sync transcript → inputValue
   useEffect(() => {
     if (transcript) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInputValue(transcript);
     }
   }, [transcript]);
@@ -113,7 +114,6 @@ export const ChatPanel = forwardRef<
         {messages.map((m) => {
           const isUser = m.role === "user";
           // AI SDK v6 UIMessage: text lives in parts[].type==='text'.text
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const textContent = (() => {
             // v6 format: UIMessage with parts[]
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
