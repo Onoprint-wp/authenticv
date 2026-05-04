@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { Suspense, useRef, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCvStore } from "@/store/useCvStore";
@@ -27,6 +27,18 @@ import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
+/** Detects ?upgraded=true and triggers callback — must be inside <Suspense> */
+function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("upgraded") === "true") {
+      onUpgraded();
+      window.history.replaceState({}, "", "/builder");
+    }
+  }, [searchParams, onUpgraded]);
+  return null;
+}
+
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
   const chatRef = useRef<ChatPanelHandle>(null);
@@ -39,7 +51,11 @@ export default function BuilderPage() {
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" }>({ open: false, reason: "pdf" });
   const [showUpgradeToast, setShowUpgradeToast] = useState(false);
 
-  const searchParams = useSearchParams();
+  const handleUpgraded = useCallback(() => {
+    setShowUpgradeToast(true);
+    const timer = setTimeout(() => setShowUpgradeToast(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
   const plan = usePlan();
   const { refetch, saveCheckpoint } = useSyncCv();
 
@@ -53,16 +69,6 @@ export default function BuilderPage() {
   const showOnboarding = isHydrated && cvIsEmpty && !hasSeenOnboarding;
   const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs.current && mobileTab !== "preview";
 
-  // Toast after successful Stripe upgrade
-  useEffect(() => {
-    if (searchParams.get("upgraded") === "true") {
-      setShowUpgradeToast(true);
-      // Clean up URL without reload
-      window.history.replaceState({}, "", "/builder");
-      const timer = setTimeout(() => setShowUpgradeToast(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams]);
 
   const handleApplySuggestion = (chatPrompt: string) => {
     chatRef.current?.sendExternalMessage(chatPrompt);
@@ -107,6 +113,9 @@ export default function BuilderPage() {
 
   return (
     <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
+      <Suspense fallback={null}>
+        <UpgradeToastDetector onUpgraded={handleUpgraded} />
+      </Suspense>
 
       {/* ── Header ── */}
       <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm z-10">
