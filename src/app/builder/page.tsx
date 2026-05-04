@@ -24,6 +24,7 @@ import { DesignPanel } from "@/components/DesignPanel";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
+import { ShareCvButton } from "@/components/ShareCvButton";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
@@ -135,6 +136,7 @@ export default function BuilderPage() {
           <SyncIndicator />
           <VersionHistoryPanel />
           <UploadCvButton />
+          <ShareCvButton />
 
           {/* Plan badge */}
           {!plan.loading && (
