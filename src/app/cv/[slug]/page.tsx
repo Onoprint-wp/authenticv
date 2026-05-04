@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import type { CvData } from "@/store/useCvStore";
 import type { Metadata } from "next";
@@ -14,7 +16,7 @@ async function getResume(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("resumes")
-    .select("content")
+    .select("id, content")
     .eq("share_slug", slug)
     .eq("is_public", true)
     .maybeSingle();
@@ -47,6 +49,13 @@ export default async function PublicCvPage({ params }: Props) {
   const resume = await getResume(slug);
 
   if (!resume) notFound();
+
+  // Log view — fire-and-forget, non-blocking
+  const reqHeaders = await headers();
+  const country = reqHeaders.get("x-vercel-ip-country") ?? null;
+  void Promise.resolve(
+    createAdminClient().from("cv_views").insert({ resume_id: resume.id, country })
+  ).catch(() => {});
 
   const cvData = resume.content as CvData;
 

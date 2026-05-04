@@ -16,7 +16,7 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X,
+  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X, GraduationCap,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
@@ -25,6 +25,7 @@ import { OnboardingModal } from "@/components/OnboardingModal";
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 import { ShareCvButton } from "@/components/ShareCvButton";
+import { AtsScoreBar } from "@/components/AtsScoreBar";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
@@ -65,6 +66,8 @@ export default function BuilderPage() {
   const setLastAiUpdateTs = useCvStore((s) => s.setLastAiUpdateTs);
   const hasSeenOnboarding = useCvStore((s) => s.hasSeenOnboarding);
   const setHasSeenOnboarding = useCvStore((s) => s.setHasSeenOnboarding);
+  const chatMode = useCvStore((s) => s.chatMode);
+  const setChatMode = useCvStore((s) => s.setChatMode);
 
   const cvIsEmpty = !cvData.personalInfo.firstName && cvData.experiences.length === 0;
   const showOnboarding = isHydrated && cvIsEmpty && !hasSeenOnboarding;
@@ -202,14 +205,26 @@ export default function BuilderPage() {
         <div className="hidden md:flex h-full">
           {/* Chat */}
           <div className="w-2/5 lg:w-1/3 min-w-[280px] max-w-[420px] border-r border-slate-800 flex flex-col overflow-hidden">
-            <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800">
+            <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
               <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-indigo-400" />
                 Coach IA — Alex
               </p>
+              <button
+                onClick={() => setChatMode(chatMode === "coach" ? "interview" : "coach")}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md border transition-colors ${
+                  chatMode === "interview"
+                    ? "bg-violet-900/40 border-violet-700/50 text-violet-300"
+                    : "border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600"
+                }`}
+                title={chatMode === "interview" ? "Repasser en mode Coach CV" : "Simuler un entretien"}
+              >
+                <GraduationCap className="w-3 h-3" />
+                <span className="hidden lg:inline">{chatMode === "interview" ? "Entretien" : "Entretien"}</span>
+              </button>
             </div>
             <div className="flex-1 overflow-hidden">
-              <ChatPanel ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
+              <ChatPanel key={chatMode} ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
             </div>
           </div>
 
@@ -237,6 +252,7 @@ export default function BuilderPage() {
                 ))}
               </div>
               <div className="flex items-center gap-2">
+                <AtsScoreBar />
                 <button
                   onClick={handleOpenJobMatch}
                   className="sm:hidden flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
@@ -288,14 +304,26 @@ export default function BuilderPage() {
                   <Sparkles className="w-3 h-3 text-indigo-400" />
                   Coach IA — Alex
                 </p>
-                {!plan.loading && plan.plan !== "pro" && (
-                  <span className="text-xs text-slate-500">
-                    {plan.messagesRemaining ?? 0}/{plan.messageLimit} msg restants
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {!plan.loading && plan.plan !== "pro" && (
+                    <span className="text-xs text-slate-500">
+                      {plan.messagesRemaining ?? 0}/{plan.messageLimit}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => setChatMode(chatMode === "coach" ? "interview" : "coach")}
+                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md border transition-colors ${
+                      chatMode === "interview"
+                        ? "bg-violet-900/40 border-violet-700/50 text-violet-300"
+                        : "border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600"
+                    }`}
+                  >
+                    <GraduationCap className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-hidden">
-                <ChatPanel ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
+                <ChatPanel key={chatMode} ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
               </div>
             </>
           )}

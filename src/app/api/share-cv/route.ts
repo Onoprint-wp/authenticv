@@ -7,22 +7,32 @@ function generateSlug(): string {
   return crypto.randomUUID().replace(/-/g, "").slice(0, 12);
 }
 
-// GET — état de partage actuel
+// GET — état de partage actuel + nombre de vues
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data } = await supabase
+  const { data: resume } = await supabase
     .from("resumes")
-    .select("is_public, share_slug")
+    .select("id, is_public, share_slug")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
 
+  let viewCount = 0;
+  if (resume?.id) {
+    const { count } = await supabase
+      .from("cv_views")
+      .select("*", { count: "exact", head: true })
+      .eq("resume_id", resume.id);
+    viewCount = count ?? 0;
+  }
+
   return NextResponse.json({
-    isPublic: data?.is_public ?? false,
-    slug: data?.share_slug ?? null,
+    isPublic: resume?.is_public ?? false,
+    slug: resume?.share_slug ?? null,
+    viewCount,
   });
 }
 

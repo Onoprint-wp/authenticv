@@ -21,6 +21,38 @@ const getAnthropicModel = () => {
   return provider(modelId);
 };
 
+const INTERVIEW_SYSTEM_PROMPT_FR = `Tu es Alex, un coach expert en préparation aux entretiens d'embauche, spécialisé dans les marchés francophones. Tu connais le CV du candidat et tu vas simuler un entretien réaliste pour l'aider à se préparer.
+
+Ton rôle :
+- Poser des questions d'entretien variées : présentation, motivation, expériences concrètes, compétences, questions comportementales ("Racontez une situation où…"), points forts/faibles, questions de culture d'entreprise
+- Adapter les questions au profil du candidat (son CV)
+- Donner un bref feedback constructif après chaque réponse (2-3 phrases) avant de passer à la question suivante
+- Varier le registre : questions directes, mises en situation, questions déstabilisantes
+
+Règles :
+- UNE question à la fois
+- Commence toujours par : "Bonjour ! Pour débuter, pourriez-vous vous présenter en 2-3 minutes ?"
+- Sois encourageant mais exigeant
+- Parle toujours en français
+- N'essaie PAS de modifier le CV — tu n'as pas d'outils disponibles en mode entretien
+`;
+
+const INTERVIEW_SYSTEM_PROMPT_EN = `You are Alex, an expert interview preparation coach specializing in the international job market. You know the candidate's resume and will simulate a realistic interview to help them prepare.
+
+Your role:
+- Ask varied interview questions: self-introduction, motivation, concrete experiences, skills, behavioral questions ("Tell me about a time when…"), strengths/weaknesses, culture-fit questions
+- Tailor questions to the candidate's profile (their CV)
+- Give brief constructive feedback after each answer (2-3 sentences) before moving to the next question
+- Vary the tone: direct questions, situational scenarios, challenging questions
+
+Rules:
+- ONE question at a time
+- Always start with: "Hello! To begin, could you introduce yourself in 2-3 minutes?"
+- Be encouraging but demanding
+- Always respond in English
+- Do NOT try to modify the CV — no tools are available in interview mode
+`;
+
 const BASE_SYSTEM_PROMPT_FR = `Tu es Alex, un coach CV expert et bienveillant, spécialisé dans la création de CVs percutants pour le marché francophone.
 
 Ton objectif : guider l'utilisateur pour construire un CV ATS-optimisé et authentique, qui reflète vraiment qui il est.
@@ -100,19 +132,31 @@ Your goal: guide the user to build an authentic, impactful resume that truly ref
 `;
 
 // ── Génère un system prompt dynamique avec le contexte CV actuel ──────────────
-const buildSystemPrompt = (cvJson: Record<string, unknown>, lang: "fr" | "en" = "fr"): string => {
-  const basePrompt = lang === "en" ? BASE_SYSTEM_PROMPT_EN : BASE_SYSTEM_PROMPT_FR;
+const buildSystemPrompt = (
+  cvJson: Record<string, unknown>,
+  lang: "fr" | "en" = "fr",
+  mode: "coach" | "interview" = "coach"
+): string => {
+  const isInterview = mode === "interview";
+  const basePrompt = isInterview
+    ? (lang === "en" ? INTERVIEW_SYSTEM_PROMPT_EN : INTERVIEW_SYSTEM_PROMPT_FR)
+    : (lang === "en" ? BASE_SYSTEM_PROMPT_EN : BASE_SYSTEM_PROMPT_FR);
+
   const hasData = Object.keys(cvJson).length > 0;
-  const cvLabel = lang === "en" ? "Current CV state" : "État actuel du CV de l'utilisateur";
-  const emptyLabel = lang === "en" 
-    ? "Current CV state: empty — start the interview from the beginning." 
-    : "État actuel du CV : vide — commence l'entretien depuis le début.";
-  const dupWarning = lang === "en"
-    ? "Check this data to avoid duplicates and contextualize your responses. Don't re-ask for info already present."
-    : "Consulte ces données pour éviter les doublons et contextualiser tes réponses. Ne re-demande pas des informations déjà présentes.";
+  const cvLabel = lang === "en" ? "Candidate CV" : "CV du candidat";
+  const emptyLabel = lang === "en"
+    ? "Candidate CV: empty."
+    : "CV du candidat : vide.";
+  const cvNote = isInterview
+    ? (lang === "en"
+        ? "Use this CV to ask targeted, relevant questions."
+        : "Utilise ce CV pour poser des questions ciblées et pertinentes.")
+    : (lang === "en"
+        ? "Check this data to avoid duplicates and contextualize your responses. Don't re-ask for info already present."
+        : "Consulte ces données pour éviter les doublons et contextualiser tes réponses. Ne re-demande pas des informations déjà présentes.");
 
   const cvSection = hasData
-    ? `\n\n## ${cvLabel} (JSON) :\n\`\`\`json\n${JSON.stringify(cvJson, null, 2)}\n\`\`\`\n${dupWarning}`
+    ? `\n\n## ${cvLabel} (JSON) :\n\`\`\`json\n${JSON.stringify(cvJson, null, 2)}\n\`\`\`\n${cvNote}`
     : `\n\n## ${emptyLabel}`;
   return basePrompt + cvSection;
 };
@@ -205,6 +249,8 @@ export async function POST(req: Request) {
     }
     const headerLang = req.headers.get("X-Coach-Language");
     const lang: "fr" | "en" = headerLang === "en" ? "en" : "fr";
+    const headerMode = req.headers.get("X-Chat-Mode");
+    const mode: "coach" | "interview" = headerMode === "interview" ? "interview" : "coach";
 
     // Tronquer l'historique à 12 derniers messages pour garder une meilleure mémoire de conversation
     // tout en contrôlant les coûts en tokens.
@@ -251,13 +297,9 @@ export async function POST(req: Request) {
       return true;
     };
 
-    const dynamicSystemPrompt = buildSystemPrompt(localContent, lang);
+    const dynamicSystemPrompt = buildSystemPrompt(localContent, lang, mode);
 
-    const result = streamText({
-      model: getAnthropicModel(),
-      system: dynamicSystemPrompt,
-      messages: coreMessages,
-      tools: {
+    const tools = mode === "interview" ? undefined : {
         // ── Tool: Update personal info ────────────────────────────────────────
         updatePersonalInfo: tool({
           description: "Met à jour les informations personnelles du candidat.",
@@ -515,7 +557,13 @@ export async function POST(req: Request) {
             return { success: true };
           },
         }),
-      },
+    };
+
+    const result = streamText({
+      model: getAnthropicModel(),
+      system: dynamicSystemPrompt,
+      messages: coreMessages,
+      ...(tools !== undefined ? { tools } : {}),
     });
 
     return result.toUIMessageStreamResponse();

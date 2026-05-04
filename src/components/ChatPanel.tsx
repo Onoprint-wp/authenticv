@@ -19,6 +19,7 @@ export const ChatPanel = forwardRef<
   const isHydrated = useCvStore((s) => s.isHydrated);
   const coachLanguage = useCvStore((s) => s.coachLanguage);
   const setCoachLanguage = useCvStore((s) => s.setCoachLanguage);
+  const chatMode = useCvStore((s) => s.chatMode);
   const [inputValue, setInputValue] = useState("");
 
   // AI SDK v6 useChat hook — handles UIMessageStream automatically
@@ -38,9 +39,12 @@ export const ChatPanel = forwardRef<
     },
   });
 
-  // Helper: build per-request options with current coach language header
+  // Helper: build per-request options with current coach language + mode headers
   const chatRequestOptions = (): { headers: Record<string, string> } => ({
-    headers: { "X-Coach-Language": coachLanguage },
+    headers: {
+      "X-Coach-Language": coachLanguage,
+      "X-Chat-Mode": chatMode,
+    },
   });
 
   // Expose sendMessage via ref pour l'injection programmatique (ex: JobMatchPanel)
@@ -89,23 +93,34 @@ export const ChatPanel = forwardRef<
       <div data-testid="chat-messages" className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
-            <div className="w-14 h-14 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
-              <Bot className="w-7 h-7 text-indigo-400" />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${
+              chatMode === "interview"
+                ? "bg-violet-600/20 border-violet-500/30"
+                : "bg-indigo-600/20 border-indigo-500/30"
+            }`}>
+              <Bot className={`w-7 h-7 ${chatMode === "interview" ? "text-violet-400" : "text-indigo-400"}`} />
             </div>
             <div>
               <p className="text-white font-semibold mb-1">
-                {coachLanguage === "en" ? "Hi! I'm Alex 👋" : "Bonjour ! Je suis Alex 👋"}
+                {chatMode === "interview"
+                  ? (coachLanguage === "en" ? "Interview prep with Alex 🎓" : "Préparation entretien avec Alex 🎓")
+                  : (coachLanguage === "en" ? "Hi! I'm Alex 👋" : "Bonjour ! Je suis Alex 👋")}
               </p>
               <p className="text-slate-400 text-sm leading-relaxed">
-                {coachLanguage === "en" 
-                  ? "Your personal CV coach. I'll ask you questions to build a compelling resume, step by step."
-                  : "Votre coach CV personnel. Je vais vous poser des questions pour construire un CV percutant, étape par étape."
-                }
+                {chatMode === "interview"
+                  ? (coachLanguage === "en"
+                      ? "I'll simulate a real job interview based on your CV. Answer naturally — I'll give feedback after each response."
+                      : "Je vais simuler un vrai entretien d'embauche basé sur votre CV. Répondez naturellement — je vous donne un retour après chaque réponse.")
+                  : (coachLanguage === "en"
+                      ? "Your personal CV coach. I'll ask you questions to build a compelling resume, step by step."
+                      : "Votre coach CV personnel. Je vais vous poser des questions pour construire un CV percutant, étape par étape.")}
               </p>
             </div>
             {isHydrated && (
-              <p className="text-xs text-indigo-400 animate-pulse">
-                {coachLanguage === "en" ? "Start by telling me your first name!" : "Commencez par me dire votre prénom !"}
+              <p className={`text-xs animate-pulse ${chatMode === "interview" ? "text-violet-400" : "text-indigo-400"}`}>
+                {chatMode === "interview"
+                  ? (coachLanguage === "en" ? "Click below to start the simulation" : "Cliquez ci-dessous pour démarrer la simulation")
+                  : (coachLanguage === "en" ? "Start by telling me your first name!" : "Commencez par me dire votre prénom !")}
               </p>
             )}
           </div>
@@ -255,17 +270,14 @@ export const ChatPanel = forwardRef<
       {/* Quick-prompt chips — visible uniquement quand le chat est vide */}
       {messages.length === 0 && (
         <div className="flex flex-wrap gap-2 px-4 pb-3">
-          {(coachLanguage === "en" ? [
-            "Tell me about your latest experience",
-            "Improve my professional summary",
-            "Add a technical skill",
-            "Tailor my CV for a job offer",
-          ] : [
-            "Parle-moi de ton expérience la plus récente",
-            "Améliore mon résumé professionnel",
-            "Ajoute une compétence technique",
-            "Adapte mon CV pour une offre d'emploi",
-          ]).map((prompt) => (
+          {(chatMode === "interview"
+            ? (coachLanguage === "en"
+                ? ["Start the interview simulation", "Focus on technical skills", "Practice strengths & weaknesses", "Ask tough questions"]
+                : ["Démarrer la simulation d'entretien", "Concentrez-vous sur mes compétences techniques", "Entraînez-moi sur mes points forts/faibles", "Posez des questions difficiles"])
+            : (coachLanguage === "en"
+                ? ["Tell me about your latest experience", "Improve my professional summary", "Add a technical skill", "Tailor my CV for a job offer"]
+                : ["Parle-moi de ton expérience la plus récente", "Améliore mon résumé professionnel", "Ajoute une compétence technique", "Adapte mon CV pour une offre d'emploi"])
+          ).map((prompt) => (
             <button
               key={prompt}
               onClick={() => {
@@ -273,7 +285,11 @@ export const ChatPanel = forwardRef<
                 sendMessage({ text: prompt }, chatRequestOptions());
               }}
               disabled={isLoading || !isHydrated}
-              className="text-xs px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:text-indigo-300 hover:border-indigo-700/50 hover:bg-indigo-950/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className={`text-xs px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                chatMode === "interview"
+                  ? "hover:text-violet-300 hover:border-violet-700/50 hover:bg-violet-950/40"
+                  : "hover:text-indigo-300 hover:border-indigo-700/50 hover:bg-indigo-950/40"
+              }`}
             >
               {prompt}
             </button>

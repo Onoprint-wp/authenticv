@@ -6,13 +6,14 @@ import { Share2, Link2, X, Loader2, Check } from "lucide-react";
 export function ShareCvButton() {
   const [isPublic, setIsPublic] = useState<boolean | null>(null);
   const [slug, setSlug] = useState<string | null>(null);
+  const [viewCount, setViewCount] = useState<number>(0);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/share-cv")
       .then((r) => r.json())
-      .then((d) => { setIsPublic(d.isPublic); setSlug(d.slug); })
+      .then((d) => { setIsPublic(d.isPublic); setSlug(d.slug); setViewCount(d.viewCount ?? 0); })
       .catch(() => setIsPublic(false));
   }, []);
 
@@ -68,7 +69,7 @@ export function ShareCvButton() {
         >
           {copied
             ? <><Check className="w-3.5 h-3.5" /><span className="hidden lg:inline">Copié !</span></>
-            : <><Link2 className="w-3.5 h-3.5" /><span className="hidden lg:inline">Lien actif</span></>}
+            : <><Link2 className="w-3.5 h-3.5" /><span className="hidden lg:inline">Lien actif{viewCount > 0 ? ` · ${viewCount} vue${viewCount > 1 ? "s" : ""}` : ""}</span></>}
         </button>
         <button
           onClick={handleDisable}

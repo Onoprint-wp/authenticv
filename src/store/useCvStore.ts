@@ -81,6 +81,7 @@ interface CvStore {
   syncStatus: SyncStatus;
   history: CvDataSnapshot[];
   coachLanguage: "fr" | "en";
+  chatMode: "coach" | "interview";
   lastAiUpdateTs: number;
   hasSeenOnboarding: boolean;
   coverLetterText: string;
@@ -90,6 +91,7 @@ interface CvStore {
   setSyncStatus: (status: SyncStatus) => void;
   setCvData: (data: CvData) => void;
   setCoachLanguage: (lang: "fr" | "en") => void;
+  setChatMode: (mode: "coach" | "interview") => void;
   setLastAiUpdateTs: () => void;
   setHasSeenOnboarding: () => void;
   setCoverLetterText: (text: string) => void;
@@ -155,6 +157,7 @@ export const useCvStore = create<CvStore>((set) => ({
   syncStatus: "idle",
   history: [],
   coachLanguage: "fr",
+  chatMode: "coach",
   lastAiUpdateTs: 0,
   hasSeenOnboarding: false,
   coverLetterText: "",
@@ -162,6 +165,7 @@ export const useCvStore = create<CvStore>((set) => ({
   setIsHydrated: (value) => set({ isHydrated: value }),
   setSyncStatus: (status) => set({ syncStatus: status }),
   setCoachLanguage: (lang) => set({ coachLanguage: lang }),
+  setChatMode: (mode) => set({ chatMode: mode }),
   setLastAiUpdateTs: () => set({ lastAiUpdateTs: Date.now() }),
   setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
   setCoverLetterText: (text) => set({ coverLetterText: text }),
