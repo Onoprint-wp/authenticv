@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, generateText } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@/utils/supabase/server";
 import { getUserPlan } from "@/lib/plan";
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null);
-  const { jobOffer } = (body ?? {}) as { jobOffer?: string };
+  const { jobOffer, confirmed } = (body ?? {}) as { jobOffer?: string; confirmed?: boolean };
   if (!jobOffer?.trim()) {
     return new Response(
       JSON.stringify({ error: "jobOffer required" }),
@@ -53,9 +53,45 @@ export async function POST(req: Request) {
     .order("updated_at", { ascending: false })
     .limit(1);
 
-  const cvData = resumes?.[0]?.content ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cvData = (resumes?.[0]?.content ?? {}) as any;
   const truncatedOffer = jobOffer.slice(0, 5000);
 
+  // ── Relevance check (skipped when user already confirmed) ─────────────────
+  if (!confirmed) {
+    const cvSummary = [
+      cvData.personalInfo?.title,
+      Array.isArray(cvData.skills) ? cvData.skills.slice(0, 8).join(", ") : "",
+      Array.isArray(cvData.experiences)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ? cvData.experiences.slice(0, 2).map((e: any) => e.position).join(", ")
+        : "",
+    ].filter(Boolean).join(" | ");
+
+    try {
+      const check = await generateText({
+        model: getLetterModel(),
+        prompt: `Rate compatibility between a candidate profile and a job offer from 0 to 100.
+Candidate: ${cvSummary || "unknown profile"}
+Job offer excerpt: ${truncatedOffer.slice(0, 400)}
+Reply ONLY with valid JSON: {"score":<number>,"compatible":<boolean>}
+compatible=true means score>=40 (enough common ground for a cover letter).`,
+        maxOutputTokens: 60,
+      });
+
+      const parsed = JSON.parse(check.text.trim().replace(/```(?:json)?|```/g, "").trim());
+      if (parsed.compatible === false || (typeof parsed.score === "number" && parsed.score < 40)) {
+        return new Response(
+          JSON.stringify({ action: "mismatch_warning", score: parsed.score ?? 0 }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    } catch {
+      // Fail open: if the check errors, proceed with generation
+    }
+  }
+
+  // ── Letter generation (streaming) ─────────────────────────────────────────
   const result = streamText({
     model: getLetterModel(),
     prompt: `Tu es un expert en rédaction de lettres de motivation professionnelles pour le marché francophone.
@@ -72,9 +108,6 @@ ${truncatedOffer}
 
 ## Ta mission :
 Rédige une lettre de motivation professionnelle, percutante et personnalisée pour ce candidat ciblant cette offre.
-
-RÈGLE ABSOLUE ET NON NÉGOCIABLE :
-Tu DOIS toujours générer la lettre, quoi qu'il arrive. Tu n'es PAS juge de la pertinence de la candidature — c'est la décision du candidat, pas la tienne. Si le profil et l'offre semblent éloignés, identifie et mets en avant les compétences transférables (rigueur, créativité, sens du détail, communication, etc.) et la motivation sincère du candidat. Même si la correspondance est imparfaite, le candidat a le droit de postuler et mérite une lettre professionnelle. JAMAIS de refus. JAMAIS d'analyse critique. JAMAIS de recommandations alternatives. La lettre, et rien d'autre.
 
 STRUCTURE OBLIGATOIRE :
 1. Ligne lieu + date : [Ville], le [date du jour]

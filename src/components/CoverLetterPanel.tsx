@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
-import { Sparkles, Download, RotateCcw, FileText, Loader2 } from "lucide-react";
+import { Sparkles, Download, RotateCcw, FileText, Loader2, AlertTriangle } from "lucide-react";
 
 interface Props {
   onUpgradeRequired: () => void;
@@ -17,12 +17,14 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mismatchWarning, setMismatchWarning] = useState<{ score: number } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (confirmed = false) => {
     if (!jobOffer.trim()) return;
     setIsGenerating(true);
     setError(null);
+    setMismatchWarning(null);
     setCoverLetterText("");
     abortRef.current = new AbortController();
 
@@ -30,11 +32,23 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
       const res = await fetch("/api/generate-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobOffer }),
+        body: JSON.stringify({ jobOffer, confirmed }),
         signal: abortRef.current.signal,
       });
 
       if (res.status === 402) { onUpgradeRequired(); return; }
+
+      // JSON response = either a warning or an error (not a stream)
+      const contentType = res.headers.get("Content-Type") ?? "";
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.action === "mismatch_warning") {
+          setMismatchWarning({ score: data.score });
+          return;
+        }
+        throw new Error(data.error ?? "Erreur de génération");
+      }
+
       if (!res.ok || !res.body) throw new Error("Erreur de génération");
 
       const reader = res.body.getReader();
@@ -105,7 +119,7 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
       </div>
 
       <button
-        onClick={handleGenerate}
+        onClick={() => handleGenerate(false)}
         disabled={isGenerating || !jobOffer.trim()}
         className="flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-all active:scale-95"
       >
@@ -115,6 +129,37 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
           <><Sparkles className="w-4 h-4" />Générer la lettre</>
         )}
       </button>
+
+      {/* Mismatch warning */}
+      {mismatchWarning && (
+        <div className="bg-amber-950/40 border border-amber-700/50 rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium text-amber-300">Profil éloigné de cette offre</p>
+              <p className="text-xs text-amber-400/80 leading-relaxed">
+                Votre CV et cette offre semblent peu compatibles (score&nbsp;: {mismatchWarning.score}/100).
+                La lettre générée devra s&apos;appuyer sur des compétences transférables et risque
+                d&apos;être peu convaincante pour ce recruteur.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleGenerate(true)}
+              className="flex-1 py-2 text-xs font-medium bg-amber-700/30 hover:bg-amber-700/50 text-amber-300 rounded-lg transition-colors"
+            >
+              Générer quand même
+            </button>
+            <button
+              onClick={() => setMismatchWarning(null)}
+              className="flex-1 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <p className="text-xs text-red-400 text-center">{error}</p>
@@ -129,7 +174,7 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
                 Lettre générée
               </div>
               <button
-                onClick={handleGenerate}
+                onClick={() => handleGenerate(!!coverLetterText)}
                 disabled={isGenerating}
                 className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1 transition-colors disabled:opacity-50"
               >
