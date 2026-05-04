@@ -1,24 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { X, Sparkles, Check, Loader2, Zap, MessageSquare, Download, Briefcase } from "lucide-react";
+import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail } from "lucide-react";
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reason?: "pdf" | "jobmatch" | "quota";
+  reason?: "pdf" | "jobmatch" | "quota" | "letter";
 }
 
 const REASONS = {
   pdf: "Pour télécharger votre CV en PDF, passez à AuthenticV Pro.",
   jobmatch: "Pour optimiser votre CV pour une offre d'emploi, passez à AuthenticV Pro.",
   quota: "Vous avez atteint la limite de 20 messages gratuits ce mois-ci.",
+  letter: "Pour générer une lettre de motivation personnalisée, passez à AuthenticV Pro.",
 };
 
 const PRO_FEATURES = [
   { icon: MessageSquare, label: "Messages Alex illimités" },
   { icon: Download, label: "Export PDF en un clic" },
   { icon: Briefcase, label: "Job Match — Optimisation pour offre" },
+  { icon: Mail, label: "Lettre de motivation personnalisée par IA" },
   { icon: Sparkles, label: "Priorité sur les nouvelles fonctionnalités" },
 ];
 

@@ -14,15 +14,16 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine, Palette, UserX,
+  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
 import { DesignPanel } from "@/components/DesignPanel";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
+import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 
-type MobileTab = "chat" | "preview" | "edit";
+type MobileTab = "chat" | "preview" | "edit" | "letter";
 
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
@@ -31,9 +32,9 @@ export default function BuilderPage() {
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
+  const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit" | "letter">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
-  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" }>({ open: false, reason: "pdf" });
+  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" }>({ open: false, reason: "pdf" });
 
   const plan = usePlan();
   const { refetch, saveCheckpoint } = useSyncCv();
@@ -180,15 +181,21 @@ export default function BuilderPage() {
             {/* Toolbar */}
             <div className="px-4 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 bg-slate-950/50 p-1 rounded-md border border-slate-800">
-                {(["preview-web", "preview-pdf", "edit"] as const).map((mode) => (
+                {(["preview-web", "preview-pdf", "edit", "letter"] as const).map((mode) => (
                   <button
                     key={mode}
-                    onClick={() => setViewMode(mode)}
+                    onClick={() => {
+                      if (mode === "letter" && plan.plan !== "pro") {
+                        setUpgradeModal({ open: true, reason: "letter" });
+                        return;
+                      }
+                      setViewMode(mode);
+                    }}
                     className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${
                       viewMode === mode ? "bg-slate-800 text-slate-200 shadow-sm" : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    {mode === "preview-web" ? "Aperçu Web" : mode === "preview-pdf" ? "Aperçu PDF" : "Édition"}
+                    {mode === "preview-web" ? "Aperçu Web" : mode === "preview-pdf" ? "Aperçu PDF" : mode === "edit" ? "Édition" : "Lettre"}
                   </button>
                 ))}
               </div>
@@ -228,6 +235,9 @@ export default function BuilderPage() {
               {viewMode === "preview-web" && <HtmlCvPreview />}
               {viewMode === "preview-pdf" && <DynamicPdfViewer />}
               {viewMode === "edit" && <CvEditorView />}
+              {viewMode === "letter" && (
+                <CoverLetterPanel onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "letter" })} />
+              )}
             </div>
           </div>
         </div>
@@ -302,6 +312,20 @@ export default function BuilderPage() {
               </div>
             </div>
           )}
+
+          {mobileTab === "letter" && (
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800">
+                <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <Mail className="w-3 h-3 text-indigo-400" />
+                  Lettre de motivation
+                </p>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <CoverLetterPanel onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "letter" })} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -311,11 +335,16 @@ export default function BuilderPage() {
           { id: "chat", icon: MessageSquare, label: "Coach" },
           { id: "preview", icon: Eye, label: "Aperçu" },
           { id: "edit", icon: PenLine, label: "Édition" },
+          { id: "letter", icon: Mail, label: "Lettre" },
         ] as const).map(({ id, icon: Icon, label }) => (
           <button
             key={id}
             onClick={() => {
               if (id === "preview") lastPreviewSeenTs.current = Date.now();
+              if (id === "letter" && plan.plan !== "pro") {
+                setUpgradeModal({ open: true, reason: "letter" });
+                return;
+              }
               setMobileTab(id);
             }}
             className={`flex-1 relative flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
