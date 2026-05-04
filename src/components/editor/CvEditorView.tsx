@@ -357,7 +357,7 @@ export const CvEditorView = () => {
                   <Input value={edu.degree} onChange={(e) => updateEducation(edu.id, { degree: e.target.value })} />
                 </div>
                 <div className="flex flex-col md:col-span-2">
-                  <Label>Domaine d'études</Label>
+                  <Label>Domaine d&apos;études</Label>
                   <Input value={edu.field} onChange={(e) => updateEducation(edu.id, { field: e.target.value })} />
                 </div>
                 <div className="flex flex-col">

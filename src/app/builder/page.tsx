@@ -44,7 +44,7 @@ function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
   const chatRef = useRef<ChatPanelHandle>(null);
-  const lastPreviewSeenTs = useRef<number>(0);
+  const [lastPreviewSeenTs, setLastPreviewSeenTs] = useState<number>(0);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function BuilderPage() {
 
   const cvIsEmpty = !cvData.personalInfo.firstName && cvData.experiences.length === 0;
   const showOnboarding = isHydrated && cvIsEmpty && !hasSeenOnboarding;
-  const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs.current && mobileTab !== "preview";
+  const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs && mobileTab !== "preview";
 
 
   const handleApplySuggestion = (chatPrompt: string) => {
@@ -405,7 +405,7 @@ export default function BuilderPage() {
           <button
             key={id}
             onClick={() => {
-              if (id === "preview") lastPreviewSeenTs.current = Date.now();
+              if (id === "preview") setLastPreviewSeenTs(Date.now());
               if (id === "letter" && plan.plan !== "pro") {
                 setUpgradeModal({ open: true, reason: "letter" });
                 return;
