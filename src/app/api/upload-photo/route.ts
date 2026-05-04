@@ -70,10 +70,33 @@ export async function POST(req: Request) {
       .from("avatars")
       .getPublicUrl(filePath);
 
-    return NextResponse.json({ 
-      success: true, 
-      photoUrl: urlData.publicUrl 
-    });
+    const photoUrl = urlData.publicUrl;
+
+    // Persist photoUrl directly in the resume so a client-side refetch
+    // (triggered by the AI coach) doesn't overwrite it before the debounced sync fires.
+    const { data: resume } = await supabase
+      .from("resumes")
+      .select("id, content")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (resume) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const current = (resume.content as any) ?? {};
+      await supabase
+        .from("resumes")
+        .update({
+          content: {
+            ...current,
+            personalInfo: { ...(current.personalInfo ?? {}), photoUrl },
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", resume.id);
+    }
+
+    return NextResponse.json({ success: true, photoUrl });
   } catch (error) {
     console.error("[Upload Photo] Error:", error);
     return NextResponse.json(
