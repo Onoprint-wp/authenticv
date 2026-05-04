@@ -12,6 +12,7 @@ const FREE_FEATURES = [
   { label: "Sauvegarde automatique", included: true },
   { label: "Export PDF", included: false },
   { label: "Job Match — Optimisation offre", included: false },
+  { label: "Lettre de motivation IA", included: false },
   { label: "Messages illimités", included: false },
 ];
 
@@ -22,6 +23,7 @@ const PRO_FEATURES = [
   { label: "Sauvegarde automatique", included: true },
   { label: "Export PDF en un clic", included: true },
   { label: "Job Match — Optimisation offre", included: true },
+  { label: "Lettre de motivation personnalisée par IA", included: true },
   { label: "Accès prioritaire aux nouveautés", included: true },
 ];
 

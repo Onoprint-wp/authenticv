@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Zap, Shield, Target, LayoutTemplate, Lock } from "lucide-react";
+import { Sparkles, Zap, Shield, Target, LayoutTemplate, Mail } from "lucide-react";
 
 const features = [
   {
@@ -30,9 +30,9 @@ const features = [
     description: "Choisissez parmi plusieurs modèles de CV élégants, modernes et personnalisables (couleurs, polices, espacements).",
   },
   {
-    icon: Lock,
-    title: "Données privées",
-    description: "Vos données personnelles sont sécurisées et ne sont utilisées que pour générer votre CV. Vous gardez le contrôle total.",
+    icon: Mail,
+    title: "Lettre de motivation IA",
+    description: "Collez une offre d'emploi et obtenez une lettre de motivation personnalisée en quelques secondes, adaptée à votre parcours et au poste ciblé.",
   },
 ];
 
