@@ -42,7 +42,21 @@ export async function GET() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cvData = resume.content as any;
-    
+
+    // Convertir la photo en base64 pour éviter les échecs de fetch dans le contexte serverless
+    if (cvData?.personalInfo?.photoUrl) {
+      try {
+        const imgRes = await fetch(cvData.personalInfo.photoUrl);
+        if (imgRes.ok) {
+          const buffer = await imgRes.arrayBuffer();
+          const contentType = imgRes.headers.get("content-type") || "image/jpeg";
+          cvData.personalInfo.photoUrl = `data:${contentType};base64,${Buffer.from(buffer).toString("base64")}`;
+        }
+      } catch {
+        cvData.personalInfo.photoUrl = "";
+      }
+    }
+
     // Génération du flux PDF côté serveur
     const stream = await renderToStream(<CvDocument cvData={cvData} />);
 
