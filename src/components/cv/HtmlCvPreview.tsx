@@ -29,7 +29,7 @@ export function HtmlCvPreview() {
   }
 
   return (
-    <div className="flex-1 overflow-auto bg-slate-200 p-4 sm:p-8 flex justify-center custom-scrollbar">
+    <div className="flex-1 overflow-auto bg-slate-200 p-4 sm:p-8 flex justify-center items-start custom-scrollbar">
       {/* A4 Paper */}
       <div className={`w-full max-w-[850px] min-h-[1100px] bg-white rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col ${fontClass}`}>
 
