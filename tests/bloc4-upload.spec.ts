@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { selectors, waitForAutoSave } from "./helpers";
+import { selectors } from "./helpers";
 import path from "path";
 import fs from "fs";
 
@@ -28,7 +28,7 @@ test.describe("Bloc 4 — Import CV (Upload)", () => {
     await expect(uploadBtn).toBeVisible();
   });
 
-  test("4.8 — Upload fichier .txt = erreur gérée proprement", async ({ page, request }) => {
+  test("4.8 — Upload fichier .txt = erreur gérée proprement", async ({ request }) => {
     // Test via API directement (plus fiable pour les erreurs)
     const response = await request.post("/api/upload", {
       multipart: {
@@ -43,7 +43,7 @@ test.describe("Bloc 4 — Import CV (Upload)", () => {
     expect([400, 415]).toContain(response.status());
   });
 
-  test("4.10 — Upload fichier > 10 Mo = 413", async ({ page, request }) => {
+  test("4.10 — Upload fichier > 10 Mo = 413", async ({ request }) => {
     // Créer un buffer de 11 Mo
     const bigBuffer = Buffer.alloc(11 * 1024 * 1024, "A");
     const response = await request.post("/api/upload", {
@@ -60,7 +60,6 @@ test.describe("Bloc 4 — Import CV (Upload)", () => {
   });
 
   test("4.2-4.4 — Upload PDF minimal déclenche le parsing", async ({
-    page,
     request,
   }) => {
     // On teste la route API avec un vrai mini-PDF (header PDF valide)

@@ -220,6 +220,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
         {/* ── Header ── */}
         <View style={styles.header}>
           {personalInfo.photoUrl
+            // eslint-disable-next-line jsx-a11y/alt-text
             ? <Image src={personalInfo.photoUrl} style={styles.photo} />
             : null}
 
