@@ -13,7 +13,7 @@ export function Footer() {
             <span className="text-xl font-bold text-white tracking-tight">AuthentiCV</span>
           </Link>
           <p className="text-slate-500 text-sm max-w-sm mb-6">
-            Votre assistant personnel alimenté par l'IA pour créer des CV professionnels, percutants et authentiques en quelques minutes.
+            Votre assistant personnel alimenté par l{"'"}IA pour créer des CV professionnels, percutants et authentiques en quelques minutes.
           </p>
           <p className="text-slate-600 text-sm">
             © {new Date().getFullYear()} AuthentiCV. Tous droits réservés.

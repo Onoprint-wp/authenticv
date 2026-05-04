@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { selectors, sendChatMessage, waitForAutoSave, waitForPdfText } from "./helpers";
+import { selectors, sendChatMessage, waitForAutoSave } from "./helpers";
 
 /**
  * BLOC 2 — Premier contact avec Alex (CV vide ou existant)

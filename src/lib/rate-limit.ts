@@ -12,6 +12,7 @@ import { Redis } from "@upstash/redis";
 const hasUpstash = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 
 const mockLimiter = (limit: number) => ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   limit: async (_identifier: string) => ({
     success: true,
     limit,

@@ -68,10 +68,10 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
 
           {/* Features */}
           <div className="px-6 py-4 space-y-2.5">
-            {PRO_FEATURES.map(({ icon: Icon, label }) => (
+            {PRO_FEATURES.map(({ icon: FeatureIcon, label }) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-5 h-5 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-                  <Check className="w-3 h-3 text-indigo-400" />
+                  <FeatureIcon className="w-3 h-3 text-indigo-400" />
                 </div>
                 <span className="text-sm text-slate-300">{label}</span>
               </div>

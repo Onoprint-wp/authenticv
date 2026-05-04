@@ -160,9 +160,9 @@ export function CvDocument({ cvData }: CvDocumentProps) {
 
         {experiences.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Expériences Professionnelles</Text>
+            <Text style={styles.sectionTitle} minPresenceAhead={30}>Expériences Professionnelles</Text>
             {experiences.map((exp) => (
-              <View key={exp.id} style={styles.expItem}>
+              <View key={exp.id} style={styles.expItem} wrap={false}>
                 <View style={styles.expHeader}>
                   <View>
                     <Text style={styles.expPosition}>{exp.position}</Text>
@@ -180,9 +180,9 @@ export function CvDocument({ cvData }: CvDocumentProps) {
 
         {education.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Formation</Text>
+            <Text style={styles.sectionTitle} minPresenceAhead={30}>Formation</Text>
             {education.map((edu) => (
-              <View key={edu.id} style={styles.eduItem}>
+              <View key={edu.id} style={styles.eduItem} wrap={false}>
                 <Text style={styles.eduDegree}>{edu.degree}{edu.field ? ` en ${edu.field}` : ""}</Text>
                 <Text style={styles.eduInstitution}>{edu.institution}</Text>
                 <Text style={styles.eduDate}>{edu.startDate}{edu.endDate ? ` – ${edu.endDate}` : ""}</Text>
@@ -192,7 +192,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
         )}
 
         {skills.length > 0 && (
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>Compétences</Text>
             <View style={styles.skillsRow}>
               {skills.map((skill, i) => <Text key={i} style={styles.skillChip}>{skill}</Text>)}
@@ -202,9 +202,9 @@ export function CvDocument({ cvData }: CvDocumentProps) {
 
         {projects && projects.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Projets</Text>
+            <Text style={styles.sectionTitle} minPresenceAhead={30}>Projets</Text>
             {projects.map((proj) => (
-              <View key={proj.id} style={styles.projItem}>
+              <View key={proj.id} style={styles.projItem} wrap={false}>
                 <Text style={styles.projName}>{proj.name}</Text>
                 {proj.description ? <Text style={styles.projDesc}>{proj.description}</Text> : null}
                 {proj.link ? <Link src={proj.link} style={styles.projLink}>{proj.link}</Link> : null}
@@ -214,7 +214,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
         )}
 
         {languages && languages.length > 0 && (
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>Langues</Text>
             <View style={styles.langRow}>
               {languages.map((lang) => (
@@ -229,9 +229,9 @@ export function CvDocument({ cvData }: CvDocumentProps) {
 
         {certifications && certifications.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Certifications</Text>
+            <Text style={styles.sectionTitle} minPresenceAhead={30}>Certifications</Text>
             {certifications.map((cert) => (
-              <View key={cert.id} style={styles.certItem}>
+              <View key={cert.id} style={styles.certItem} wrap={false}>
                 <Text style={styles.certName}>{cert.name}</Text>
                 <Text style={styles.certIssuer}>{cert.issuer}</Text>
                 {cert.date ? <Text style={styles.certDate}>{cert.date}</Text> : null}

@@ -41,7 +41,7 @@ export function HowItWorks() {
             transition={{ delay: 0.1 }}
             className="text-slate-400 text-lg max-w-2xl mx-auto"
           >
-            Créer un CV professionnel n'a jamais été aussi simple. Laissez-vous guider.
+            Créer un CV professionnel n{"'"}a jamais été aussi simple. Laissez-vous guider.
           </motion.p>
         </div>
 

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { selectors, sendChatMessage, waitForAutoSave } from "./helpers";
+import { selectors, sendChatMessage } from "./helpers";
 
 /**
  * BLOC 5 — Match avec l'Offre d'Emploi
