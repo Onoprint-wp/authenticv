@@ -14,12 +14,13 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine, Palette,
+  Zap, MessageSquare, Eye, PenLine, Palette, UserX,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
 import { DesignPanel } from "@/components/DesignPanel";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 
 type MobileTab = "chat" | "preview" | "edit";
 
@@ -29,6 +30,7 @@ export default function BuilderPage() {
   const lastPreviewSeenTs = useRef<number>(0);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" }>({ open: false, reason: "pdf" });
@@ -132,6 +134,14 @@ export default function BuilderPage() {
           >
             <Briefcase className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Optimiser pour une offre</span>
+          </button>
+
+          <button
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 text-xs text-slate-600 hover:text-red-400 transition-colors"
+            title="Supprimer mon compte"
+          >
+            <UserX className="w-3.5 h-3.5" />
           </button>
 
           <form action={logout}>
@@ -329,6 +339,11 @@ export default function BuilderPage() {
             if (firstName) chatRef.current?.sendExternalMessage(`Mon prénom est ${firstName}`);
           }}
         />
+      )}
+
+      {/* ── Delete Account ── */}
+      {isDeleteModalOpen && (
+        <DeleteAccountModal onClose={() => setIsDeleteModalOpen(false)} />
       )}
 
       {/* ── Drawers & Modals ── */}
