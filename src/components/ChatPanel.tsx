@@ -252,6 +252,35 @@ export const ChatPanel = forwardRef<
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Quick-prompt chips — visible uniquement quand le chat est vide */}
+      {messages.length === 0 && (
+        <div className="flex flex-wrap gap-2 px-4 pb-3">
+          {(coachLanguage === "en" ? [
+            "Tell me about your latest experience",
+            "Improve my professional summary",
+            "Add a technical skill",
+            "Tailor my CV for a job offer",
+          ] : [
+            "Parle-moi de ton expérience la plus récente",
+            "Améliore mon résumé professionnel",
+            "Ajoute une compétence technique",
+            "Adapte mon CV pour une offre d'emploi",
+          ]).map((prompt) => (
+            <button
+              key={prompt}
+              onClick={() => {
+                if (isLoading || !isHydrated) return;
+                sendMessage({ text: prompt }, chatRequestOptions());
+              }}
+              disabled={isLoading || !isHydrated}
+              className="text-xs px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:text-indigo-300 hover:border-indigo-700/50 hover:bg-indigo-950/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input */}
       <div className="p-4 border-t border-slate-800">
         <form onSubmit={(e) => { handleSubmit(e); handleSendAndReset(); }} className="flex gap-2 items-center">

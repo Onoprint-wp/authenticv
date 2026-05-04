@@ -19,12 +19,14 @@ import {
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
 import { DesignPanel } from "@/components/DesignPanel";
+import { OnboardingModal } from "@/components/OnboardingModal";
 
 type MobileTab = "chat" | "preview" | "edit";
 
 export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
   const chatRef = useRef<ChatPanelHandle>(null);
+  const lastPreviewSeenTs = useRef<number>(0);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
@@ -34,8 +36,23 @@ export default function BuilderPage() {
   const plan = usePlan();
   const { refetch, saveCheckpoint } = useSyncCv();
 
+  const cvData = useCvStore((s) => s.cvData);
+  const lastAiUpdateTs = useCvStore((s) => s.lastAiUpdateTs);
+  const setLastAiUpdateTs = useCvStore((s) => s.setLastAiUpdateTs);
+  const hasSeenOnboarding = useCvStore((s) => s.hasSeenOnboarding);
+  const setHasSeenOnboarding = useCvStore((s) => s.setHasSeenOnboarding);
+
+  const cvIsEmpty = !cvData.personalInfo.firstName && cvData.experiences.length === 0;
+  const showOnboarding = isHydrated && cvIsEmpty && !hasSeenOnboarding;
+  const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs.current && mobileTab !== "preview";
+
   const handleApplySuggestion = (chatPrompt: string) => {
     chatRef.current?.sendExternalMessage(chatPrompt);
+  };
+
+  const handleToolFinish = () => {
+    refetch();
+    setLastAiUpdateTs();
   };
 
   const handleDownloadPdf = async () => {
@@ -144,7 +161,7 @@ export default function BuilderPage() {
               </p>
             </div>
             <div className="flex-1 overflow-hidden">
-              <ChatPanel ref={chatRef} onToolFinish={refetch} onCheckpoint={saveCheckpoint} />
+              <ChatPanel ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
             </div>
           </div>
 
@@ -221,7 +238,7 @@ export default function BuilderPage() {
                 )}
               </div>
               <div className="flex-1 overflow-hidden">
-                <ChatPanel ref={chatRef} onToolFinish={refetch} onCheckpoint={saveCheckpoint} />
+                <ChatPanel ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
               </div>
             </>
           )}
@@ -281,22 +298,38 @@ export default function BuilderPage() {
       {/* ── Mobile bottom tab bar ── */}
       <nav className="md:hidden flex-shrink-0 flex border-t border-slate-800 bg-slate-950 safe-area-inset-bottom">
         {([
-          { id: "chat", icon: MessageSquare, label: "Chat" },
+          { id: "chat", icon: MessageSquare, label: "Coach" },
           { id: "preview", icon: Eye, label: "Aperçu" },
           { id: "edit", icon: PenLine, label: "Édition" },
         ] as const).map(({ id, icon: Icon, label }) => (
           <button
             key={id}
-            onClick={() => setMobileTab(id)}
-            className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
+            onClick={() => {
+              if (id === "preview") lastPreviewSeenTs.current = Date.now();
+              setMobileTab(id);
+            }}
+            className={`flex-1 relative flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
               mobileTab === id ? "text-indigo-400" : "text-slate-600 hover:text-slate-400"
             }`}
           >
             <Icon className="w-5 h-5" />
+            {id === "preview" && hasUnseenUpdate && (
+              <span className="absolute top-2 right-[calc(50%-14px)] w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
+            )}
             {label}
           </button>
         ))}
       </nav>
+
+      {/* ── Onboarding ── */}
+      {showOnboarding && (
+        <OnboardingModal
+          onStart={(firstName) => {
+            setHasSeenOnboarding();
+            if (firstName) chatRef.current?.sendExternalMessage(`Mon prénom est ${firstName}`);
+          }}
+        />
+      )}
 
       {/* ── Drawers & Modals ── */}
       <JobMatchPanel
