@@ -14,10 +14,11 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine,
+  Zap, MessageSquare, Eye, PenLine, Palette,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
+import { DesignPanel } from "@/components/DesignPanel";
 
 type MobileTab = "chat" | "preview" | "edit";
 
@@ -25,6 +26,7 @@ export default function BuilderPage() {
   const isHydrated = useCvStore((s) => s.isHydrated);
   const chatRef = useRef<ChatPanelHandle>(null);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
+  const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" }>({ open: false, reason: "pdf" });
@@ -172,6 +174,20 @@ export default function BuilderPage() {
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDesignPanelOpen((p) => !p)}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-all ${
+                      isDesignPanelOpen
+                        ? "bg-indigo-950/60 border-indigo-700/50 text-indigo-300"
+                        : "border-slate-700/50 text-slate-400 hover:text-indigo-300 hover:bg-indigo-950/40 hover:border-indigo-800/50"
+                    }`}
+                  >
+                    <Palette className="w-3.5 h-3.5" />
+                    <span className="hidden lg:inline">Personnaliser</span>
+                  </button>
+                  {isDesignPanelOpen && <DesignPanel onClose={() => setIsDesignPanelOpen(false)} />}
+                </div>
                 <button
                   onClick={handleDownloadPdf}
                   className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
@@ -212,7 +228,7 @@ export default function BuilderPage() {
 
           {mobileTab === "preview" && (
             <div className="flex-1 overflow-hidden flex flex-col bg-slate-800">
-              <div className="px-3 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
+              <div className="px-3 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between gap-2">
                 <button
                   onClick={handleOpenJobMatch}
                   className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-md
@@ -222,6 +238,19 @@ export default function BuilderPage() {
                   <Briefcase className="w-3.5 h-3.5" />
                   <span>Optimiser</span>
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDesignPanelOpen((p) => !p)}
+                    className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-md border transition-all ${
+                      isDesignPanelOpen
+                        ? "bg-indigo-950/60 border-indigo-700/50 text-indigo-300"
+                        : "border-slate-700/50 text-slate-400 hover:text-indigo-300 hover:bg-indigo-950/40"
+                    }`}
+                  >
+                    <Palette className="w-3.5 h-3.5" />
+                  </button>
+                  {isDesignPanelOpen && <DesignPanel onClose={() => setIsDesignPanelOpen(false)} />}
+                </div>
                 <button
                   onClick={handleDownloadPdf}
                   className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all active:scale-95"

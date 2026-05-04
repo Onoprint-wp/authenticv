@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { type DesignSettings, DEFAULT_DESIGN_SETTINGS } from "@/lib/themes";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -69,7 +70,10 @@ export interface CvData {
   languages: Language[];
   certifications: Certification[];
   projects: Project[];
+  designSettings: DesignSettings;
 }
+
+export type { DesignSettings };
 
 interface CvStore {
   cvData: CvData;
@@ -110,6 +114,7 @@ interface CvStore {
   removeCertification: (id: string) => void;
   removeProject: (id: string) => void;
   clearCv: () => void;
+  updateDesignSettings: (settings: Partial<DesignSettings>) => void;
 }
 
 // ─── Default empty CV ────────────────────────────────────────────────────────
@@ -133,6 +138,7 @@ const defaultCvData: CvData = {
   languages: [],
   certifications: [],
   projects: [],
+  designSettings: DEFAULT_DESIGN_SETTINGS,
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -344,4 +350,12 @@ export const useCvStore = create<CvStore>((set) => ({
     })),
 
   clearCv: () => set({ cvData: defaultCvData }),
+
+  updateDesignSettings: (settings) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        designSettings: { ...state.cvData.designSettings, ...settings },
+      },
+    })),
 }));
