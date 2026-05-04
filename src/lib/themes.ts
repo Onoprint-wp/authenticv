@@ -7,6 +7,7 @@ export interface ColorTheme {
   accentLight: string;
   accentBg: string;
   pdfAccentColor: string;
+  pdfHeaderBg: string;
 }
 
 export interface DesignSettings {
@@ -29,6 +30,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#a5b4fc",
     accentBg: "#eef2ff",
     pdfAccentColor: "#6366f1",
+    pdfHeaderBg: "#1e1b4b",
   },
   {
     id: "slate",
@@ -39,6 +41,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#94a3b8",
     accentBg: "#f1f5f9",
     pdfAccentColor: "#475569",
+    pdfHeaderBg: "#0f172a",
   },
   {
     id: "emerald",
@@ -49,6 +52,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#6ee7b7",
     accentBg: "#ecfdf5",
     pdfAccentColor: "#059669",
+    pdfHeaderBg: "#064e3b",
   },
   {
     id: "rose",
@@ -59,6 +63,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#fda4af",
     accentBg: "#fff1f2",
     pdfAccentColor: "#e11d48",
+    pdfHeaderBg: "#881337",
   },
   {
     id: "amber",
@@ -69,6 +74,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#fcd34d",
     accentBg: "#fffbeb",
     pdfAccentColor: "#d97706",
+    pdfHeaderBg: "#78350f",
   },
   {
     id: "cyan",
@@ -79,6 +85,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#67e8f9",
     accentBg: "#ecfeff",
     pdfAccentColor: "#0891b2",
+    pdfHeaderBg: "#164e63",
   },
   {
     id: "violet",
@@ -89,6 +96,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#c4b5fd",
     accentBg: "#f5f3ff",
     pdfAccentColor: "#7c3aed",
+    pdfHeaderBg: "#2e1065",
   },
   {
     id: "neutral",
@@ -99,6 +107,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentLight: "#d4d4d4",
     accentBg: "#fafafa",
     pdfAccentColor: "#525252",
+    pdfHeaderBg: "#171717",
   },
 ];
 
