@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { usePlan } from "@/hooks/usePlan";
@@ -14,7 +16,7 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail,
+  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
@@ -35,7 +37,9 @@ export default function BuilderPage() {
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit" | "letter">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" }>({ open: false, reason: "pdf" });
+  const [showUpgradeToast, setShowUpgradeToast] = useState(false);
 
+  const searchParams = useSearchParams();
   const plan = usePlan();
   const { refetch, saveCheckpoint } = useSyncCv();
 
@@ -48,6 +52,17 @@ export default function BuilderPage() {
   const cvIsEmpty = !cvData.personalInfo.firstName && cvData.experiences.length === 0;
   const showOnboarding = isHydrated && cvIsEmpty && !hasSeenOnboarding;
   const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs.current && mobileTab !== "preview";
+
+  // Toast after successful Stripe upgrade
+  useEffect(() => {
+    if (searchParams.get("upgraded") === "true") {
+      setShowUpgradeToast(true);
+      // Clean up URL without reload
+      window.history.replaceState({}, "", "/builder");
+      const timer = setTimeout(() => setShowUpgradeToast(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const handleApplySuggestion = (chatPrompt: string) => {
     chatRef.current?.sendExternalMessage(chatPrompt);
@@ -136,6 +151,17 @@ export default function BuilderPage() {
             <Briefcase className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Optimiser pour une offre</span>
           </button>
+
+          <Link
+            href="/account"
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
+              border border-slate-700/50 text-slate-400 hover:text-indigo-300
+              hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all duration-200"
+            title="Mon compte"
+          >
+            <User className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Compte</span>
+          </Link>
 
           <button
             onClick={() => setIsDeleteModalOpen(true)}
@@ -386,6 +412,26 @@ export default function BuilderPage() {
         onClose={() => setUpgradeModal((p) => ({ ...p, open: false }))}
         reason={upgradeModal.reason}
       />
+
+      {/* ── Upgrade Success Toast ── */}
+      {showUpgradeToast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <div className="flex items-center gap-3 bg-emerald-950/90 border border-emerald-700/50 backdrop-blur-sm
+            text-emerald-200 px-5 py-3.5 rounded-xl shadow-2xl shadow-emerald-900/40">
+            <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-100">Bienvenue dans AuthenticV Pro !</p>
+              <p className="text-xs text-emerald-400/80 mt-0.5">Toutes les fonctionnalités sont débloquées.</p>
+            </div>
+            <button
+              onClick={() => setShowUpgradeToast(false)}
+              className="text-emerald-500 hover:text-emerald-200 transition-colors ml-2"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
