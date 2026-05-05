@@ -8,22 +8,22 @@ import { UpgradeButton } from "@/components/UpgradeButton";
 const FREE_FEATURES = [
   { label: "1 CV", included: true },
   { label: "20 messages Alex / mois", included: true },
-  { label: "Aperçu Web & PDF", included: true },
+  { label: "Aperçu Web en temps réel", included: true },
+  { label: "Tableau de bord ATS & suivi de candidatures", included: true },
   { label: "Sauvegarde automatique", included: true },
+  { label: "Multi-CV (plusieurs CVs)", included: false },
   { label: "Export PDF", included: false },
-  { label: "Job Match — Optimisation offre", included: false },
   { label: "Lettre de motivation IA", included: false },
-  { label: "Messages illimités", included: false },
+  { label: "Benchmark sectoriel", included: false },
 ];
 
 const PRO_FEATURES = [
-  { label: "1 CV", included: true },
   { label: "Messages Alex illimités", included: true },
-  { label: "Aperçu Web & PDF", included: true },
-  { label: "Sauvegarde automatique", included: true },
+  { label: "Multi-CV — un CV par candidature", included: true },
   { label: "Export PDF en un clic", included: true },
-  { label: "Job Match — Optimisation offre", included: true },
   { label: "Lettre de motivation personnalisée par IA", included: true },
+  { label: "Job Match — Optimisation pour une offre", included: true },
+  { label: "Benchmark sectoriel — votre rang parmi les candidats", included: true },
   { label: "Accès prioritaire aux nouveautés", included: true },
 ];
 
