@@ -86,26 +86,35 @@ export default function BuilderPage() {
 
   const handleDownloadPdf = async () => {
     if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
-    const res = await fetch("/api/export-pdf");
-    if (res.status === 402) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
-    if (!res.ok) return;
 
-    // Force le type MIME pour que le navigateur reconnaisse bien le PDF
-    const raw = await res.blob();
-    const blob = new Blob([raw], { type: "application/pdf" });
+    try {
+      // Dynamic imports to avoid bundling @react-pdf/renderer at page load
+      const [{ pdf }, { CvDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("@/components/pdf/CvDocument"),
+      ]);
 
-    // Extraire le nom de fichier du header Content-Disposition
-    const disposition = res.headers.get("Content-Disposition") || "";
-    const match = disposition.match(/filename="?([^";\n]+)"?/);
-    let fileName = match?.[1]?.trim() || "CV.pdf";
-    if (!fileName.toLowerCase().endsWith(".pdf")) fileName += ".pdf";
+      // Get current CV data from the Zustand store
+      const { cvData } = useCvStore.getState();
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
+      // Generate PDF blob client-side
+      const blob = await pdf(<CvDocument cvData={cvData} />).toBlob();
+
+      // Build filename
+      const firstName = cvData.personalInfo?.firstName?.trim() || "Authenti";
+      const lastName = cvData.personalInfo?.lastName?.trim() || "CV";
+      const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, "_");
+
+      // Trigger download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("[PDF Download Error]:", err);
+    }
   };
 
   const handleOpenJobMatch = () => {
