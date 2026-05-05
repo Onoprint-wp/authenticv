@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Document, Page, Text, View, Image, StyleSheet, Link,
 } from "@react-pdf/renderer";
