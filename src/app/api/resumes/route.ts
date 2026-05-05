@@ -1,5 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { computeAtsScore } from "@/lib/ats-score";
+import { detectSector } from "@/lib/sector";
+import type { CvData } from "@/store/useCvStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,7 +48,6 @@ export async function POST(req: Request) {
 
     const { content } = await req.json();
 
-    // Create or Update
     const { data: resumes, error: fetchError } = await supabase
       .from("resumes")
       .select("*")
@@ -68,21 +70,55 @@ export async function POST(req: Request) {
         .eq("id", resume.id)
         .select()
         .single();
-        
+
       if (error) throw error;
       response = data;
     } else {
       const { data, error } = await supabase
         .from("resumes")
-        .insert({
-          user_id: user.id,
-          content: content ?? {},
-        })
+        .insert({ user_id: user.id, content: content ?? {} })
         .select()
         .single();
-        
+
       if (error) throw error;
       response = data;
+    }
+
+    // Enregistrer le score ATS si variation > 2 pts ou > 24h depuis le dernier enregistrement
+    if (content) {
+      void (async () => {
+        try {
+          const cvData = content as CvData;
+          const newScore = computeAtsScore(cvData).score;
+          const newSector = detectSector(cvData);
+
+          // Persister score + secteur sur le résumé (pour le benchmark)
+          await supabase
+            .from("resumes")
+            .update({ ats_score: newScore, sector: newSector })
+            .eq("user_id", user.id);
+
+          const { data: lastEntry } = await supabase
+            .from("ats_score_history")
+            .select("score, recorded_at")
+            .eq("user_id", user.id)
+            .order("recorded_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          const lastScore = lastEntry?.score ?? -99;
+          const lastTs = lastEntry?.recorded_at ? new Date(lastEntry.recorded_at).getTime() : 0;
+          const hoursSinceLast = (Date.now() - lastTs) / 3_600_000;
+
+          if (Math.abs(newScore - lastScore) > 2 || hoursSinceLast > 24) {
+            await supabase
+              .from("ats_score_history")
+              .insert({ user_id: user.id, score: newScore });
+          }
+        } catch {
+          // Non-bloquant
+        }
+      })();
     }
 
     return NextResponse.json(response);

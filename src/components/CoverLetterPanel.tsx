@@ -1,8 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
-import { Sparkles, Download, RotateCcw, FileText, Loader2, AlertTriangle } from "lucide-react";
+import {
+  Sparkles, Download, RotateCcw, FileText, Loader2,
+  AlertTriangle, History, Trash2, ChevronRight,
+} from "lucide-react";
+
+interface SavedLetter {
+  id: string;
+  job_offer: string;
+  created_at: string;
+}
 
 interface Props {
   onUpgradeRequired: () => void;
@@ -18,7 +27,24 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mismatchWarning, setMismatchWarning] = useState<{ score: number } | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState<SavedLetter[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  const fetchHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch("/api/cover-letters");
+      if (res.ok) setHistory(await res.json());
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showHistory) fetchHistory();
+  }, [showHistory, fetchHistory]);
 
   const handleGenerate = async (confirmed = false) => {
     if (!jobOffer.trim()) return;
@@ -38,7 +64,6 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
 
       if (res.status === 402) { onUpgradeRequired(); return; }
 
-      // JSON response = either a warning or an error (not a stream)
       const contentType = res.headers.get("Content-Type") ?? "";
       if (contentType.includes("application/json")) {
         const data = await res.json();
@@ -61,6 +86,15 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
         accumulated += decoder.decode(value, { stream: true });
         setCoverLetterText(accumulated);
       }
+
+      // Sauvegarder en DB après réception complète (fire-and-forget)
+      if (accumulated.trim()) {
+        void fetch("/api/cover-letters", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobOffer, letterText: accumulated }),
+        }).catch(() => {});
+      }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
         setError("Une erreur est survenue. Réessayez.");
@@ -69,6 +103,11 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleDeleteLetter = async (id: string) => {
+    await fetch(`/api/cover-letters?id=${id}`, { method: "DELETE" });
+    setHistory((prev) => prev.filter((l) => l.id !== id));
   };
 
   const handleDownload = async () => {
@@ -98,14 +137,73 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
     }
   };
 
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  };
+
   return (
     <div className="h-full overflow-y-auto flex flex-col gap-4 p-4 custom-scrollbar">
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-medium text-slate-300">Lettre de motivation</p>
-        <p className="text-xs text-slate-500 leading-relaxed">
-          Alex génère une lettre personnalisée à partir de votre CV et de l&apos;offre ciblée.
-        </p>
+      <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium text-slate-300">Lettre de motivation</p>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Alex génère une lettre personnalisée à partir de votre CV et de l&apos;offre ciblée.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowHistory((v) => !v)}
+          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+            showHistory
+              ? "border-indigo-600/50 text-indigo-300 bg-indigo-950/40"
+              : "border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-600"
+          }`}
+          title="Historique des lettres"
+        >
+          <History className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Historique</span>
+        </button>
       </div>
+
+      {/* Historique */}
+      {showHistory && (
+        <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+          <div className="px-3 py-2 border-b border-slate-700/60 flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-400">Lettres générées</span>
+            {loadingHistory && <Loader2 className="w-3 h-3 animate-spin text-slate-500" />}
+          </div>
+          {history.length === 0 && !loadingHistory ? (
+            <p className="text-xs text-slate-600 text-center py-4">Aucune lettre sauvegardée</p>
+          ) : (
+            <ul className="divide-y divide-slate-800">
+              {history.map((letter) => (
+                <li key={letter.id} className="flex items-center gap-2 px-3 py-2.5 hover:bg-slate-800/50 group">
+                  <button
+                    className="flex-1 text-left min-w-0"
+                    onClick={() => {
+                      setCoverLetterText(letter.job_offer);
+                      setShowHistory(false);
+                    }}
+                  >
+                    <p className="text-xs text-slate-300 truncate">
+                      {letter.job_offer.slice(0, 60)}…
+                    </p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">{formatDate(letter.created_at)}</p>
+                  </button>
+                  <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0" />
+                  <button
+                    onClick={() => handleDeleteLetter(letter.id)}
+                    className="text-slate-700 hover:text-red-400 transition-colors shrink-0 p-1"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-slate-400">Offre d&apos;emploi ciblée</label>
@@ -123,14 +221,12 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
         disabled={isGenerating || !jobOffer.trim()}
         className="flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-all active:scale-95"
       >
-        {isGenerating ? (
-          <><Loader2 className="w-4 h-4 animate-spin" />Génération en cours…</>
-        ) : (
-          <><Sparkles className="w-4 h-4" />Générer la lettre</>
-        )}
+        {isGenerating
+          ? <><Loader2 className="w-4 h-4 animate-spin" />Génération en cours…</>
+          : <><Sparkles className="w-4 h-4" />Générer la lettre</>}
       </button>
 
-      {/* Mismatch warning */}
+      {/* Avertissement de compatibilité */}
       {mismatchWarning && (
         <div className="bg-amber-950/40 border border-amber-700/50 rounded-xl p-4 flex flex-col gap-3">
           <div className="flex items-start gap-3">
@@ -161,9 +257,7 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-red-400 text-center">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-400 text-center">{error}</p>}
 
       {coverLetterText && (
         <>
@@ -193,11 +287,9 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
             disabled={isDownloading || isGenerating}
             className="flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-all active:scale-95"
           >
-            {isDownloading ? (
-              <><Loader2 className="w-4 h-4 animate-spin" />Téléchargement…</>
-            ) : (
-              <><Download className="w-4 h-4" />Télécharger PDF</>
-            )}
+            {isDownloading
+              ? <><Loader2 className="w-4 h-4 animate-spin" />Téléchargement…</>
+              : <><Download className="w-4 h-4" />Télécharger PDF</>}
           </button>
         </>
       )}

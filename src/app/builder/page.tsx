@@ -16,7 +16,7 @@ import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
   FileText, LogOut, Sparkles, Briefcase, Download,
-  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X, GraduationCap,
+  Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X, GraduationCap, BarChart2,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
@@ -26,6 +26,7 @@ import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 import { ShareCvButton } from "@/components/ShareCvButton";
 import { AtsScoreBar } from "@/components/AtsScoreBar";
+import { CvSwitcher } from "@/components/CvSwitcher";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
@@ -59,7 +60,7 @@ export default function BuilderPage() {
     return () => clearTimeout(timer);
   }, []);
   const plan = usePlan();
-  const { refetch, saveCheckpoint } = useSyncCv();
+  const { refetch, saveCheckpoint, switchResume } = useSyncCv();
 
   const cvData = useCvStore((s) => s.cvData);
   const lastAiUpdateTs = useCvStore((s) => s.lastAiUpdateTs);
@@ -132,6 +133,7 @@ export default function BuilderPage() {
           <span className="hidden md:flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2 py-0.5 rounded-full">
             <Sparkles className="w-3 h-3" />AI Coach
           </span>
+          <CvSwitcher onSwitch={switchResume} />
         </div>
 
         {/* Right side */}
@@ -165,6 +167,17 @@ export default function BuilderPage() {
             <Briefcase className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Optimiser pour une offre</span>
           </button>
+
+          <Link
+            href="/dashboard"
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
+              border border-slate-700/50 text-slate-400 hover:text-indigo-300
+              hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all duration-200"
+            title="Tableau de bord"
+          >
+            <BarChart2 className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Dashboard</span>
+          </Link>
 
           <Link
             href="/account"

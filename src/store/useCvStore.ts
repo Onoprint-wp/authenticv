@@ -75,6 +75,13 @@ export interface CvData {
 
 export type { DesignSettings };
 
+export interface ResumeListItem {
+  id: string;
+  title: string;
+  updatedAt: string;
+  isDefault: boolean;
+}
+
 interface CvStore {
   cvData: CvData;
   isHydrated: boolean;
@@ -85,9 +92,13 @@ interface CvStore {
   lastAiUpdateTs: number;
   hasSeenOnboarding: boolean;
   coverLetterText: string;
+  currentResumeId: string | null;
+  resumeList: ResumeListItem[];
 
   // State setters
   setIsHydrated: (value: boolean) => void;
+  setCurrentResumeId: (id: string | null) => void;
+  setResumeList: (list: ResumeListItem[]) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setCvData: (data: CvData) => void;
   setCoachLanguage: (lang: "fr" | "en") => void;
@@ -161,8 +172,12 @@ export const useCvStore = create<CvStore>((set) => ({
   lastAiUpdateTs: 0,
   hasSeenOnboarding: false,
   coverLetterText: "",
+  currentResumeId: null,
+  resumeList: [],
 
   setIsHydrated: (value) => set({ isHydrated: value }),
+  setCurrentResumeId: (id) => set({ currentResumeId: id }),
+  setResumeList: (list) => set({ resumeList: list }),
   setSyncStatus: (status) => set({ syncStatus: status }),
   setCoachLanguage: (lang) => set({ coachLanguage: lang }),
   setChatMode: (mode) => set({ chatMode: mode }),

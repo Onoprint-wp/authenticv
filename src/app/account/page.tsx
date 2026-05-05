@@ -2,8 +2,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getUserPlan, getMonthlyMessageCount, FREE_MONTHLY_MESSAGES } from "@/lib/plan";
 import Link from "next/link";
-import { FileText, ArrowLeft, Shield, CreditCard, BarChart3, UserCircle, Calendar, Mail } from "lucide-react";
+import { FileText, ArrowLeft, Shield, CreditCard, BarChart3, UserCircle, Calendar, Mail, Bell } from "lucide-react";
 import { AccountActions } from "./AccountActions";
+import { NudgeToggle } from "./NudgeToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,14 @@ export default async function AccountPage() {
     month: "long",
     year: "numeric",
   });
+
+  const { data: resumePrefs } = await supabase
+    .from("resumes")
+    .select("nudge_enabled")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  const nudgeEnabled = resumePrefs?.nudge_enabled ?? true;
 
   const isPro = plan === "pro";
   const messageLimit = isPro ? "∞" : String(FREE_MONTHLY_MESSAGES);
@@ -195,6 +204,23 @@ export default async function AccountPage() {
                   Quota atteint — Passez à Pro pour des messages illimités.
                 </p>
               )}
+            </div>
+          </section>
+
+          {/* ── Notifications ── */}
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-indigo-400" />
+              <h2 className="text-sm font-semibold text-white">Notifications</h2>
+            </div>
+            <div className="p-6 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-slate-300">Conseils hebdomadaires d&apos;Alex</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Recevez chaque lundi des suggestions pour améliorer votre CV.
+                </p>
+              </div>
+              <NudgeToggle initialEnabled={nudgeEnabled} />
             </div>
           </section>
 
