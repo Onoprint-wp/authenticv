@@ -6,7 +6,7 @@ import { useCvStore } from "@/store/useCvStore";
 const DEBOUNCE_MS = 2000;
 
 export function useSyncCv() {
-  const { cvData, isHydrated, setIsHydrated, setSyncStatus, setCvData, saveCheckpoint, setCurrentResumeId, setResumeList } =
+  const { cvData, isHydrated, setIsHydrated, setSyncStatus, setCvData, clearCv, saveCheckpoint, setCurrentResumeId, setResumeList } =
     useCvStore();
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -80,6 +80,8 @@ export function useSyncCv() {
       setCurrentResumeId(data.id);
       if (data.content && Object.keys(data.content).length > 0) {
         setCvData(data.content);
+      } else {
+        clearCv();
       }
       setTimeout(() => { isSavingFromServer.current = false; }, 100);
     } catch (e) {
