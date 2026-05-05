@@ -19,6 +19,7 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
   const [loading, setLoading] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +30,7 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
         setEditingId(null);
+        setConfirmDeleteId(null);
       }
     }
     document.addEventListener("mousedown", handleClick);
@@ -93,9 +95,9 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce CV ?")) return;
     setLoading(`del-${id}`);
     const res = await fetch(`/api/resumes/${id}`, { method: "DELETE" });
+    setConfirmDeleteId(null);
     if (res.ok) {
       await refreshList();
       if (currentResumeId === id) {
@@ -106,9 +108,6 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
         }
       }
       setOpen(false);
-    } else {
-      const data = await res.json().catch(() => ({}));
-      alert(data.error ?? "Impossible de supprimer ce CV.");
     }
     setLoading(null);
   }
@@ -203,45 +202,66 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
                   </button>
                 )}
 
-                {/* Actions au survol */}
-                {editingId !== r.id && (
-                  <div className="hidden group-hover:flex items-center gap-1 shrink-0">
+                {/* Confirmation suppression inline */}
+                {confirmDeleteId === r.id ? (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className="text-[10px] text-red-400 mr-1">Supprimer ?</span>
                     <button
-                      title="Renommer"
-                      onClick={(e) => startEdit(r.id, r.title, e)}
-                      className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                      title="Confirmer"
+                      onClick={() => handleDelete(r.id)}
+                      disabled={loading === `del-${r.id}`}
+                      className="p-1 text-red-400 hover:text-red-300 transition-colors"
                     >
-                      <Pencil className="w-3 h-3" />
+                      <Check className="w-3 h-3" />
                     </button>
-                    {!r.isDefault && (
-                      <button
-                        title="Définir par défaut"
-                        onClick={() => handleSetDefault(r.id)}
-                        disabled={loading === `def-${r.id}`}
-                        className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"
-                      >
-                        <Check className="w-3 h-3" />
-                      </button>
-                    )}
                     <button
-                      title="Dupliquer"
-                      onClick={() => handleDuplicate(r.id)}
-                      disabled={loading === `dup-${r.id}`}
-                      className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                      title="Annuler"
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                      className="p-1 text-slate-500 hover:text-slate-300 transition-colors"
                     >
-                      <Copy className="w-3 h-3" />
+                      <Trash2 className="w-3 h-3 opacity-30" />
                     </button>
-                    {!r.isDefault && (
-                      <button
-                        title="Supprimer"
-                        onClick={() => handleDelete(r.id)}
-                        disabled={loading === `del-${r.id}`}
-                        className="p-1 text-slate-600 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
                   </div>
+                ) : (
+                  /* Actions au survol */
+                  editingId !== r.id && (
+                    <div className="hidden group-hover:flex items-center gap-1 shrink-0">
+                      <button
+                        title="Renommer"
+                        onClick={(e) => startEdit(r.id, r.title, e)}
+                        className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      {!r.isDefault && (
+                        <button
+                          title="Définir par défaut"
+                          onClick={() => handleSetDefault(r.id)}
+                          disabled={loading === `def-${r.id}`}
+                          className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"
+                        >
+                          <Check className="w-3 h-3" />
+                        </button>
+                      )}
+                      <button
+                        title="Dupliquer"
+                        onClick={() => handleDuplicate(r.id)}
+                        disabled={loading === `dup-${r.id}`}
+                        className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      {!r.isDefault && (
+                        <button
+                          title="Supprimer"
+                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(r.id); }}
+                          className="p-1 text-slate-600 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  )
                 )}
               </div>
             ))}
