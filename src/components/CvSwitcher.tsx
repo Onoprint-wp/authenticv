@@ -146,7 +146,7 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
   if (resumeList.length === 0) return null;
 
   return (
-    <div ref={ref} className="relative hidden sm:block">
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((p) => !p)}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-all bg-slate-900/50 max-w-[160px]"
@@ -157,7 +157,7 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-72 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 w-[min(288px,calc(100vw-2rem))] bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
           <div className="py-1">
             {resumeList.map((r) => (
               <div
