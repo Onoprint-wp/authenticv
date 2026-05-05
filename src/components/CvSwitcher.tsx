@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { FileText, Plus, Copy, Trash2, ChevronDown, Check } from "lucide-react";
+import { FileText, Plus, Copy, Trash2, ChevronDown, Check, Pencil } from "lucide-react";
 import { useCvStore } from "@/store/useCvStore";
 
 interface CvSwitcherProps {
@@ -17,21 +17,42 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const current = resumeList.find((r) => r.id === currentResumeId) ?? resumeList[0];
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setEditingId(null);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingId]);
+
   async function refreshList() {
     const res = await fetch("/api/resumes/list");
-    if (res.ok) setResumeList(await res.json());
+    if (res.ok) {
+      const data = await res.json();
+      setResumeList(data.map((r: { id: string; title: string; updated_at: string; is_default: boolean }) => ({
+        id: r.id,
+        title: r.title,
+        updatedAt: r.updated_at,
+        isDefault: r.is_default,
+      })));
+    }
   }
 
   async function handleCreate() {
@@ -99,6 +120,30 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
     setLoading(null);
   }
 
+  function startEdit(id: string, title: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setEditingId(id);
+    setEditingTitle(title);
+  }
+
+  async function commitRename(id: string) {
+    const trimmed = editingTitle.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    const original = resumeList.find((r) => r.id === id)?.title;
+    if (trimmed === original) return;
+
+    // Mise à jour optimiste
+    setResumeList(resumeList.map((r) => r.id === id ? { ...r, title: trimmed } : r));
+
+    const res = await fetch(`/api/resumes/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: trimmed }),
+    });
+    if (!res.ok) await refreshList(); // rollback si erreur
+  }
+
   if (resumeList.length === 0) return null;
 
   return (
@@ -113,65 +158,91 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 w-72 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
           <div className="py-1">
             {resumeList.map((r) => (
               <div
                 key={r.id}
                 className={`flex items-center gap-2 px-3 py-2 hover:bg-slate-800 group transition-colors ${r.id === currentResumeId ? "bg-slate-800/60" : ""}`}
               >
-                <button
-                  className="flex-1 flex items-center gap-2 text-left min-w-0"
-                  onClick={() => {
-                    setCurrentResumeId(r.id);
-                    onSwitch(r.id);
-                    setOpen(false);
-                  }}
-                >
-                  {r.id === currentResumeId ? (
-                    <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                  ) : (
-                    <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  )}
-                  <span className={`text-xs truncate ${r.id === currentResumeId ? "text-slate-200" : "text-slate-400"}`}>
-                    {r.title}
-                  </span>
-                  {r.isDefault && (
-                    <span className="ml-auto text-[10px] text-indigo-400 bg-indigo-950/50 border border-indigo-800/40 px-1.5 py-0.5 rounded-full shrink-0">
-                      défaut
-                    </span>
-                  )}
-                </button>
-                <div className="hidden group-hover:flex items-center gap-1">
-                  {!r.isDefault && (
-                    <button
-                      title="Définir par défaut"
-                      onClick={() => handleSetDefault(r.id)}
-                      disabled={loading === `def-${r.id}`}
-                      className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"
-                    >
-                      <Check className="w-3 h-3" />
-                    </button>
-                  )}
+                {/* Icône active */}
+                {r.id === currentResumeId ? (
+                  <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                ) : (
+                  <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                )}
+
+                {/* Titre — éditable en double-clic, sinon clic = switch */}
+                {editingId === r.id ? (
+                  <input
+                    ref={inputRef}
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onBlur={() => commitRename(r.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") commitRename(r.id);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 min-w-0 text-xs bg-slate-700 text-slate-100 rounded px-1.5 py-0.5 outline-none border border-indigo-500/50 focus:border-indigo-400"
+                  />
+                ) : (
                   <button
-                    title="Dupliquer"
-                    onClick={() => handleDuplicate(r.id)}
-                    disabled={loading === `dup-${r.id}`}
-                    className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                    className="flex-1 flex items-center gap-2 text-left min-w-0"
+                    onClick={() => { setCurrentResumeId(r.id); onSwitch(r.id); setOpen(false); }}
+                    onDoubleClick={(e) => startEdit(r.id, r.title, e)}
                   >
-                    <Copy className="w-3 h-3" />
+                    <span className={`text-xs truncate ${r.id === currentResumeId ? "text-slate-200" : "text-slate-400"}`}>
+                      {r.title}
+                    </span>
+                    {r.isDefault && (
+                      <span className="ml-auto text-[10px] text-indigo-400 bg-indigo-950/50 border border-indigo-800/40 px-1.5 py-0.5 rounded-full shrink-0">
+                        défaut
+                      </span>
+                    )}
                   </button>
-                  {!r.isDefault && (
+                )}
+
+                {/* Actions au survol */}
+                {editingId !== r.id && (
+                  <div className="hidden group-hover:flex items-center gap-1 shrink-0">
                     <button
-                      title="Supprimer"
-                      onClick={() => handleDelete(r.id)}
-                      disabled={loading === `del-${r.id}`}
-                      className="p-1 text-slate-600 hover:text-red-400 transition-colors"
+                      title="Renommer"
+                      onClick={(e) => startEdit(r.id, r.title, e)}
+                      className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Pencil className="w-3 h-3" />
                     </button>
-                  )}
-                </div>
+                    {!r.isDefault && (
+                      <button
+                        title="Définir par défaut"
+                        onClick={() => handleSetDefault(r.id)}
+                        disabled={loading === `def-${r.id}`}
+                        className="p-1 text-slate-600 hover:text-indigo-400 transition-colors"
+                      >
+                        <Check className="w-3 h-3" />
+                      </button>
+                    )}
+                    <button
+                      title="Dupliquer"
+                      onClick={() => handleDuplicate(r.id)}
+                      disabled={loading === `dup-${r.id}`}
+                      className="p-1 text-slate-600 hover:text-slate-300 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                    </button>
+                    {!r.isDefault && (
+                      <button
+                        title="Supprimer"
+                        onClick={() => handleDelete(r.id)}
+                        disabled={loading === `del-${r.id}`}
+                        className="p-1 text-slate-600 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
