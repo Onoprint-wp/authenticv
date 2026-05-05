@@ -88,7 +88,7 @@ export function useSyncCv() {
       console.error("[Sync] switchResume error:", e);
       isSavingFromServer.current = false;
     }
-  }, [setCvData, setCurrentResumeId]);
+  }, [setCvData, setCurrentResumeId, clearCv]);
 
   // ── Manual Refetch ────────────────────────────────────────────────
   const refetch = useCallback(async () => {

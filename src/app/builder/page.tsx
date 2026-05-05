@@ -88,25 +88,48 @@ export default function BuilderPage() {
     if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
 
     try {
-      // Dynamic imports to avoid bundling @react-pdf/renderer at page load
       const [{ pdf }, { CvDocument }] = await Promise.all([
         import("@react-pdf/renderer"),
         import("@/components/pdf/CvDocument"),
       ]);
 
-      // Get current CV data from the Zustand store
       const { cvData } = useCvStore.getState();
+      const pdfData = { ...cvData, personalInfo: { ...cvData.personalInfo } };
 
-      // Generate PDF blob client-side
-      const blob = await pdf(<CvDocument cvData={cvData} />).toBlob();
+      // Convertir la photo en base64 PNG — react-pdf ne peut pas fetcher les URLs Supabase
+      if (pdfData.personalInfo.photoUrl) {
+        try {
+          const res = await fetch(pdfData.personalInfo.photoUrl);
+          if (res.ok) {
+            const blob = await res.blob();
+            const base64 = await new Promise<string>((resolve) => {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                canvas.getContext("2d")!.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL("image/png"));
+              };
+              img.onerror = () => resolve("");
+              img.src = URL.createObjectURL(blob);
+            });
+            pdfData.personalInfo.photoUrl = base64;
+          } else {
+            pdfData.personalInfo.photoUrl = "";
+          }
+        } catch {
+          pdfData.personalInfo.photoUrl = "";
+        }
+      }
 
-      // Build filename
-      const firstName = cvData.personalInfo?.firstName?.trim() || "Authenti";
-      const lastName = cvData.personalInfo?.lastName?.trim() || "CV";
+      const pdfBlob = await pdf(<CvDocument cvData={pdfData} />).toBlob();
+
+      const firstName = pdfData.personalInfo?.firstName?.trim() || "Authenti";
+      const lastName = pdfData.personalInfo?.lastName?.trim() || "CV";
       const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, "_");
 
-      // Trigger download
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;

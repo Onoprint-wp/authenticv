@@ -76,7 +76,7 @@ export async function POST(req: Request) {
     } else {
       const { data, error } = await supabase
         .from("resumes")
-        .insert({ user_id: user.id, content: content ?? {} })
+        .insert({ user_id: user.id, content: content ?? {}, is_default: false })
         .select()
         .single();
 
