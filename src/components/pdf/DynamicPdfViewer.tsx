@@ -33,25 +33,63 @@ export function DynamicPdfViewer() {
     });
   }, []);
 
-  // Convert photoUrl to base64 data URI so react-pdf can embed it without CORS issues.
-  // react-pdf fetches images in a web worker where Supabase public URLs may be blocked.
+  // Convert photoUrl to a base64 PNG data URI.
+  // react-pdf only supports JPEG & PNG — WebP is rejected.
+  // We fetch the image, draw it onto a <canvas>, then export as PNG.
   useEffect(() => {
     const url = cvData.personalInfo.photoUrl;
     if (!url) { setResolvedPhotoUrl(undefined); return; }
-    if (url.startsWith("data:")) { setResolvedPhotoUrl(url); return; }
+
+    // If already a compatible data URI (jpeg/png), use it directly
+    if (url.startsWith("data:image/jpeg") || url.startsWith("data:image/png")) {
+      setResolvedPhotoUrl(url);
+      return;
+    }
 
     let cancelled = false;
-    fetch(url)
-      .then((r) => (r.ok ? r.blob() : Promise.reject()))
-      .then((blob) => new Promise<string>((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result as string);
-        reader.onerror = rej;
-        reader.readAsDataURL(blob);
-      }))
-      .then((dataUri) => { if (!cancelled) setResolvedPhotoUrl(dataUri); })
-      .catch(() => { if (!cancelled) setResolvedPhotoUrl(url); }); // fallback to original
 
+    const convertToPng = async () => {
+      try {
+        // For data URIs (e.g. data:image/webp;base64,...) or remote URLs
+        const src = url.startsWith("data:")
+          ? url
+          : await fetch(url)
+              .then((r) => (r.ok ? r.blob() : Promise.reject()))
+              .then(
+                (blob) =>
+                  new Promise<string>((res, rej) => {
+                    const reader = new FileReader();
+                    reader.onload = () => res(reader.result as string);
+                    reader.onerror = rej;
+                    reader.readAsDataURL(blob);
+                  }),
+              );
+
+        // Draw on canvas and export as PNG
+        const img = new window.Image();
+        img.crossOrigin = "anonymous";
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("Image load failed"));
+          img.src = src;
+        });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas context unavailable");
+        ctx.drawImage(img, 0, 0);
+
+        const pngDataUri = canvas.toDataURL("image/png");
+        if (!cancelled) setResolvedPhotoUrl(pngDataUri);
+      } catch {
+        // Fallback: pass original URL (may fail in PDF but won't break the app)
+        if (!cancelled) setResolvedPhotoUrl(url);
+      }
+    };
+
+    convertToPng();
     return () => { cancelled = true; };
   }, [cvData.personalInfo.photoUrl]);
 

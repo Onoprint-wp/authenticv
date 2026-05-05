@@ -45,15 +45,31 @@ export async function POST(req: Request) {
   }
 
   try {
-    const ext = file.name.split(".").pop() || "jpg";
+    let ext = file.name.split(".").pop() || "jpg";
+    let buffer = Buffer.from(await file.arrayBuffer());
+    let contentType = file.type;
+
+    // @react-pdf/renderer only supports JPEG & PNG.
+    // Convert WebP uploads to JPEG so the photo works everywhere.
+    if (file.type === "image/webp") {
+      try {
+        const sharp = (await import("sharp")).default;
+        buffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer() as Buffer<ArrayBuffer>;
+        ext = "jpg";
+        contentType = "image/jpeg";
+      } catch (sharpErr) {
+        console.warn("[Upload Photo] sharp conversion failed, storing as-is:", sharpErr);
+        // Fallback: store as webp — client-side viewer will still convert via canvas
+      }
+    }
+
     const filePath = `${user.id}/photo.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload to Supabase Storage (upsert to overwrite previous photo)
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, buffer, {
-        contentType: file.type,
+        contentType,
         upsert: true,
       });
 

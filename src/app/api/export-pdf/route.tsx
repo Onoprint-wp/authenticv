@@ -44,13 +44,20 @@ export async function GET() {
     const cvData = resume.content as any;
 
     // Convertir la photo en base64 pour éviter les échecs de fetch dans le contexte serverless
+    // Note: @react-pdf/renderer only supports JPEG & PNG — WebP must be converted or skipped.
     if (cvData?.personalInfo?.photoUrl) {
       try {
         const imgRes = await fetch(cvData.personalInfo.photoUrl);
         if (imgRes.ok) {
           const buffer = await imgRes.arrayBuffer();
           const contentType = imgRes.headers.get("content-type") || "image/jpeg";
-          cvData.personalInfo.photoUrl = `data:${contentType};base64,${Buffer.from(buffer).toString("base64")}`;
+
+          // react-pdf cannot render WebP — skip the photo in that case
+          if (contentType.includes("webp")) {
+            cvData.personalInfo.photoUrl = "";
+          } else {
+            cvData.personalInfo.photoUrl = `data:${contentType};base64,${Buffer.from(buffer).toString("base64")}`;
+          }
         }
       } catch {
         cvData.personalInfo.photoUrl = "";
