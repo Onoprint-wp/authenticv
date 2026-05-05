@@ -88,10 +88,23 @@ export default function BuilderPage() {
     if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
     const res = await fetch("/api/export-pdf");
     if (res.status === 402) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
-    const blob = await res.blob();
+    if (!res.ok) return;
+
+    // Force le type MIME pour que le navigateur reconnaisse bien le PDF
+    const raw = await res.blob();
+    const blob = new Blob([raw], { type: "application/pdf" });
+
+    // Extraire le nom de fichier du header Content-Disposition
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="?([^";\n]+)"?/);
+    let fileName = match?.[1]?.trim() || "CV.pdf";
+    if (!fileName.toLowerCase().endsWith(".pdf")) fileName += ".pdf";
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "CV.pdf"; a.click();
+    a.href = url;
+    a.download = fileName;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
