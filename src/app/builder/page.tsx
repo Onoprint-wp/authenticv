@@ -51,7 +51,7 @@ export default function BuilderPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit" | "letter">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
-  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" }>({ open: false, reason: "pdf" });
+  const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" | "multi-cv" }>({ open: false, reason: "pdf" });
   const [showUpgradeToast, setShowUpgradeToast] = useState(false);
 
   const handleUpgraded = useCallback(() => {
@@ -133,7 +133,7 @@ export default function BuilderPage() {
           <span className="hidden md:flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2 py-0.5 rounded-full">
             <Sparkles className="w-3 h-3" />AI Coach
           </span>
-          <CvSwitcher onSwitch={switchResume} />
+          <CvSwitcher onSwitch={switchResume} onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "multi-cv" })} />
         </div>
 
         {/* Right side */}

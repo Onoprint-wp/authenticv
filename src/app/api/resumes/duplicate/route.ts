@@ -1,15 +1,21 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { getUserPlan } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST — duplique un CV existant
+// POST — duplique un CV existant (Pro uniquement)
 // Body: { id: string }
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const plan = await getUserPlan(user.id);
+  if (plan !== "pro") {
+    return NextResponse.json({ error: "pro_required", details: "Le multi-CV est réservé aux abonnés Pro." }, { status: 402 });
+  }
 
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });

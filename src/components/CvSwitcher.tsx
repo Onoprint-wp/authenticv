@@ -6,9 +6,10 @@ import { useCvStore } from "@/store/useCvStore";
 
 interface CvSwitcherProps {
   onSwitch: (id: string) => void;
+  onUpgradeRequired?: () => void;
 }
 
-export function CvSwitcher({ onSwitch }: CvSwitcherProps) {
+export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
   const resumeList = useCvStore((s) => s.resumeList);
   const setResumeList = useCvStore((s) => s.setResumeList);
   const currentResumeId = useCvStore((s) => s.currentResumeId);
@@ -41,6 +42,7 @@ export function CvSwitcher({ onSwitch }: CvSwitcherProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: `CV ${count}` }),
     });
+    if (res.status === 402) { setLoading(null); setOpen(false); onUpgradeRequired?.(); return; }
     if (res.ok) {
       const item = await res.json();
       await refreshList();
@@ -58,6 +60,7 @@ export function CvSwitcher({ onSwitch }: CvSwitcherProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
+    if (res.status === 402) { setLoading(null); setOpen(false); onUpgradeRequired?.(); return; }
     if (res.ok) {
       const item = await res.json();
       await refreshList();

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { getUserPlan } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,6 +9,11 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const plan = await getUserPlan(user.id);
+  if (plan !== "pro") {
+    return NextResponse.json({ available: false });
+  }
 
   // Lire le secteur et score actuels de l'utilisateur
   const { data: resume } = await supabase

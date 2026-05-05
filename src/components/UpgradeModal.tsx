@@ -6,14 +6,15 @@ import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail } f
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reason?: "pdf" | "jobmatch" | "quota" | "letter";
+  reason?: "pdf" | "jobmatch" | "quota" | "letter" | "multi-cv";
 }
 
-const REASONS = {
+const REASONS: Record<"pdf" | "jobmatch" | "quota" | "letter" | "multi-cv", string> = {
   pdf: "Pour télécharger votre CV en PDF, passez à AuthenticV Pro.",
   jobmatch: "Pour optimiser votre CV pour une offre d'emploi, passez à AuthenticV Pro.",
   quota: "Vous avez atteint la limite de 20 messages gratuits ce mois-ci.",
   letter: "Pour générer une lettre de motivation personnalisée, passez à AuthenticV Pro.",
+  "multi-cv": "Pour créer plusieurs CVs et les adapter à chaque candidature, passez à AuthenticV Pro.",
 };
 
 const PRO_FEATURES = [
