@@ -32,9 +32,9 @@ export function Footer() {
         <div>
           <h4 className="text-white font-semibold mb-4">Légal</h4>
           <ul className="space-y-2">
-            <li><Link href="#" className="text-slate-400 hover:text-white text-sm transition-colors">Mentions légales</Link></li>
-            <li><Link href="#" className="text-slate-400 hover:text-white text-sm transition-colors">Politique de confidentialité</Link></li>
-            <li><Link href="#" className="text-slate-400 hover:text-white text-sm transition-colors">CGU</Link></li>
+            <li><Link href="/mentions-legales" className="text-slate-400 hover:text-white text-sm transition-colors">Mentions légales</Link></li>
+            <li><Link href="/confidentialite" className="text-slate-400 hover:text-white text-sm transition-colors">Politique de confidentialité</Link></li>
+            <li><Link href="/cgu" className="text-slate-400 hover:text-white text-sm transition-colors">CGU</Link></li>
           </ul>
         </div>
       </div>
