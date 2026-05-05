@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
+import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
   title: "Politique de confidentialité — AuthentiCV",
@@ -128,6 +129,7 @@ export default function ConfidentialitePage() {
           Dernière mise à jour : mai 2026
         </p>
       </main>
+      <Footer />
     </div>
   );
 }

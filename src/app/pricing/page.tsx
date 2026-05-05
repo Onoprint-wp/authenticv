@@ -1,6 +1,7 @@
 import { Check, X, FileText } from "lucide-react";
 import Link from "next/link";
 import { UpgradeButton } from "@/components/UpgradeButton";
+import { Footer } from "@/components/landing/Footer";
 
 const FREE_FEATURES = [
   { label: "1 CV", included: true },
@@ -118,6 +119,7 @@ export default function PricingPage() {
           Paiement sécurisé par Stripe · Résiliable à tout moment · TVA incluse
         </p>
       </div>
+      <Footer />
     </div>
   );
 }
