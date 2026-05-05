@@ -36,11 +36,11 @@ export default function ConfidentialitePage() {
 
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-white">2. Données collectées</h2>
-          <p className="text-sm leading-relaxed">Dans le cadre de l'utilisation du service, nous collectons :</p>
+          <p className="text-sm leading-relaxed">Dans le cadre de l&apos;utilisation du service, nous collectons :</p>
           <ul className="text-sm space-y-1.5 pl-4 list-disc list-inside">
             <li><strong className="text-slate-200">Données de compte :</strong> adresse e-mail, mot de passe (haché)</li>
             <li><strong className="text-slate-200">Données du CV :</strong> nom, prénom, téléphone, adresse, expériences, formations, compétences, photo de profil</li>
-            <li><strong className="text-slate-200">Données d'usage :</strong> score ATS, historique des modifications, vues du CV partagé</li>
+            <li><strong className="text-slate-200">Données d&apos;usage :</strong> score ATS, historique des modifications, vues du CV partagé</li>
             <li><strong className="text-slate-200">Données de paiement :</strong> gérées exclusivement par Stripe — AuthentiCV ne stocke pas vos coordonnées bancaires</li>
           </ul>
         </section>
@@ -49,8 +49,8 @@ export default function ConfidentialitePage() {
           <h2 className="text-lg font-semibold text-white">3. Finalités du traitement</h2>
           <ul className="text-sm space-y-1.5 pl-4 list-disc list-inside">
             <li>Fourniture du service de création et gestion de CV</li>
-            <li>Personnalisation par l'IA (coach Alex)</li>
-            <li>Gestion de l'abonnement Pro via Stripe</li>
+            <li>Personnalisation par l&apos;IA (coach Alex)</li>
+            <li>Gestion de l&apos;abonnement Pro via Stripe</li>
             <li>Envoi de notifications par e-mail (nudges, confirmations)</li>
             <li>Amélioration du service (scores ATS, benchmark sectoriel anonymisé)</li>
           </ul>
@@ -81,7 +81,7 @@ export default function ConfidentialitePage() {
                 <tr><td className="py-2 pr-4">Vercel</td><td className="py-2 pr-4">Hébergement</td><td className="py-2">États-Unis</td></tr>
                 <tr><td className="py-2 pr-4">Stripe</td><td className="py-2 pr-4">Paiement</td><td className="py-2">États-Unis</td></tr>
                 <tr><td className="py-2 pr-4">Anthropic</td><td className="py-2 pr-4">IA (coach Alex)</td><td className="py-2">États-Unis</td></tr>
-                <tr><td className="py-2 pr-4">Resend</td><td className="py-2 pr-4">Envoi d'e-mails</td><td className="py-2">États-Unis</td></tr>
+                <tr><td className="py-2 pr-4">Resend</td><td className="py-2 pr-4">Envoi d&apos;e-mails</td><td className="py-2">États-Unis</td></tr>
               </tbody>
             </table>
           </div>
@@ -121,7 +121,7 @@ export default function ConfidentialitePage() {
           <h2 className="text-lg font-semibold text-white">8. Cookies</h2>
           <p className="text-sm leading-relaxed">
             AuthentiCV utilise uniquement des cookies strictement nécessaires au fonctionnement du service
-            (session d'authentification Supabase, préférences locales). Aucun cookie publicitaire ou de tracking tiers n'est déposé.
+            (session d&apos;authentification Supabase, préférences locales). Aucun cookie publicitaire ou de tracking tiers n&apos;est déposé.
           </p>
         </section>
 
