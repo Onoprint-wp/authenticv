@@ -32,7 +32,7 @@ export default function MentionsLegalesPage() {
           </p>
           <ul className="text-sm space-y-1 pl-4 border-l border-slate-700">
             <li><span className="text-slate-500">Raison sociale :</span> ONOGRAPH</li>
-            <li><span className="text-slate-500">Forme juridique :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
+            <li><span className="text-slate-500">Forme juridique :</span> Régime simplifié</li>
             <li><span className="text-slate-500">Siège social :</span> Camp Sic Mendong (RF8G+86X), Yaoundé, Cameroun</li>
             <li><span className="text-slate-500">RCCM :</span> RC/YAO/2016/A/2987</li>
             <li><span className="text-slate-500">N° Contribuable :</span> P019212502709X</li>
