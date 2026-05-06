@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
-const DEFAULT_LETTER_MODEL = "claude-haiku-4-5";
+const DEFAULT_LETTER_MODEL = "claude-3-5-haiku-latest";
 
 const getLetterModel = () => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });

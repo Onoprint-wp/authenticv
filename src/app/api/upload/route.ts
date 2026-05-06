@@ -6,7 +6,7 @@ import { z } from "zod";
 import { uploadRateLimit } from "@/lib/rate-limit";
 
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
-const DEFAULT_UPLOAD_MODEL = "claude-haiku-4-5";
+const DEFAULT_UPLOAD_MODEL = "claude-3-5-haiku-latest";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
