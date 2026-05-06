@@ -34,7 +34,8 @@ export default function MentionsLegalesPage() {
             <li><span className="text-slate-500">Raison sociale :</span> ONOGRAPH</li>
             <li><span className="text-slate-500">Forme juridique :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
             <li><span className="text-slate-500">Siège social :</span> Camp Sic Mendong (RF8G+86X), Yaoundé, Cameroun</li>
-            <li><span className="text-slate-500">RCCM :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
+            <li><span className="text-slate-500">RCCM :</span> RC/YAO/2016/A/2987</li>
+            <li><span className="text-slate-500">N° Contribuable :</span> P019212502709X</li>
             <li><span className="text-slate-500">Téléphone :</span> +237 6 70 72 80 87</li>
             <li><span className="text-slate-500">Email :</span> <a href="mailto:info@onograph.online" className="text-indigo-400 underline">info@onograph.online</a></li>
             <li><span className="text-slate-500">Site :</span> <a href="https://www.onograph.online" className="text-indigo-400 underline">www.onograph.online</a></li>
