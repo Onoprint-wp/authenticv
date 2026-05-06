@@ -29,7 +29,7 @@ export default function CguPage() {
           <p className="text-sm leading-relaxed">
             Les présentes Conditions Générales d&apos;Utilisation (CGU) régissent l&apos;accès et l&apos;utilisation du service AuthentiCV,
             plateforme de création de CV assistée par intelligence artificielle, accessible à l&apos;adresse{" "}
-            <a href="https://authenticv.vercel.app" className="text-indigo-400 underline">authenticv.vercel.app</a>.
+            <a href="https://www.authenticv.app" className="text-indigo-400 underline">www.authenticv.app</a>.
           </p>
         </section>
 
@@ -91,7 +91,7 @@ export default function CguPage() {
           <p className="text-sm leading-relaxed">
             Conformément à l&apos;article L.221-18 du Code de la consommation, l&apos;utilisateur dispose d&apos;un délai de 14 jours
             pour se rétracter à compter de la souscription à l&apos;offre Pro, à condition de ne pas avoir utilisé le service.
-            Pour exercer ce droit : <a href="mailto:contact@authenticv.fr" className="text-indigo-400 underline">contact@authenticv.fr</a>.
+            Pour exercer ce droit : <a href="mailto:info@onograph.online" className="text-indigo-400 underline">info@onograph.online</a>.
           </p>
         </section>
 

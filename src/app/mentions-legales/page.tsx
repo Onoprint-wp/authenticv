@@ -27,15 +27,17 @@ export default function MentionsLegalesPage() {
           <h2 className="text-lg font-semibold text-white">1. Éditeur du site</h2>
           <p className="text-sm leading-relaxed">
             Le site <strong>AuthentiCV</strong> (accessible à l&apos;adresse{" "}
-            <a href="https://authenticv.vercel.app" className="text-indigo-400 underline">authenticv.vercel.app</a>)
+            <a href="https://www.authenticv.app" className="text-indigo-400 underline">www.authenticv.app</a>)
             est édité par :
           </p>
           <ul className="text-sm space-y-1 pl-4 border-l border-slate-700">
-            <li><span className="text-slate-500">Raison sociale :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
+            <li><span className="text-slate-500">Raison sociale :</span> ONOGRAPH</li>
             <li><span className="text-slate-500">Forme juridique :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
-            <li><span className="text-slate-500">Siège social :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
-            <li><span className="text-slate-500">SIRET :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
-            <li><span className="text-slate-500">Email :</span> contact@authenticv.fr</li>
+            <li><span className="text-slate-500">Siège social :</span> Camp Sic Mendong (RF8G+86X), Yaoundé, Cameroun</li>
+            <li><span className="text-slate-500">RCCM :</span> <span className="text-amber-400">[À COMPLÉTER]</span></li>
+            <li><span className="text-slate-500">Téléphone :</span> +237 6 70 72 80 87</li>
+            <li><span className="text-slate-500">Email :</span> <a href="mailto:info@onograph.online" className="text-indigo-400 underline">info@onograph.online</a></li>
+            <li><span className="text-slate-500">Site :</span> <a href="https://www.onograph.online" className="text-indigo-400 underline">www.onograph.online</a></li>
           </ul>
         </section>
 

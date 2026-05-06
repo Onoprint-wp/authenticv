@@ -29,8 +29,9 @@ export default function ConfidentialitePage() {
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-white">1. Responsable du traitement</h2>
           <p className="text-sm leading-relaxed">
-            Le responsable du traitement des données personnelles collectées via AuthentiCV est :{" "}
-            <span className="text-amber-400">[À COMPLÉTER — Raison sociale, adresse, email]</span>.
+            Le responsable du traitement des données personnelles collectées via AuthentiCV est{" "}
+            <strong className="text-slate-200">ONOGRAPH</strong>, Camp Sic Mendong (RF8G+86X), Yaoundé, Cameroun —{" "}
+            <a href="mailto:info@onograph.online" className="text-indigo-400 underline">info@onograph.online</a>.
           </p>
         </section>
 
@@ -112,7 +113,7 @@ export default function ConfidentialitePage() {
             <li><strong className="text-slate-200">Opposition</strong> — désactiver les e-mails de relance depuis votre compte</li>
           </ul>
           <p className="text-sm leading-relaxed">
-            Pour exercer vos droits : <a href="mailto:contact@authenticv.fr" className="text-indigo-400 underline">contact@authenticv.fr</a>.
+            Pour exercer vos droits : <a href="mailto:info@onograph.online" className="text-indigo-400 underline">info@onograph.online</a>.
             En cas de litige, vous pouvez saisir la <a href="https://www.cnil.fr" className="text-indigo-400 underline">CNIL</a>.
           </p>
         </section>
