@@ -46,12 +46,14 @@ export function HeroSection() {
                 Générer mon CV
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link 
-                href="#comment-ca-marche" 
-                className="flex items-center justify-center gap-2 bg-slate-900/50 text-white border border-slate-700 font-medium px-8 py-4 rounded-xl hover:bg-slate-800 transition-colors duration-300"
+              <button 
+                onClick={() => {
+                  document.getElementById('comment-ca-marche')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center justify-center gap-2 bg-slate-900/50 text-white border border-slate-700 font-medium px-8 py-4 rounded-xl hover:bg-slate-800 transition-colors duration-300 cursor-pointer"
               >
                 Voir comment ça marche
-              </Link>
+              </button>
             </div>
 
             <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-400">
