@@ -13,7 +13,7 @@ export const maxDuration = 120;
 // ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
-const DEFAULT_MODEL = "claude-3-5-sonnet-latest";
+const DEFAULT_MODEL = "claude-sonnet-4-6";
 
 const getAnthropicModel = () => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });

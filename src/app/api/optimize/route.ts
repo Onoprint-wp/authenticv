@@ -13,7 +13,7 @@ export const maxDuration = 60;
 // ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
-const DEFAULT_OPTIMIZE_MODEL = "claude-3-5-haiku-latest";
+const DEFAULT_OPTIMIZE_MODEL = "claude-haiku-4-5";
 
 const getOptimizeModel = () => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });
