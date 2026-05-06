@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export const runtime = "nodejs";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://authenticv.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.authenticv.app";
 const FROM = process.env.RESEND_FROM_EMAIL ?? "alex@authenticv.com";
 
 async function sendWelcomeEmail(email: string) {

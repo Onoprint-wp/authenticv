@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://authenticv.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.authenticv.app";
 
 interface Props {
   params: Promise<{ slug: string }>;

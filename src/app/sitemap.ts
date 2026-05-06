@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/utils/supabase/admin";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://authenticv.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.authenticv.app";
 
 export const dynamic = "force-dynamic";
 
