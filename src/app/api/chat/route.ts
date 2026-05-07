@@ -162,17 +162,20 @@ const buildSystemPrompt = (
 };
 
 const extractText = (message: any) => {
-  if (typeof message.content === "string") return message.content;
+  // AI SDK v6 UIMessage: content="" (compat) + parts[].text (actual content)
+  // Must check parts[] FIRST — content is always "" in v6 format
   if (Array.isArray(message.parts)) {
-    return message.parts
+    const fromParts = message.parts
       .filter((part: any) => part.type === "text")
-      .map((part: any) => part.text)
+      .map((part: any) => part.text ?? "")
       .join("\n");
+    if (fromParts.trim()) return fromParts;
   }
+  if (typeof message.content === "string" && message.content.trim()) return message.content;
   if (Array.isArray(message.content)) {
     return message.content
       .filter((part: any) => part.type === "text")
-      .map((part: any) => part.text)
+      .map((part: any) => part.text ?? "")
       .join("\n");
   }
   return "";
