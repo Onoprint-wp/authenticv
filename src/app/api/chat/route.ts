@@ -252,9 +252,7 @@ export async function POST(req: Request) {
     const headerMode = req.headers.get("X-Chat-Mode");
     const mode: "coach" | "interview" = headerMode === "interview" ? "interview" : "coach";
 
-    // Tronquer l'historique à 12 derniers messages pour garder une meilleure mémoire de conversation
-    // tout en contrôlant les coûts en tokens.
-    const MAX_HISTORY = 12;
+    const MAX_HISTORY = 20;
     const coreMessages = (messages as any[])
       .filter((m) => m.role === "user" || m.role === "assistant")
       .map((m) => ({

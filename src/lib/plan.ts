@@ -30,12 +30,15 @@ export async function getMonthlyMessageCount(userId: string): Promise<number> {
   return data?.count ?? 0;
 }
 
-/** Incrémente le compteur de messages du mois courant. */
+/** Incrémente le compteur de messages du mois courant. Non-bloquant : une erreur ne casse pas le chat. */
 export async function incrementMessageCount(userId: string): Promise<void> {
   const month = new Date().toISOString().slice(0, 7);
   const supabase = await createClient();
-  await supabase.rpc("increment_message_usage", {
+  const { error } = await supabase.rpc("increment_message_usage", {
     p_user_id: userId,
     p_month: month,
   });
+  if (error) {
+    console.error("[quota] RPC increment_message_usage failed:", error.message);
+  }
 }

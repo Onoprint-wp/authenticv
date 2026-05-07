@@ -203,25 +203,28 @@ export const ChatPanel = forwardRef<
         )}
 
         {error && (() => {
-          // Parse error details from the API response
-          const errorMessage = error.message || "";
-          const isAuthError = errorMessage.includes("auth_error") || errorMessage.includes("502");
-          const isRateLimit = errorMessage.includes("rate_limit") || errorMessage.includes("429");
-          const isModelError = errorMessage.includes("model_error");
-          const isTimeout = errorMessage.includes("timeout") || errorMessage.includes("504");
-          
+          // error.message from AI SDK v6 may contain the JSON body or the HTTP status string
+          const errorMessage = (error.message || "") + (error.cause ? String(error.cause) : "");
+          const isAuthError   = errorMessage.includes("auth_error") || errorMessage.includes("401") || errorMessage.includes("502");
+          const isRateLimit   = errorMessage.includes("Too Many") || errorMessage.includes("rate_limit") || errorMessage.includes("429");
+          const isQuota       = errorMessage.includes("quota_exceeded") || errorMessage.includes("402");
+          const isModelError  = errorMessage.includes("model_error") || errorMessage.includes("model");
+          const isTimeout     = errorMessage.includes("timeout") || errorMessage.includes("504") || errorMessage.includes("ECONNREFUSED");
+
           const getErrorText = () => {
             if (coachLanguage === "en") {
-              if (isAuthError) return "AI service authentication error. Please try again or contact support.";
-              if (isRateLimit) return "Too many requests. Please wait a few seconds and try again.";
+              if (isQuota)      return "You've reached your monthly free message limit. Upgrade to Pro to continue.";
+              if (isAuthError)  return "AI service authentication error. Please try again or contact support.";
+              if (isRateLimit)  return "Too many requests. Please wait a few seconds and try again.";
               if (isModelError) return "The AI model is temporarily unavailable. Please retry shortly.";
-              if (isTimeout) return "The AI service is taking too long to respond. Please retry.";
+              if (isTimeout)    return "The AI service is taking too long to respond. Please retry.";
               return "A network error occurred. Please try again.";
             }
-            if (isAuthError) return "Erreur d'authentification avec le service IA. Réessayez ou contactez le support.";
-            if (isRateLimit) return "Trop de requêtes. Patientez quelques secondes et réessayez.";
+            if (isQuota)      return "Vous avez atteint votre limite mensuelle de messages gratuits. Passez à Pro pour continuer.";
+            if (isAuthError)  return "Erreur d'authentification avec le service IA. Réessayez ou contactez le support.";
+            if (isRateLimit)  return "Trop de requêtes. Patientez quelques secondes et réessayez.";
             if (isModelError) return "Le modèle IA est temporairement indisponible. Réessayez dans quelques instants.";
-            if (isTimeout) return "Le service IA met trop de temps à répondre. Réessayez.";
+            if (isTimeout)    return "Le service IA met trop de temps à répondre. Réessayez.";
             return "Une erreur réseau est survenue. Veuillez réessayer.";
           };
 

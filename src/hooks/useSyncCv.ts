@@ -43,7 +43,6 @@ export function useSyncCv() {
           if (data.content && Object.keys(data.content).length > 0) {
             isSavingFromServer.current = true;
             setCvData(data.content);
-            setTimeout(() => { isSavingFromServer.current = false; }, 100);
           }
         } else {
           const createResponse = await fetch("/api/resumes", {
@@ -72,6 +71,7 @@ export function useSyncCv() {
   // ── Switch: load a specific CV by ID ─────────────────────────────
   const switchResume = useCallback(async (id: string) => {
     try {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
       isSavingFromServer.current = true;
       const res = await fetch(`/api/resumes/${id}`);
       if (!res.ok) { isSavingFromServer.current = false; return; }
@@ -83,7 +83,6 @@ export function useSyncCv() {
       } else {
         clearCv();
       }
-      setTimeout(() => { isSavingFromServer.current = false; }, 100);
     } catch (e) {
       console.error("[Sync] switchResume error:", e);
       isSavingFromServer.current = false;
@@ -100,7 +99,6 @@ export function useSyncCv() {
       if (data && data.content) {
         isSavingFromServer.current = true;
         setCvData(data.content);
-        setTimeout(() => { isSavingFromServer.current = false; }, 100);
       }
     } catch (e) {
       console.error("[Sync] Refetch error:", e);
@@ -131,7 +129,10 @@ export function useSyncCv() {
   useEffect(() => {
     if (!isHydrated) return;
     if (isFirstRender.current) { isFirstRender.current = false; return; }
-    if (isSavingFromServer.current) return;
+    if (isSavingFromServer.current) {
+      isSavingFromServer.current = false;
+      return;
+    }
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     setSyncStatus("saving");
