@@ -114,7 +114,7 @@ export function useSyncCv() {
       const response = await fetch("/api/resumes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: cvData }),
+        body: JSON.stringify({ content: cvData, id: resumeIdRef.current }),
       });
       if (response.status === 401) { window.location.href = "/login"; return; }
       if (!response.ok) throw new Error(`Failed to save resume: ${response.status}`);

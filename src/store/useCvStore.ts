@@ -184,18 +184,19 @@ export const useCvStore = create<CvStore>((set) => ({
   setLastAiUpdateTs: () => set({ lastAiUpdateTs: Date.now() }),
   setHasSeenOnboarding: () => set({ hasSeenOnboarding: true }),
   setCoverLetterText: (text) => set({ coverLetterText: text }),
-  setCvData: (data) => set({ 
+  setCvData: (data) => set({
     cvData: {
       ...defaultCvData,
       ...data,
       personalInfo: { ...defaultCvData.personalInfo, ...(data.personalInfo || {}) },
+      designSettings: { ...DEFAULT_DESIGN_SETTINGS, ...(data.designSettings || {}) },
       experiences: data.experiences || [],
       education: data.education || [],
       skills: data.skills || [],
       languages: data.languages || [],
       certifications: data.certifications || [],
       projects: data.projects || [],
-    } 
+    }
   }),
 
   saveCheckpoint: () =>

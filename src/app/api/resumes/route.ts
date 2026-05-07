@@ -46,18 +46,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { content } = await req.json();
+    const { content, id: targetId } = await req.json();
 
-    const { data: resumes, error: fetchError } = await supabase
-      .from("resumes")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("updated_at", { ascending: false })
-      .limit(1);
-
-    if (fetchError) throw fetchError;
-
-    const resume = resumes && resumes.length > 0 ? resumes[0] : null;
+    let resume;
+    if (targetId) {
+      const { data, error } = await supabase
+        .from("resumes")
+        .select("*")
+        .eq("id", targetId)
+        .eq("user_id", user.id)
+        .single();
+      if (error || !data) return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+      resume = data;
+    } else {
+      const { data: resumes, error: fetchError } = await supabase
+        .from("resumes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+      if (fetchError) throw fetchError;
+      resume = resumes && resumes.length > 0 ? resumes[0] : null;
+    }
 
     let response;
     if (resume) {
@@ -96,6 +106,7 @@ export async function POST(req: Request) {
           await supabase
             .from("resumes")
             .update({ ats_score: newScore, sector: newSector })
+            .eq("id", response.id)
             .eq("user_id", user.id);
 
           const { data: lastEntry } = await supabase
