@@ -15,7 +15,7 @@ import { VersionHistoryPanel } from "@/components/VersionHistoryPanel";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
-  FileText, LogOut, Sparkles, Briefcase, Download,
+  FileText, LogOut, Sparkles, Briefcase, Download, Loader2,
   Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X, GraduationCap, BarChart2,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
@@ -53,6 +53,8 @@ export default function BuilderPage() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" | "multi-cv" }>({ open: false, reason: "pdf" });
   const [showUpgradeToast, setShowUpgradeToast] = useState(false);
+  const [isPdfDownloading, setIsPdfDownloading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const handleUpgraded = useCallback(() => {
     setShowUpgradeToast(true);
@@ -85,7 +87,11 @@ export default function BuilderPage() {
   };
 
   const handleDownloadPdf = async () => {
+    if (plan.loading) return;
     if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
+
+    setIsPdfDownloading(true);
+    setPdfError(null);
 
     try {
       const [{ pdf }, { CvDocument }] = await Promise.all([
@@ -133,10 +139,17 @@ export default function BuilderPage() {
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
+      // Append to DOM so all browsers trigger the download
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      // Delay revoke so the browser has time to start the download
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
     } catch (err) {
       console.error("[PDF Download Error]:", err);
+      setPdfError("Impossible de générer le PDF. Veuillez réessayer.");
+    } finally {
+      setIsPdfDownloading(false);
     }
   };
 
@@ -335,10 +348,13 @@ export default function BuilderPage() {
                 </div>
                 <button
                   onClick={handleDownloadPdf}
-                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+                  disabled={isPdfDownloading || plan.loading}
+                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden lg:inline">{plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}</span>
+                  {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                  <span className="hidden lg:inline">
+                    {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -413,10 +429,11 @@ export default function BuilderPage() {
                 </div>
                 <button
                   onClick={handleDownloadPdf}
-                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md transition-all active:scale-95"
+                  disabled={isPdfDownloading || plan.loading}
+                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all active:scale-95"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  {plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                  {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                  {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
                 </button>
               </div>
               <div className="flex-1 overflow-hidden">
@@ -509,6 +526,23 @@ export default function BuilderPage() {
         onClose={() => setUpgradeModal((p) => ({ ...p, open: false }))}
         reason={upgradeModal.reason}
       />
+
+      {/* ── PDF Error Toast ── */}
+      {pdfError && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <div className="flex items-center gap-3 bg-red-950/90 border border-red-700/50 backdrop-blur-sm
+            text-red-200 px-5 py-3.5 rounded-xl shadow-2xl shadow-red-900/40">
+            <X className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <p className="text-sm">{pdfError}</p>
+            <button
+              onClick={() => setPdfError(null)}
+              className="text-red-500 hover:text-red-200 transition-colors ml-2"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Upgrade Success Toast ── */}
       {showUpgradeToast && (
