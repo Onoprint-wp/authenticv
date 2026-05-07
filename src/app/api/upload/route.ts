@@ -4,6 +4,15 @@ import { generateText, Output } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { uploadRateLimit } from "@/lib/rate-limit";
+// Lazy-loaded avec cache — évite le chargement au build (canvas/DOMMatrix non dispo)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _pdfParse: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _mammoth: any = null;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const getPdfParse = () => _pdfParse ?? (_pdfParse = require("pdf-parse"));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const getMammoth = () => _mammoth ?? (_mammoth = require("mammoth"));
 
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 const DEFAULT_UPLOAD_MODEL = "claude-haiku-4-5";
@@ -73,16 +82,12 @@ const CvDataSchema = z.object({
 // ─── Extracteurs de texte ─────────────────────────────────────────────────────
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse = require("pdf-parse");
-  const data = await pdfParse(buffer);
+  const data = await getPdfParse()(buffer);
   return data.text;
 }
 
 async function extractTextFromDocx(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const mammoth = require("mammoth");
-  const result = await mammoth.extractRawText({ buffer });
+  const result = await getMammoth().extractRawText({ buffer });
   return result.value;
 }
 
@@ -162,8 +167,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // 40 000 chars ≈ 10K tokens — covers up to ~10-page CVs within Haiku's 200K context
-  const truncatedText = rawText.slice(0, 40000);
+  // 12 000 chars couvre un CV de 3-4 pages (~3K tokens) — équilibre vitesse/complétude
+  const truncatedText = rawText.slice(0, 12000);
 
   // Demander au LLM de structurer le texte en JSON CV
   try {
