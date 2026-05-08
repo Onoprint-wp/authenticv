@@ -10,6 +10,10 @@ export function UpgradeButton({ className }: { className?: string }) {
     setLoading(true);
     try {
       const res = await fetch("/api/campay/checkout", { method: "POST" });
+      if (res.status === 401) {
+        window.location.href = "/login?next=/tarifs";
+        return;
+      }
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else setLoading(false);
