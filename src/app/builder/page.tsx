@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { usePlan } from "@/hooks/usePlan";
+import { posthog } from "@/lib/posthog";
 import { ChatPanel, type ChatPanelHandle } from "@/components/ChatPanel";
 import { DynamicPdfViewer } from "@/components/pdf/DynamicPdfViewer";
 import { SyncIndicator } from "@/components/SyncIndicator";
@@ -30,12 +31,16 @@ import { CvSwitcher } from "@/components/CvSwitcher";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
-/** Detects ?upgraded=true and triggers callback — must be inside <Suspense> */
+/** Detects ?upgraded=true / ?signup=true and triggers callbacks — must be inside <Suspense> */
 function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
   const searchParams = useSearchParams();
   useEffect(() => {
     if (searchParams.get("upgraded") === "true") {
       onUpgraded();
+      window.history.replaceState({}, "", "/builder");
+    }
+    if (searchParams.get("signup") === "true") {
+      posthog.capture("signup_completed");
       window.history.replaceState({}, "", "/builder");
     }
   }, [searchParams, onUpgraded]);
@@ -57,6 +62,7 @@ export default function BuilderPage() {
   const [pdfError, setPdfError] = useState<string | null>(null);
 
   const handleUpgraded = useCallback(() => {
+    posthog.capture("subscribed_pro");
     setShowUpgradeToast(true);
     const timer = setTimeout(() => setShowUpgradeToast(false), 5000);
     return () => clearTimeout(timer);
@@ -82,6 +88,7 @@ export default function BuilderPage() {
   };
 
   const handleToolFinish = () => {
+    posthog.capture("cv_generated");
     refetch();
     setLastAiUpdateTs();
   };
@@ -145,6 +152,7 @@ export default function BuilderPage() {
       document.body.removeChild(a);
       // Delay revoke so the browser has time to start the download
       setTimeout(() => URL.revokeObjectURL(url), 2000);
+      posthog.capture("pdf_exported", { file_name: fileName });
     } catch (err) {
       console.error("[PDF Download Error]:", err);
       setPdfError("Impossible de générer le PDF. Veuillez réessayer.");

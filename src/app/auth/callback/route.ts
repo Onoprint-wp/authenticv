@@ -106,6 +106,9 @@ export async function GET(request: Request) {
       // Envoyer l'email de bienvenue uniquement pour les nouvelles inscriptions
       if (type === "signup" && data.user?.email) {
         void sendWelcomeEmail(data.user.email);
+        const signupUrl = new URL(`${origin}${next}`);
+        signupUrl.searchParams.set("signup", "true");
+        return NextResponse.redirect(signupUrl.toString());
       }
       return NextResponse.redirect(`${origin}${next}`);
     }

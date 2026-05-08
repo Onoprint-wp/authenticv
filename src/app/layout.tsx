@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { CookieBanner } from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from "@/components/PostHogProvider";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "";
 
@@ -99,7 +100,9 @@ export default function RootLayout({
             />
           </noscript>
         )}
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
         <CookieBanner />
         <Analytics />
       </body>
