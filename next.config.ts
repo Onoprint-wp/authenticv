@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         destination: `https://${PROD_DOMAIN}/:path*`,
         permanent: true,
       },
+      // Redirect /pricing → /tarifs (canonical FR URL)
+      {
+        source: "/pricing",
+        destination: "/tarifs",
+        permanent: true,
+      },
     ];
   },
 };
