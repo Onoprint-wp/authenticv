@@ -15,11 +15,11 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
-          {/* Text Content */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
+          {/* Text Content — opacity:1 dès le rendu initial pour ne pas bloquer le LCP */}
+          <motion.div
+            initial={{ opacity: 1, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
             className="text-center lg:text-left"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium mb-6">
