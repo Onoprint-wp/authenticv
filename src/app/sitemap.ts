@@ -8,9 +8,12 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques publiques
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: SITE_URL, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    { url: `${SITE_URL}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${SITE_URL}/login`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.5 },
+    { url: SITE_URL,                       lastModified: new Date(), changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${SITE_URL}/pricing`,          lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/login`,            lastModified: new Date(), changeFrequency: "yearly",  priority: 0.4 },
+    { url: `${SITE_URL}/cgu`,              lastModified: new Date(), changeFrequency: "yearly",  priority: 0.2 },
+    { url: `${SITE_URL}/confidentialite`,  lastModified: new Date(), changeFrequency: "yearly",  priority: 0.2 },
+    { url: `${SITE_URL}/mentions-legales`, lastModified: new Date(), changeFrequency: "yearly",  priority: 0.2 },
   ];
 
   // CVs publics indexables
