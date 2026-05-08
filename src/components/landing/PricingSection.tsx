@@ -64,10 +64,11 @@ export function PricingSection() {
           >
             <div className="mb-6">
               <p className="text-sm font-medium text-slate-400 mb-1">Gratuit</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-white">0€</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold text-white">0 €</span>
                 <span className="text-slate-500 text-sm">/mois</span>
               </div>
+              <p className="text-xs text-slate-600 mt-1">Sans carte bancaire</p>
             </div>
 
             <ul className="space-y-3 flex-1 mb-8">
@@ -86,7 +87,7 @@ export function PricingSection() {
             </ul>
 
             <Link
-              href="/login"
+              href="/builder"
               className="w-full flex items-center justify-center py-3 border border-slate-600
                 text-slate-300 hover:text-white hover:border-slate-400 text-sm font-medium
                 rounded-xl transition-all"
@@ -111,10 +112,11 @@ export function PricingSection() {
 
             <div className="mb-6">
               <p className="text-sm font-medium text-indigo-400 mb-1">Pro</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-white">9€</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold text-white">9 €</span>
                 <span className="text-slate-400 text-sm">/mois · sans engagement</span>
               </div>
+              <p className="text-xs text-slate-500 mt-1">≈ 5 900 FCFA · Résiliable à tout moment</p>
             </div>
 
             <ul className="space-y-3 flex-1 mb-8">
@@ -131,7 +133,7 @@ export function PricingSection() {
         </div>
 
         <p className="text-center mt-8 text-xs text-slate-600">
-          Paiement sécurisé par Stripe · Résiliable à tout moment · TVA incluse
+          Paiement sécurisé · Carte bancaire &amp; Mobile Money (MTN / Orange) · Résiliable en un clic
         </p>
       </div>
     </section>

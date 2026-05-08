@@ -7,26 +7,12 @@ import Link from "next/link";
 
 interface Props {
   isPro?: boolean;
-  hasStripeCustomer?: boolean;
+  hasSubscription?: boolean;
   deleteOnly?: boolean;
 }
 
-export function AccountActions({ isPro, hasStripeCustomer, deleteOnly }: Props) {
+export function AccountActions({ isPro, hasSubscription, deleteOnly }: Props) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [portalLoading, setPortalLoading] = useState(false);
-
-  const openPortal = async () => {
-    setPortalLoading(true);
-    try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch {
-      // silent
-    } finally {
-      setPortalLoading(false);
-    }
-  };
 
   // Danger zone only — delete button
   if (deleteOnly) {
@@ -51,19 +37,15 @@ export function AccountActions({ isPro, hasStripeCustomer, deleteOnly }: Props) 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
       {isPro ? (
-        // Pro user — manage subscription
-        <button
-          onClick={openPortal}
-          disabled={portalLoading}
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium
-            border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500
-            rounded-xl transition-all disabled:opacity-50 disabled:cursor-wait"
-        >
+        // Pro user — info (CamPay doesn't have a customer portal)
+        <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium
+          border border-indigo-700/40 text-indigo-300 bg-indigo-950/30
+          rounded-xl">
           <ExternalLink className="w-4 h-4" />
-          {portalLoading ? "Chargement..." : "Gérer mon abonnement"}
-        </button>
+          Abonnement actif via Mobile Money
+        </div>
       ) : (
-        // Free user — upgrade or manage
+        // Free user — upgrade
         <>
           <Link
             href="/pricing"
@@ -72,19 +54,14 @@ export function AccountActions({ isPro, hasStripeCustomer, deleteOnly }: Props) 
               shadow-lg shadow-indigo-600/20 active:scale-95"
           >
             <Zap className="w-4 h-4" />
-            Passer à Pro — 9 €/mois
+            Passer à Pro — 5 000 FCFA/mois
           </Link>
-          {hasStripeCustomer && (
-            <button
-              onClick={openPortal}
-              disabled={portalLoading}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium
-                border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500
-                rounded-xl transition-all disabled:opacity-50 disabled:cursor-wait"
-            >
+          {hasSubscription && (
+            <div className="flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium
+              border border-slate-700 text-slate-400 rounded-xl">
               <ExternalLink className="w-4 h-4" />
-              {portalLoading ? "..." : "Factures"}
-            </button>
+              Abonnement expiré
+            </div>
           )}
         </>
       )}

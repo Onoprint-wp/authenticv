@@ -11,7 +11,7 @@ interface UpgradeModalProps {
 
 const REASONS: Record<"pdf" | "jobmatch" | "quota" | "letter" | "multi-cv", string> = {
   pdf: "Pour télécharger votre CV en PDF, passez à AuthenticV Pro.",
-  jobmatch: "Pour optimiser votre CV pour une offre d'emploi, passez à AuthenticV Pro.",
+  jobmatch: "Pour optimiser votre CV pour une offre d\u2019emploi, passez à AuthenticV Pro.",
   quota: "Vous avez atteint la limite de 20 messages gratuits ce mois-ci.",
   letter: "Pour générer une lettre de motivation personnalisée, passez à AuthenticV Pro.",
   "multi-cv": "Pour créer plusieurs CVs et les adapter à chaque candidature, passez à AuthenticV Pro.",
@@ -31,7 +31,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      const res = await fetch("/api/campay/checkout", { method: "POST" });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
     } catch {
@@ -84,7 +84,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
           {/* Price + CTA */}
           <div className="px-6 pb-6 space-y-3">
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold text-white">9€</span>
+              <span className="text-3xl font-bold text-white">5 000 FCFA</span>
               <span className="text-sm text-slate-500">/mois · sans engagement</span>
             </div>
             <button
@@ -101,7 +101,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               )}
             </button>
             <p className="text-center text-xs text-slate-600">
-              Paiement sécurisé par Stripe · Résiliable à tout moment
+              Paiement sécurisé par Mobile Money (MTN / Orange) · Résiliable à tout moment
             </p>
           </div>
         </div>

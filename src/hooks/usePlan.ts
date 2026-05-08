@@ -22,7 +22,7 @@ export function usePlan(): PlanInfo {
   const [info, setInfo] = useState<PlanInfo>(DEFAULT);
 
   useEffect(() => {
-    fetch("/api/stripe/plan")
+    fetch("/api/campay/plan")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) setInfo({ ...data, loading: false });

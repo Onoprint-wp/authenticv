@@ -21,14 +21,11 @@ const CAMPAY_APP_USERNAME = process.env.CAMPAY_APP_USERNAME ?? "";
 const CAMPAY_APP_PASSWORD = process.env.CAMPAY_APP_PASSWORD ?? "";
 const CAMPAY_PERMANENT_TOKEN = process.env.CAMPAY_PERMANENT_TOKEN ?? "";
 export const CAMPAY_WEBHOOK_SECRET = process.env.CAMPAY_WEBHOOK_SECRET ?? "";
-const CAMPAY_API_BASE = process.env.CAMPAY_API_BASE ?? "https://demo.campay.net/api";
+const CAMPAY_API_BASE = process.env.CAMPAY_API_BASE ?? "https://campay.net/api";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-/** AuthenticV Pro price in XAF (FCFA).
- *  ⚠️ SANDBOX: temporairement à 25 XAF (limite sandbox CamPay).
- *  Remettre à 5000 avant passage en production.
- */
-export const PRO_PRICE_XAF = 25;
+/** AuthenticV Pro price in XAF (FCFA). */
+export const PRO_PRICE_XAF = 5000;
 
 // ── Token management ────────────────────────────────────────────────────────────
 

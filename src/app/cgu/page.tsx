@@ -75,13 +75,13 @@ export default function CguPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
-                <tr><td className="py-2 pr-4">Gratuit</td><td className="py-2 pr-4">0 €/mois</td><td className="py-2">Aucun</td></tr>
-                <tr><td className="py-2 pr-4">Pro</td><td className="py-2 pr-4">9 €/mois TTC</td><td className="py-2">Sans engagement — résiliable à tout moment</td></tr>
+                <tr><td className="py-2 pr-4">Gratuit</td><td className="py-2 pr-4">0 FCFA/mois</td><td className="py-2">Aucun</td></tr>
+                <tr><td className="py-2 pr-4">Pro</td><td className="py-2 pr-4">5 000 FCFA/mois</td><td className="py-2">Sans engagement — résiliable à tout moment</td></tr>
               </tbody>
             </table>
           </div>
           <p className="text-sm leading-relaxed">
-            Le paiement est traité par Stripe. L&apos;abonnement Pro est renouvelé automatiquement chaque mois.
+            Le paiement est traité par CamPay (Mobile Money — MTN MoMo ou Orange Money). L&apos;abonnement Pro est valable 30 jours à compter du paiement.
             La résiliation prend effet à la fin de la période en cours.
           </p>
         </section>

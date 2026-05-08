@@ -22,7 +22,7 @@ export default async function AccountPage() {
   // Get subscription details
   const { data: sub } = await supabase
     .from("user_subscriptions")
-    .select("status, stripe_customer_id, updated_at")
+    .select("status, campay_reference, updated_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -131,11 +131,11 @@ export default async function AccountPage() {
                 </div>
                 {isPro ? (
                   <span className="text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-700/40 px-3 py-1 rounded-full font-medium">
-                    9 €/mois
+                    5 000 FCFA/mois
                   </span>
                 ) : (
                   <span className="text-xs text-slate-500 bg-slate-800/60 border border-slate-700 px-3 py-1 rounded-full">
-                    0 €/mois
+                    0 FCFA/mois
                   </span>
                 )}
               </div>
@@ -161,7 +161,7 @@ export default async function AccountPage() {
               </div>
 
               {/* Action buttons */}
-              <AccountActions isPro={isPro} hasStripeCustomer={!!sub?.stripe_customer_id} />
+              <AccountActions isPro={isPro} hasSubscription={!!sub?.campay_reference} />
             </div>
           </section>
 

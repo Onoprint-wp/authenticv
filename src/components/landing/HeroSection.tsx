@@ -27,28 +27,31 @@ export function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
               </span>
-              L{"'"}IA génératrice de CV
+              Générateur de CV par IA conversationnelle
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
-              Créez un CV qui vous ressemble, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">sans effort.</span>
+              Créez votre CV avec l{"'"}IA —{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                Authentique, pas robotique.
+              </span>
             </h1>
-            
+
             <p className="text-lg md:text-xl text-slate-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Répondez simplement à notre IA conversationnelle. Elle extrait vos meilleures expériences et génère un CV optimisé pour décrocher votre prochain entretien.
+              Alex, votre coach IA, vous guide question par question pour extraire vos meilleures expériences et construire un CV ATS-optimisé qui vous ressemble — pas un copié-collé de ChatGPT.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-              <Link 
-                href="/login" 
+              <Link
+                href="/builder"
                 className="group flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold px-8 py-4 rounded-xl hover:bg-slate-100 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(255,255,255,0.2)]"
               >
-                Générer mon CV
+                Créer mon CV gratuitement
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button 
+              <button
                 onClick={() => {
-                  document.getElementById('comment-ca-marche')?.scrollIntoView({ behavior: 'smooth' });
+                  document.getElementById("comment-ca-marche")?.scrollIntoView({ behavior: "smooth" });
                 }}
                 className="flex items-center justify-center gap-2 bg-slate-900/50 text-white border border-slate-700 font-medium px-8 py-4 rounded-xl hover:bg-slate-800 transition-colors duration-300 cursor-pointer"
               >
@@ -56,14 +59,18 @@ export function HeroSection() {
               </button>
             </div>
 
-            <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-slate-400">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                <span>Format ATS</span>
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>CV optimisé ATS</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                <span>Test gratuit</span>
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>20 messages offerts</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <span>Sans carte bancaire</span>
               </div>
             </div>
           </motion.div>
