@@ -124,7 +124,7 @@ export function ShareCvButton() {
             ? <><Check className="w-3.5 h-3.5" /><span className="hidden lg:inline">Copié !</span></>
             : <><Link2 className="w-3.5 h-3.5" />
                 <span className="hidden lg:inline">
-                  Lien actif{viewCount > 0 ? ` · ${viewCount} vue${viewCount > 1 ? "s" : ""}` : ""}
+                  Partager{viewCount > 0 ? ` · ${viewCount} vue${viewCount > 1 ? "s" : ""}` : ""}
                 </span>
                 <ChevronDown className={`w-3 h-3 hidden lg:block transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </>}
