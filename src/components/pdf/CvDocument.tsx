@@ -1,8 +1,34 @@
 import {
-  Document, Page, Text, View, Image, StyleSheet, Link,
+  Document, Page, Text, View, Image, StyleSheet, Link, Svg, Path, Rect,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
 import { getTheme, PDF_SPACING } from "@/lib/themes";
+
+function PdfSectionIcon({ type, color }: { type: "briefcase" | "graduation" | "folder" | "user"; color: string }) {
+  const p = { stroke: color, strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
+  return (
+    <View style={{ width: 11, height: 11, alignItems: "center", justifyContent: "center" }}>
+      <Svg width={11} height={11} viewBox="0 0 24 24">
+        {type === "briefcase" && (<>
+          <Rect x={2} y={7} width={20} height={14} rx={2} {...p} />
+          <Path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" {...p} />
+        </>)}
+        {type === "graduation" && (<>
+          <Path d="M2 10l10-5 10 5-10 5z" {...p} />
+          <Path d="M6 12v5c3 3 9 3 12 0v-5" {...p} />
+          <Path d="M22 10v6" {...p} />
+        </>)}
+        {type === "folder" && (
+          <Path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" {...p} />
+        )}
+        {type === "user" && (<>
+          <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" {...p} />
+          <Path d="M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" {...p} />
+        </>)}
+      </Svg>
+    </View>
+  );
+}
 
 // ─── Dynamic styles ───────────────────────────────────────────────────────────
 
@@ -273,6 +299,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
               <View style={styles.mainSection}>
                 <View style={styles.sectionHeader} minPresenceAhead={30}>
                   <View style={styles.sectionDot} />
+                  <PdfSectionIcon type="briefcase" color={theme.pdfAccentColor} />
                   <Text style={styles.sectionTitle}>Expérience Professionnelle</Text>
                 </View>
                 {experiences.map((exp) => (
@@ -302,6 +329,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
               <View style={styles.mainSection}>
                 <View style={styles.sectionHeader} minPresenceAhead={30}>
                   <View style={styles.sectionDot} />
+                  <PdfSectionIcon type="folder" color={theme.pdfAccentColor} />
                   <Text style={styles.sectionTitle}>Projets</Text>
                 </View>
                 {projects.map((proj) => (
