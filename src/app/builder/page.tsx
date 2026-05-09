@@ -158,21 +158,23 @@ export default function BuilderPage() {
       const lastName = pdfData.personalInfo?.lastName?.trim() || "CV";
       const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, "_");
 
-      // Use octet-stream so Firefox/Chrome don't try to open the blob inline
-      // in their built-in PDF viewer (which would discard the download filename).
+      // Firefox ignores the `download` attribute on blob: URLs for PDFs in async
+      // contexts. Using a data URL embedded directly in href forces all browsers
+      // to respect the download attribute and use the correct filename.
       const arrayBuffer = await pdfBlob.arrayBuffer();
-      const downloadBlob = new Blob([arrayBuffer], { type: "application/octet-stream" });
-      const url = URL.createObjectURL(downloadBlob);
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(new Blob([arrayBuffer], { type: "application/octet-stream" }));
+      });
       const a = document.createElement("a");
       a.style.display = "none";
-      a.href = url;
+      a.href = dataUrl;
       a.setAttribute("download", fileName);
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 1000);
+      document.body.removeChild(a);
       posthog.capture("pdf_exported", { file_name: fileName });
     } catch (err) {
       console.error("[PDF Download Error]:", err);
