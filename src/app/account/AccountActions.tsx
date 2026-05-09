@@ -42,7 +42,7 @@ export function AccountActions({ isPro, hasSubscription, deleteOnly }: Props) {
           border border-indigo-700/40 text-indigo-300 bg-indigo-950/30
           rounded-xl">
           <ExternalLink className="w-4 h-4" />
-          Abonnement actif via Mobile Money
+          Abonnement actif via Campay
         </div>
       ) : (
         // Free user — upgrade

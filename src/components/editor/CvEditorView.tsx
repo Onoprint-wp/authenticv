@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, FileText, Camera, Loader2,
   type LucideIcon
 } from "lucide-react";
+import { PhotoCropModal } from "./PhotoCropModal";
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
@@ -72,30 +73,28 @@ const PhotoUpload = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
 
-  const handleUpload = async (file: File) => {
+  const openCropper = (file: File) => {
     if (!file.type.startsWith("image/")) return;
-    if (file.size > 2 * 1024 * 1024) {
+    const reader = new FileReader();
+    reader.onload = () => setPendingImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropConfirm = async (blob: Blob) => {
+    setPendingImageSrc(null);
+    if (blob.size > 2 * 1024 * 1024) {
       alert("La photo ne doit pas dépasser 2 Mo.");
       return;
     }
-
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append("photo", file);
-
-      const res = await fetch("/api/upload-photo", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        alert(err.error || "Erreur lors de l'upload.");
-        return;
-      }
-
+      formData.append("photo", blob, "photo.jpg");
+      const res = await fetch("/api/upload-photo", { method: "POST", body: formData });
+      if (!res.ok) { const err = await res.json(); alert(err.error || "Erreur lors de l'upload."); return; }
       const { photoUrl } = await res.json();
       updatePersonalInfo({ photoUrl });
     } catch {
@@ -109,12 +108,12 @@ const PhotoUpload = () => {
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file) handleUpload(file);
+    if (file) openCropper(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) handleUpload(file);
+    if (file) openCropper(file);
   };
 
   return (

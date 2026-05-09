@@ -101,7 +101,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               )}
             </button>
             <p className="text-center text-xs text-slate-600">
-              Paiement sécurisé par Mobile Money (MTN / Orange) · Résiliable à tout moment
+              Paiement sécurisé par Campay (Mobile Money, Visa, Mastercard) · Résiliable à tout moment
             </p>
           </div>
         </div>
