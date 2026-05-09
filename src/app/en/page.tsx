@@ -6,15 +6,25 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { Footer } from "@/components/landing/Footer";
-import { fr } from "@/lib/i18n/landing";
+import { en } from "@/lib/i18n/landing";
 
 export const metadata: Metadata = {
+  title: "AuthentiCV — AI-powered CV builder. Authentic, not robotic.",
+  description:
+    "Alex, your AI coach, guides you step by step to build an ATS-optimized CV that sounds like you — not a ChatGPT copy-paste. Free to start, no credit card required.",
   alternates: {
-    canonical: "https://www.authenticv.app",
+    canonical: "https://www.authenticv.app/en",
     languages: {
       fr: "https://www.authenticv.app",
       en: "https://www.authenticv.app/en",
     },
+  },
+  openGraph: {
+    title: "AuthentiCV — AI CV builder",
+    description: "Build your CV with AI — Authentic, not robotic.",
+    locale: "en_US",
+    alternateLocale: "fr_FR",
+    url: "https://www.authenticv.app/en",
   },
 };
 
@@ -25,47 +35,47 @@ const softwareSchema = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Sans formulaire, juste une conversation.",
+    "AI-powered conversational CV builder. Create an ATS-optimized CV with Alex, your personal AI coach. No forms, just a conversation.",
   url: "https://authenticv.app",
   offers: {
     "@type": "Offer",
     price: "0",
     priceCurrency: "EUR",
-    description: "Plan gratuit — 20 messages par mois, sans carte bancaire",
+    description: "Free plan — 20 messages per month, no credit card required",
   },
   featureList: [
-    "Coach IA conversationnel (Alex)",
-    "CV optimisé ATS",
-    "Export PDF",
-    "Lettre de motivation IA",
+    "Conversational AI coach (Alex)",
+    "ATS-optimized CV",
+    "PDF export",
+    "AI cover letter",
     "Job Match",
-    "Préparation entretien IA",
+    "Interview preparation AI",
   ],
 };
 
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: fr.faq.items.map((item) => ({
+  mainEntity: en.faq.items.map((item) => ({
     "@type": "Question",
     name: item.question,
     acceptedAnswer: { "@type": "Answer", text: item.answer },
   })),
 };
 
-export default function Home() {
+export default function HomeEn() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <main className="min-h-screen bg-slate-950">
-        <Navbar dict={fr.navbar} />
-        <HeroSection dict={fr.hero} />
-        <HowItWorks dict={fr.howItWorks} />
-        <FeaturesSection dict={fr.features} />
-        <PricingSection dict={fr.pricing} />
-        <FaqSection dict={fr.faq} />
-        <Footer dict={fr.footer} />
+        <Navbar dict={en.navbar} />
+        <HeroSection dict={en.hero} />
+        <HowItWorks dict={en.howItWorks} />
+        <FeaturesSection dict={en.features} />
+        <PricingSection dict={en.pricing} />
+        <FaqSection dict={en.faq} />
+        <Footer dict={en.footer} />
       </main>
     </>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Check, X, Zap } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/landing/Navbar";
+import { fr } from "@/lib/i18n/landing";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { Footer } from "@/components/landing/Footer";
 import { UpgradeButton } from "@/components/UpgradeButton";
@@ -114,7 +115,7 @@ export default function TarifsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <Navbar />
+      <Navbar dict={fr.navbar} />
 
       <main className="flex-1 flex flex-col items-center pt-32 pb-16 px-4">
         {/* Hero */}
@@ -202,8 +203,8 @@ export default function TarifsPage() {
         </p>
       </main>
 
-      <FaqSection />
-      <Footer />
+      <FaqSection dict={fr.faq} />
+      <Footer dict={fr.footer} />
     </div>
   );
 }

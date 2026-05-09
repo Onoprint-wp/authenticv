@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { Footer } from "@/components/landing/Footer";
+import { fr } from "@/lib/i18n/landing";
 
 export const metadata: Metadata = {
   title: "Mentions légales — AuthentiCV",
@@ -90,7 +91,7 @@ export default function MentionsLegalesPage() {
           Dernière mise à jour : mai 2026
         </p>
       </main>
-      <Footer />
+      <Footer dict={fr.footer} />
     </div>
   );
 }

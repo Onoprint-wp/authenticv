@@ -4,30 +4,13 @@ import { motion } from "framer-motion";
 import { Check, X, Zap } from "lucide-react";
 import Link from "next/link";
 import { UpgradeButton } from "@/components/UpgradeButton";
+import type { LandingDict } from "@/lib/i18n/landing";
 
-const FREE_FEATURES = [
-  { label: "1 CV", included: true },
-  { label: "20 messages Alex / mois", included: true },
-  { label: "Aperçu Web en temps réel", included: true },
-  { label: "Tableau de bord ATS & suivi de candidatures", included: true },
-  { label: "Sauvegarde automatique", included: true },
-  { label: "Multi-CV (plusieurs CVs)", included: false },
-  { label: "Export PDF", included: false },
-  { label: "Lettre de motivation IA", included: false },
-  { label: "Benchmark sectoriel", included: false },
-];
+interface Props {
+  dict: LandingDict["pricing"];
+}
 
-const PRO_FEATURES = [
-  { label: "Messages Alex illimités", included: true },
-  { label: "Multi-CV — un CV par candidature", included: true },
-  { label: "Export PDF en un clic", included: true },
-  { label: "Lettre de motivation personnalisée par IA", included: true },
-  { label: "Job Match — Optimisation pour une offre", included: true },
-  { label: "Benchmark sectoriel — votre rang parmi les candidats", included: true },
-  { label: "Accès prioritaire aux nouveautés", included: true },
-];
-
-export function PricingSection() {
+export function PricingSection({ dict }: Props) {
   return (
     <section className="py-24 bg-slate-950 relative" id="tarifs">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/15 via-slate-950/0 to-slate-950/0 pointer-events-none" />
@@ -40,7 +23,7 @@ export function PricingSection() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl font-bold text-white mb-4"
           >
-            Un tarif simple et transparent
+            {dict.title}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -49,7 +32,7 @@ export function PricingSection() {
             transition={{ delay: 0.1 }}
             className="text-slate-400 text-lg"
           >
-            Commencez gratuitement. Passez à Pro quand vous êtes prêt.
+            {dict.subtitle}
           </motion.p>
         </div>
 
@@ -63,16 +46,16 @@ export function PricingSection() {
             className="bg-slate-900 border border-slate-700 rounded-2xl p-7 flex flex-col"
           >
             <div className="mb-6">
-              <p className="text-sm font-medium text-slate-400 mb-1">Gratuit</p>
+              <p className="text-sm font-medium text-slate-400 mb-1">{dict.free.label}</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">0 €</span>
-                <span className="text-slate-500 text-sm">/mois</span>
+                <span className="text-4xl font-bold text-white">{dict.free.price}</span>
+                <span className="text-slate-500 text-sm">{dict.free.period}</span>
               </div>
-              <p className="text-xs text-slate-600 mt-1">Sans carte bancaire</p>
+              <p className="text-xs text-slate-600 mt-1">{dict.free.note}</p>
             </div>
 
             <ul className="space-y-3 flex-1 mb-8">
-              {FREE_FEATURES.map(({ label, included }) => (
+              {dict.free.features.map(({ label, included }) => (
                 <li key={label} className="flex items-center gap-3">
                   {included ? (
                     <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
@@ -92,7 +75,7 @@ export function PricingSection() {
                 text-slate-300 hover:text-white hover:border-slate-400 text-sm font-medium
                 rounded-xl transition-all"
             >
-              Commencer gratuitement
+              {dict.free.cta}
             </Link>
           </motion.div>
 
@@ -106,21 +89,21 @@ export function PricingSection() {
           >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-                <Zap className="w-3 h-3" /> Recommandé
+                <Zap className="w-3 h-3" /> {dict.pro.badge}
               </span>
             </div>
 
             <div className="mb-6">
-              <p className="text-sm font-medium text-indigo-400 mb-1">Pro</p>
+              <p className="text-sm font-medium text-indigo-400 mb-1">{dict.pro.label}</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">9 €</span>
-                <span className="text-slate-400 text-sm">/mois · sans engagement</span>
+                <span className="text-4xl font-bold text-white">{dict.pro.price}</span>
+                <span className="text-slate-400 text-sm">{dict.pro.period}</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">≈ 5 900 FCFA · Résiliable à tout moment</p>
+              <p className="text-xs text-slate-500 mt-1">{dict.pro.note}</p>
             </div>
 
             <ul className="space-y-3 flex-1 mb-8">
-              {PRO_FEATURES.map(({ label }) => (
+              {dict.pro.features.map((label) => (
                 <li key={label} className="flex items-center gap-3">
                   <Check className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                   <span className="text-sm text-slate-200">{label}</span>
@@ -132,9 +115,7 @@ export function PricingSection() {
           </motion.div>
         </div>
 
-        <p className="text-center mt-8 text-xs text-slate-600">
-          Paiement sécurisé · Carte bancaire &amp; Mobile Money (MTN / Orange) · Résiliable en un clic
-        </p>
+        <p className="text-center mt-8 text-xs text-slate-600">{dict.footer}</p>
       </div>
     </section>
   );
