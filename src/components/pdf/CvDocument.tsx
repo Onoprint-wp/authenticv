@@ -2,7 +2,7 @@ import {
   Document, Page, Text, View, Image, StyleSheet, Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme } from "@/lib/themes";
+import { getTheme, PDF_SPACING } from "@/lib/themes";
 
 // ─── Dynamic styles ───────────────────────────────────────────────────────────
 
@@ -13,6 +13,7 @@ function createStyles(
   headerBg: string,
   fontBase: string,
   fontBold: string,
+  sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
   return StyleSheet.create({
     page: {
@@ -26,8 +27,8 @@ function createStyles(
     // ── Header ───────────────────────────────────────────────
     header: {
       backgroundColor: headerBg,
-      paddingHorizontal: 36,
-      paddingVertical: 28,
+      paddingHorizontal: sp.headerPadH,
+      paddingVertical: sp.headerPadV,
       flexDirection: "row",
       alignItems: "center",
       gap: 20,
@@ -60,12 +61,12 @@ function createStyles(
     // ── Main column ───────────────────────────────────────────
     main: {
       flex: 1,
-      paddingHorizontal: 26,
-      paddingVertical: 24,
+      paddingHorizontal: sp.mainPadH,
+      paddingVertical: sp.mainPadV,
       borderRightWidth: 1,
       borderRightColor: "#f1f5f9",
     },
-    mainSection: { marginBottom: 20 },
+    mainSection: { marginBottom: sp.sectionMb },
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 7, marginBottom: 10 },
     sectionDot: { width: 8, height: 8, borderRadius: 2, backgroundColor: accent },
     sectionTitle: {
@@ -78,7 +79,7 @@ function createStyles(
     summaryText: { fontSize: 9.5, lineHeight: 1.6, color: "#475569" },
 
     // ── Experience timeline ───────────────────────────────────
-    expItem: { flexDirection: "row", gap: 10, marginBottom: 10 },
+    expItem: { flexDirection: "row", gap: 10, marginBottom: sp.itemMb },
     timelineCol: { width: 14, alignItems: "center", paddingTop: 3 },
     timelineDot: {
       width: 8,
@@ -121,10 +122,10 @@ function createStyles(
     sidebar: {
       width: 166,
       backgroundColor: "#f8fafc",
-      paddingHorizontal: 16,
-      paddingVertical: 24,
+      paddingHorizontal: sp.sidebarPadH,
+      paddingVertical: sp.sidebarPadV,
     },
-    sideSection: { marginBottom: 18 },
+    sideSection: { marginBottom: sp.sectionMb },
     sideSectionTitle: {
       fontSize: 9.5,
       fontFamily: fontBold,
@@ -199,6 +200,8 @@ export function CvDocument({ cvData }: CvDocumentProps) {
   const fontBase = isSerif ? "Times-Roman" : "Helvetica";
   const fontBold = isSerif ? "Times-Bold" : "Helvetica-Bold";
 
+  const sp = PDF_SPACING[designSettings?.spacing ?? "normal"];
+
   const styles = createStyles(
     theme.pdfAccentColor,
     theme.accentLight,
@@ -206,6 +209,7 @@ export function CvDocument({ cvData }: CvDocumentProps) {
     theme.pdfHeaderBg,
     fontBase,
     fontBold,
+    sp,
   );
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";

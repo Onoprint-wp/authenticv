@@ -87,6 +87,7 @@ export function DesignPanel({ onClose }: Props) {
   const currentTheme = designSettings?.colorTheme ?? "indigo";
   const currentFont = designSettings?.fontFamily ?? "sans";
   const currentLayout = designSettings?.layout ?? "classic";
+  const currentSpacing = designSettings?.spacing ?? "normal";
 
   return (
     <div
@@ -145,7 +146,7 @@ export function DesignPanel({ onClose }: Props) {
 
       {/* Police */}
       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Police</p>
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-5">
         <button
           onClick={() => updateDesignSettings({ fontFamily: "sans" })}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium border transition-all ${
@@ -169,6 +170,24 @@ export function DesignPanel({ onClose }: Props) {
           <Type className="w-3.5 h-3.5" />
           Serif
         </button>
+      </div>
+
+      {/* Espacement */}
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Espacement</p>
+      <div className="flex gap-2">
+        {(["compact", "normal", "spacious"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => updateDesignSettings({ spacing: s })}
+            className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-all ${
+              currentSpacing === s
+                ? "bg-indigo-600 border-indigo-500 text-white"
+                : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {s === "compact" ? "Compact" : s === "normal" ? "Normal" : "Aéré"}
+          </button>
+        ))}
       </div>
     </div>
   );

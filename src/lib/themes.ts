@@ -14,13 +14,21 @@ export interface DesignSettings {
   colorTheme: string;
   fontFamily: "sans" | "serif";
   layout: "classic" | "modern" | "minimal";
+  spacing: "compact" | "normal" | "spacious";
 }
 
 export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   colorTheme: "indigo",
   fontFamily: "sans",
   layout: "classic",
+  spacing: "normal",
 };
+
+export const PDF_SPACING = {
+  compact:  { headerPadH: 26, headerPadV: 18, mainPadH: 18, mainPadV: 16, sidebarPadH: 12, sidebarPadV: 16, sidebarGap: 10, sectionMb: 12, itemMb: 6,  pagePadH: 30, pagePadV: 26 },
+  normal:   { headerPadH: 36, headerPadV: 28, mainPadH: 26, mainPadV: 24, sidebarPadH: 16, sidebarPadV: 24, sidebarGap: 16, sectionMb: 20, itemMb: 10, pagePadH: 44, pagePadV: 40 },
+  spacious: { headerPadH: 48, headerPadV: 40, mainPadH: 34, mainPadV: 32, sidebarPadH: 22, sidebarPadV: 32, sidebarGap: 22, sectionMb: 28, itemMb: 14, pagePadH: 58, pagePadV: 52 },
+} as const;
 
 export const COLOR_THEMES: ColorTheme[] = [
   {

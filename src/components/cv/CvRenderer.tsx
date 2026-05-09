@@ -6,19 +6,26 @@ interface Props {
   cvData: CvData;
 }
 
+const SPACING = {
+  compact:  { headerPad: "px-8 py-8",   mainPad: "px-8 py-8",   mainGap: "gap-6",  sidebarPad: "px-6 py-8",   sidebarGap: "gap-6",  expGap: "gap-5" },
+  normal:   { headerPad: "px-10 py-12", mainPad: "px-10 py-10", mainGap: "gap-10", sidebarPad: "px-8 py-10",  sidebarGap: "gap-10", expGap: "gap-8" },
+  spacious: { headerPad: "px-14 py-16", mainPad: "px-12 py-12", mainGap: "gap-14", sidebarPad: "px-10 py-12", sidebarGap: "gap-12", expGap: "gap-10" },
+} as const;
+
 export function CvRenderer({ cvData }: Props) {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, projects, designSettings } = cvData;
 
   const theme = getTheme(designSettings?.colorTheme ?? "indigo");
   const isSerif = designSettings?.fontFamily === "serif";
   const fontClass = isSerif ? "font-serif" : "font-sans";
+  const sp = SPACING[designSettings?.spacing ?? "normal"];
 
   const hasContactInfo = personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
 
   return (
     <div className={`flex flex-col bg-white ${fontClass}`}>
       {/* Header */}
-      <div className="text-white px-10 py-12 relative overflow-hidden" style={{ background: theme.headerGradient }}>
+      <div className={`text-white ${sp.headerPad} relative overflow-hidden`} style={{ background: theme.headerGradient }}>
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
         <div className="absolute bottom-0 left-10 -mb-20 w-48 h-48 rounded-full bg-white/5 blur-2xl" />
 
@@ -81,7 +88,7 @@ export function CvRenderer({ cvData }: Props) {
       <div className="flex flex-col md:flex-row flex-1 bg-white text-slate-800">
 
         {/* Main (2/3) */}
-        <div className="flex-1 px-10 py-10 flex flex-col gap-10 border-r border-slate-100">
+        <div className={`flex-1 ${sp.mainPad} flex flex-col ${sp.mainGap} border-r border-slate-100`}>
 
           {summary && (
             <section>
@@ -103,7 +110,7 @@ export function CvRenderer({ cvData }: Props) {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Expérience Professionnelle</h3>
               </div>
-              <div className="flex flex-col gap-8">
+              <div className={`flex flex-col ${sp.expGap}`}>
                 {experiences.map((exp) => (
                   <div key={exp.id} className="relative pl-6 border-l border-slate-200">
                     <div className="absolute w-3 h-3 bg-white rounded-full -left-[6.5px] top-1.5 shadow-sm border-2" style={{ borderColor: theme.accentColor }} />
@@ -153,7 +160,7 @@ export function CvRenderer({ cvData }: Props) {
         </div>
 
         {/* Sidebar (1/3) */}
-        <div className="w-full md:w-[280px] bg-slate-50/80 px-8 py-10 flex flex-col gap-10">
+        <div className={`w-full md:w-[280px] bg-slate-50/80 ${sp.sidebarPad} flex flex-col ${sp.sidebarGap}`}>
 
           {skills.length > 0 && (
             <section>

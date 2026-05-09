@@ -15,18 +15,25 @@ function SectionTitle({ children, accent }: { children: React.ReactNode; accent:
   );
 }
 
+const SPACING = {
+  compact:  { sidebarPad: "px-5 py-6",  sidebarGap: "gap-4", mainPad: "px-6 py-6",  mainGap: "gap-5",  expGap: "gap-4" },
+  normal:   { sidebarPad: "px-6 py-8",  sidebarGap: "gap-6", mainPad: "px-8 py-8",  mainGap: "gap-8",  expGap: "gap-6" },
+  spacious: { sidebarPad: "px-8 py-10", sidebarGap: "gap-8", mainPad: "px-10 py-10", mainGap: "gap-12", expGap: "gap-8" },
+} as const;
+
 export function CvRendererModern({ cvData }: Props) {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, projects, designSettings } = cvData;
   const theme = getTheme(designSettings?.colorTheme ?? "indigo");
   const isSerif = designSettings?.fontFamily === "serif";
   const fontClass = isSerif ? "font-serif" : "font-sans";
+  const sp = SPACING[designSettings?.spacing ?? "normal"];
 
   return (
     <div className={`flex flex-row bg-white ${fontClass} min-h-full`}>
 
       {/* ── Left sidebar ── */}
       <div
-        className="w-[210px] shrink-0 flex flex-col px-6 py-8 gap-6"
+        className={`w-[210px] shrink-0 flex flex-col ${sp.sidebarPad} ${sp.sidebarGap}`}
         style={{ background: theme.headerGradient }}
       >
         {/* Photo */}
@@ -130,7 +137,7 @@ export function CvRendererModern({ cvData }: Props) {
       </div>
 
       {/* ── Main content ── */}
-      <div className="flex-1 px-8 py-8 flex flex-col gap-8 bg-white text-slate-800">
+      <div className={`flex-1 ${sp.mainPad} flex flex-col ${sp.mainGap} bg-white text-slate-800`}>
 
         {summary && (
           <section>
@@ -145,7 +152,7 @@ export function CvRendererModern({ cvData }: Props) {
               <Briefcase className="w-3.5 h-3.5 inline mr-1.5" style={{ color: theme.accentColor }} />
               Expérience Professionnelle
             </SectionTitle>
-            <div className="flex flex-col gap-6">
+            <div className={`flex flex-col ${sp.expGap}`}>
               {experiences.map((exp) => (
                 <div key={exp.id} className="relative pl-5 border-l-2" style={{ borderColor: theme.accentBg }}>
                   <div

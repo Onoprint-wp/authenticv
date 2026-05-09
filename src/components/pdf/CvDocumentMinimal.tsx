@@ -2,12 +2,13 @@ import {
   Document, Page, Text, View, StyleSheet, Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme } from "@/lib/themes";
+import { getTheme, PDF_SPACING } from "@/lib/themes";
 
 function createStyles(
   accent: string,
   fontBase: string,
   fontBold: string,
+  sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
   return StyleSheet.create({
     page: {
@@ -16,8 +17,8 @@ function createStyles(
       fontFamily: fontBase,
       fontSize: 10,
       color: "#1e293b",
-      paddingHorizontal: 44,
-      paddingVertical: 40,
+      paddingHorizontal: sp.pagePadH,
+      paddingVertical: sp.pagePadV,
     },
 
     // ── Header ────────────────────────────────────────────────
@@ -55,7 +56,7 @@ function createStyles(
     },
 
     // ── Sections ──────────────────────────────────────────────
-    section: { marginBottom: 18 },
+    section: { marginBottom: sp.sectionMb },
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
     sectionBar: { width: 14, height: 1.5, backgroundColor: accent, borderRadius: 1 },
     sectionTitle: {
@@ -68,7 +69,7 @@ function createStyles(
     summaryText: { fontSize: 9.5, lineHeight: 1.7, color: "#475569" },
 
     // ── Experience ────────────────────────────────────────────
-    expItem: { marginBottom: 12 },
+    expItem: { marginBottom: sp.itemMb },
     expHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
     expPosition: { fontSize: 10.5, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
     expDate: { fontSize: 8.5, color: "#94a3b8" },
@@ -118,7 +119,9 @@ export function CvDocumentMinimal({ cvData }: Props) {
   const fontBase = isSerif ? "Times-Roman" : "Helvetica";
   const fontBold = isSerif ? "Times-Bold" : "Helvetica-Bold";
 
-  const styles = createStyles(theme.pdfAccentColor, fontBase, fontBold);
+  const sp = PDF_SPACING[designSettings?.spacing ?? "normal"];
+
+  const styles = createStyles(theme.pdfAccentColor, fontBase, fontBold, sp);
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";
   const hasContact = personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;

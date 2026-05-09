@@ -15,16 +15,23 @@ function SectionTitle({ children, accent }: { children: React.ReactNode; accent:
   );
 }
 
+const SPACING = {
+  compact:  { outerPad: "px-10 py-8",  sectionGap: "gap-5",  expGap: "gap-3" },
+  normal:   { outerPad: "px-14 py-12", sectionGap: "gap-8",  expGap: "gap-5" },
+  spacious: { outerPad: "px-16 py-16", sectionGap: "gap-12", expGap: "gap-7" },
+} as const;
+
 export function CvRendererMinimal({ cvData }: Props) {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, projects, designSettings } = cvData;
   const theme = getTheme(designSettings?.colorTheme ?? "indigo");
   const isSerif = designSettings?.fontFamily === "serif";
   const fontClass = isSerif ? "font-serif" : "font-sans";
+  const sp = SPACING[designSettings?.spacing ?? "normal"];
 
   const hasContact = personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
 
   return (
-    <div className={`flex flex-col bg-white text-slate-800 px-14 py-12 ${fontClass}`}>
+    <div className={`flex flex-col bg-white text-slate-800 ${sp.outerPad} ${fontClass}`}>
 
       {/* ── Header ── */}
       <div className="mb-8">
@@ -70,7 +77,7 @@ export function CvRendererMinimal({ cvData }: Props) {
       <div className="border-t border-slate-100 mb-8" />
 
       {/* ── Sections ── */}
-      <div className="flex flex-col gap-8">
+      <div className={`flex flex-col ${sp.sectionGap}`}>
 
         {summary && (
           <section>
@@ -82,7 +89,7 @@ export function CvRendererMinimal({ cvData }: Props) {
         {experiences.length > 0 && (
           <section>
             <SectionTitle accent={theme.accentColor}>Expérience</SectionTitle>
-            <div className="flex flex-col gap-5">
+            <div className={`flex flex-col ${sp.expGap}`}>
               {experiences.map((exp) => (
                 <div key={exp.id}>
                   <div className="flex flex-wrap justify-between items-baseline gap-1">

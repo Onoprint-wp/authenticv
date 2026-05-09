@@ -2,7 +2,7 @@ import {
   Document, Page, Text, View, Image, StyleSheet, Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme } from "@/lib/themes";
+import { getTheme, PDF_SPACING } from "@/lib/themes";
 
 function createStyles(
   accent: string,
@@ -11,6 +11,7 @@ function createStyles(
   headerBg: string,
   fontBase: string,
   fontBold: string,
+  sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
   return StyleSheet.create({
     page: {
@@ -25,10 +26,10 @@ function createStyles(
     sidebar: {
       width: 175,
       backgroundColor: headerBg,
-      paddingHorizontal: 16,
-      paddingVertical: 24,
+      paddingHorizontal: sp.sidebarPadH,
+      paddingVertical: sp.sidebarPadV,
       flexDirection: "column",
-      gap: 16,
+      gap: sp.sidebarGap,
     },
     photoWrap: { alignItems: "center", marginBottom: 4 },
     photo: {
@@ -88,10 +89,10 @@ function createStyles(
     // ── Main content ──────────────────────────────────────────
     main: {
       flex: 1,
-      paddingHorizontal: 22,
-      paddingVertical: 24,
+      paddingHorizontal: sp.mainPadH,
+      paddingVertical: sp.mainPadV,
     },
-    mainSection: { marginBottom: 18 },
+    mainSection: { marginBottom: sp.sectionMb },
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 10 },
     sectionDot: { width: 7, height: 7, borderRadius: 1, backgroundColor: accent },
     sectionTitle: {
@@ -103,7 +104,7 @@ function createStyles(
     },
     summaryText: { fontSize: 9.5, lineHeight: 1.6, color: "#475569" },
 
-    expItem: { flexDirection: "row", gap: 8, marginBottom: 10 },
+    expItem: { flexDirection: "row", gap: 8, marginBottom: sp.itemMb },
     timelineCol: { width: 12, alignItems: "center", paddingTop: 3 },
     timelineDot: {
       width: 7,
@@ -165,6 +166,8 @@ export function CvDocumentModern({ cvData }: Props) {
   const fontBase = isSerif ? "Times-Roman" : "Helvetica";
   const fontBold = isSerif ? "Times-Bold" : "Helvetica-Bold";
 
+  const sp = PDF_SPACING[designSettings?.spacing ?? "normal"];
+
   const styles = createStyles(
     theme.pdfAccentColor,
     theme.accentLight,
@@ -172,6 +175,7 @@ export function CvDocumentModern({ cvData }: Props) {
     theme.pdfHeaderBg,
     fontBase,
     fontBold,
+    sp,
   );
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";

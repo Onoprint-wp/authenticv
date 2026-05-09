@@ -9,6 +9,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { PhotoCropModal } from "./PhotoCropModal";
+import { CvCompletenessBar } from "@/components/cv/CvCompletenessBar";
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input
@@ -220,6 +221,8 @@ export const CvEditorView = () => {
           className="text-lg font-medium"
         />
       </div>
+
+      <CvCompletenessBar cvData={cvData} />
 
       <SectionCard title="Informations personnelles" icon={User} defaultOpen>
         {/* ── Photo Upload ── */}
