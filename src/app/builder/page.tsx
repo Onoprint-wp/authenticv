@@ -158,16 +158,21 @@ export default function BuilderPage() {
       const lastName = pdfData.personalInfo?.lastName?.trim() || "CV";
       const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, "_");
 
-      const url = URL.createObjectURL(pdfBlob);
+      // Use octet-stream so Firefox/Chrome don't try to open the blob inline
+      // in their built-in PDF viewer (which would discard the download filename).
+      const arrayBuffer = await pdfBlob.arrayBuffer();
+      const downloadBlob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(downloadBlob);
       const a = document.createElement("a");
+      a.style.display = "none";
       a.href = url;
-      a.download = fileName;
-      // Append to DOM so all browsers trigger the download
+      a.setAttribute("download", fileName);
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      // Delay revoke so the browser has time to start the download
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 1000);
       posthog.capture("pdf_exported", { file_name: fileName });
     } catch (err) {
       console.error("[PDF Download Error]:", err);
