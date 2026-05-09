@@ -76,12 +76,20 @@ export function DesignPanel({ onClose }: Props) {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose();
-      }
+      const target = e.target instanceof Element ? e.target : null;
+      const insidePanel = panelRef.current && target && panelRef.current.contains(target);
+      const isTrigger = target?.closest("[data-design-panel-trigger]");
+      if (!insidePanel && !isTrigger) onClose();
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [onClose]);
 
   const currentTheme = designSettings?.colorTheme ?? "indigo";

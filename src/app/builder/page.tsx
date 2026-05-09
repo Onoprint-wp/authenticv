@@ -53,6 +53,7 @@ export default function BuilderPage() {
   const [lastPreviewSeenTs, setLastPreviewSeenTs] = useState<number>(0);
   const [isJobMatchOpen, setIsJobMatchOpen] = useState(false);
   const [isDesignPanelOpen, setIsDesignPanelOpen] = useState(false);
+  const handleCloseDesignPanel = useCallback(() => setIsDesignPanelOpen(false), []);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit" | "letter">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
@@ -355,6 +356,7 @@ export default function BuilderPage() {
                 </button>
                 <div className="relative">
                   <button
+                    data-design-panel-trigger
                     onClick={() => setIsDesignPanelOpen((p) => !p)}
                     className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-all ${
                       isDesignPanelOpen
@@ -365,7 +367,7 @@ export default function BuilderPage() {
                     <Palette className="w-3.5 h-3.5" />
                     <span className="hidden lg:inline">Personnaliser</span>
                   </button>
-                  {isDesignPanelOpen && <DesignPanel onClose={() => setIsDesignPanelOpen(false)} />}
+                  {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
                 <button
                   onClick={handleDownloadPdf}
@@ -437,6 +439,7 @@ export default function BuilderPage() {
                 </button>
                 <div className="relative">
                   <button
+                    data-design-panel-trigger
                     onClick={() => setIsDesignPanelOpen((p) => !p)}
                     className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-md border transition-all ${
                       isDesignPanelOpen
@@ -446,7 +449,7 @@ export default function BuilderPage() {
                   >
                     <Palette className="w-3.5 h-3.5" />
                   </button>
-                  {isDesignPanelOpen && <DesignPanel onClose={() => setIsDesignPanelOpen(false)} />}
+                  {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
                 <button
                   onClick={handleDownloadPdf}
