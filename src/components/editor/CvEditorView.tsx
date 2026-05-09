@@ -181,6 +181,14 @@ const PhotoUpload = () => {
           </button>
         )}
       </div>
+
+      {pendingImageSrc && (
+        <PhotoCropModal
+          imageSrc={pendingImageSrc}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setPendingImageSrc(null)}
+        />
+      )}
     </div>
   );
 };
