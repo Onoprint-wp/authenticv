@@ -101,12 +101,25 @@ export default function BuilderPage() {
     setPdfError(null);
 
     try {
-      const [{ pdf }, { CvDocument }] = await Promise.all([
+      const { cvData } = useCvStore.getState();
+      const layout = cvData.designSettings?.layout ?? "classic";
+
+      const [{ pdf }, docModule] = await Promise.all([
         import("@react-pdf/renderer"),
-        import("@/components/pdf/CvDocument"),
+        layout === "modern"
+          ? import("@/components/pdf/CvDocumentModern")
+          : layout === "minimal"
+            ? import("@/components/pdf/CvDocumentMinimal")
+            : import("@/components/pdf/CvDocument"),
       ]);
 
-      const { cvData } = useCvStore.getState();
+      const CvDocument =
+        "CvDocumentModern" in docModule
+          ? (docModule as { CvDocumentModern: React.ComponentType<{ cvData: typeof cvData }> }).CvDocumentModern
+          : "CvDocumentMinimal" in docModule
+            ? (docModule as { CvDocumentMinimal: React.ComponentType<{ cvData: typeof cvData }> }).CvDocumentMinimal
+            : (docModule as { CvDocument: React.ComponentType<{ cvData: typeof cvData }> }).CvDocument;
+
       const pdfData = { ...cvData, personalInfo: { ...cvData.personalInfo } };
 
       // Convertir la photo en base64 PNG — react-pdf ne peut pas fetcher les URLs Supabase

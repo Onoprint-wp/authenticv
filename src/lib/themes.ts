@@ -13,11 +13,13 @@ export interface ColorTheme {
 export interface DesignSettings {
   colorTheme: string;
   fontFamily: "sans" | "serif";
+  layout: "classic" | "modern" | "minimal";
 }
 
 export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   colorTheme: "indigo",
   fontFamily: "sans",
+  layout: "classic",
 };
 
 export const COLOR_THEMES: ColorTheme[] = [

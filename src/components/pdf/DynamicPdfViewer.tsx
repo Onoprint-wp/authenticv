@@ -4,43 +4,41 @@ import { useEffect, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import type { CvData } from "@/store/useCvStore";
 
-// Dynamically import PDFViewer to avoid SSR issues
+type Layout = "classic" | "modern" | "minimal";
+
 let PDFViewer: React.ComponentType<{
   style?: React.CSSProperties;
   className?: string;
   children?: React.ReactNode;
   showToolbar?: boolean;
 }>;
-let CvDocumentComponent: React.ComponentType<{
-  cvData: CvData;
-}>;
+
+const CvDocumentComponents: Record<Layout, React.ComponentType<{ cvData: CvData }>> = {} as never;
 
 export function DynamicPdfViewer() {
   const cvData = useCvStore((s) => s.cvData);
   const [ready, setReady] = useState(false);
-  // Resolved photo as base64 data URI (avoids react-pdf CORS issues with external URLs)
   const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    // Lazy-load @react-pdf/renderer only on the client
     Promise.all([
       import("@react-pdf/renderer").then((m) => m.PDFViewer),
       import("./CvDocument").then((m) => m.CvDocument),
-    ]).then(([viewer, doc]) => {
+      import("./CvDocumentModern").then((m) => m.CvDocumentModern),
+      import("./CvDocumentMinimal").then((m) => m.CvDocumentMinimal),
+    ]).then(([viewer, classic, modern, minimal]) => {
       PDFViewer = viewer as typeof PDFViewer;
-      CvDocumentComponent = doc as typeof CvDocumentComponent;
+      CvDocumentComponents.classic = classic as React.ComponentType<{ cvData: CvData }>;
+      CvDocumentComponents.modern = modern as React.ComponentType<{ cvData: CvData }>;
+      CvDocumentComponents.minimal = minimal as React.ComponentType<{ cvData: CvData }>;
       setReady(true);
     });
   }, []);
 
-  // Convert photoUrl to a base64 PNG data URI.
-  // react-pdf only supports JPEG & PNG — WebP is rejected.
-  // We fetch the image, draw it onto a <canvas>, then export as PNG.
   useEffect(() => {
     const url = cvData.personalInfo.photoUrl;
     if (!url) { setResolvedPhotoUrl(undefined); return; }
 
-    // If already a compatible data URI (jpeg/png), use it directly
     if (url.startsWith("data:image/jpeg") || url.startsWith("data:image/png")) {
       setResolvedPhotoUrl(url);
       return;
@@ -50,7 +48,6 @@ export function DynamicPdfViewer() {
 
     const convertToPng = async () => {
       try {
-        // For data URIs (e.g. data:image/webp;base64,...) or remote URLs
         const src = url.startsWith("data:")
           ? url
           : await fetch(url)
@@ -65,7 +62,6 @@ export function DynamicPdfViewer() {
                   }),
               );
 
-        // Draw on canvas and export as PNG
         const img = new window.Image();
         img.crossOrigin = "anonymous";
         await new Promise<void>((resolve, reject) => {
@@ -84,7 +80,6 @@ export function DynamicPdfViewer() {
         const pngDataUri = canvas.toDataURL("image/png");
         if (!cancelled) setResolvedPhotoUrl(pngDataUri);
       } catch {
-        // Fallback: pass original URL (may fail in PDF but won't break the app)
         if (!cancelled) setResolvedPhotoUrl(url);
       }
     };
@@ -103,6 +98,9 @@ export function DynamicPdfViewer() {
       </div>
     );
   }
+
+  const layout: Layout = (cvData.designSettings?.layout as Layout) ?? "classic";
+  const CvDocumentComponent = CvDocumentComponents[layout] ?? CvDocumentComponents.classic;
 
   const displayCvData: CvData = cvData.personalInfo.photoUrl
     ? { ...cvData, personalInfo: { ...cvData.personalInfo, photoUrl: resolvedPhotoUrl ?? cvData.personalInfo.photoUrl } }

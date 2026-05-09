@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import { CvRenderer } from "./CvRenderer";
+import { CvRendererModern } from "./CvRendererModern";
+import { CvRendererMinimal } from "./CvRendererMinimal";
 
 const A4_PAGE_PX = 1122;
 
@@ -37,6 +39,8 @@ export function HtmlCvPreview() {
     );
   }
 
+  const layout = cvData.designSettings?.layout ?? "classic";
+
   return (
     <div className="flex-1 overflow-auto bg-slate-200 p-4 sm:p-8 flex justify-center items-start custom-scrollbar">
       <div
@@ -57,7 +61,9 @@ export function HtmlCvPreview() {
           </div>
         ))}
 
-        <CvRenderer cvData={cvData} />
+        {layout === "modern" && <CvRendererModern cvData={cvData} />}
+        {layout === "minimal" && <CvRendererMinimal cvData={cvData} />}
+        {layout === "classic" && <CvRenderer cvData={cvData} />}
       </div>
     </div>
   );
