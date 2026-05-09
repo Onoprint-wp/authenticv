@@ -65,25 +65,25 @@ export function CvRendererModern({ cvData }: Props) {
             <p className="text-[9px] font-bold uppercase tracking-widest pb-1.5 border-b border-white/20" style={{ color: "rgba(255,255,255,0.5)" }}>Contact</p>
             {personalInfo.email && (
               <div className="flex items-start gap-2 text-[10px]" style={{ color: "rgba(255,255,255,0.8)" }}>
-                <Mail className="w-3 h-3 mt-0.5 shrink-0" />
+                <Mail className="w-3 h-3 mt-0.5 shrink-0" style={{ color: theme.accentLight }} />
                 <span className="break-all">{personalInfo.email}</span>
               </div>
             )}
             {personalInfo.phone && (
               <div className="flex items-center gap-2 text-[10px]" style={{ color: "rgba(255,255,255,0.8)" }}>
-                <Phone className="w-3 h-3 shrink-0" />
+                <Phone className="w-3 h-3 shrink-0" style={{ color: theme.accentLight }} />
                 {personalInfo.phone}
               </div>
             )}
             {personalInfo.location && (
               <div className="flex items-center gap-2 text-[10px]" style={{ color: "rgba(255,255,255,0.8)" }}>
-                <MapPin className="w-3 h-3 shrink-0" />
+                <MapPin className="w-3 h-3 shrink-0" style={{ color: theme.accentLight }} />
                 {personalInfo.location}
               </div>
             )}
             {personalInfo.linkedin && (
               <div className="flex items-start gap-2 text-[10px]" style={{ color: "rgba(255,255,255,0.8)" }}>
-                <Link className="w-3 h-3 mt-0.5 shrink-0" />
+                <Link className="w-3 h-3 mt-0.5 shrink-0" style={{ color: theme.accentLight }} />
                 <span className="break-all">{personalInfo.linkedin}</span>
               </div>
             )}
