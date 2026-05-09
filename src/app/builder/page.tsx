@@ -131,15 +131,17 @@ export default function BuilderPage() {
             const blob = await res.blob();
             const base64 = await new Promise<string>((resolve) => {
               const img = new Image();
+              const objectUrl = URL.createObjectURL(blob);
               img.onload = () => {
                 const canvas = document.createElement("canvas");
                 canvas.width = img.naturalWidth;
                 canvas.height = img.naturalHeight;
                 canvas.getContext("2d")!.drawImage(img, 0, 0);
+                URL.revokeObjectURL(objectUrl);
                 resolve(canvas.toDataURL("image/png"));
               };
-              img.onerror = () => resolve("");
-              img.src = URL.createObjectURL(blob);
+              img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(""); };
+              img.src = objectUrl;
             });
             pdfData.personalInfo.photoUrl = base64;
           } else {
@@ -170,6 +172,7 @@ export default function BuilderPage() {
     } catch (err) {
       console.error("[PDF Download Error]:", err);
       setPdfError("Impossible de générer le PDF. Veuillez réessayer.");
+      setTimeout(() => setPdfError(null), 5000);
     } finally {
       setIsPdfDownloading(false);
     }
@@ -330,17 +333,20 @@ export default function BuilderPage() {
                   <button
                     key={mode}
                     onClick={() => {
-                      if (mode === "letter" && plan.plan !== "pro") {
-                        setUpgradeModal({ open: true, reason: "letter" });
+                      if ((mode === "letter" || mode === "preview-pdf") && plan.plan !== "pro") {
+                        setUpgradeModal({ open: true, reason: mode === "letter" ? "letter" : "pdf" });
                         return;
                       }
                       setViewMode(mode);
                     }}
-                    className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${
+                    className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors flex items-center gap-1 ${
                       viewMode === mode ? "bg-slate-800 text-slate-200 shadow-sm" : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    {mode === "preview-web" ? "Aperçu Web" : mode === "preview-pdf" ? "Aperçu PDF" : mode === "edit" ? "Édition" : "Lettre"}
+                    {mode === "preview-web" ? "Aperçu Web"
+                      : mode === "preview-pdf" ? <><span>Aperçu PDF</span>{plan.plan !== "pro" && <Zap className="w-2.5 h-2.5 text-indigo-400" />}</>
+                      : mode === "edit" ? "Édition"
+                      : "Lettre"}
                   </button>
                 ))}
               </div>

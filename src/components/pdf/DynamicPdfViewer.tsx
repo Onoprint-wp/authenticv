@@ -109,7 +109,7 @@ export function DynamicPdfViewer() {
   return (
     <PDFViewer
       style={{ width: "100%", height: "100%", border: "none" }}
-      showToolbar={true}
+      showToolbar={false}
     >
       <CvDocumentComponent cvData={displayCvData} />
     </PDFViewer>
