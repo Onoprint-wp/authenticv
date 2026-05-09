@@ -72,6 +72,7 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
             aspect={1}
             cropShape="round"
             showGrid={false}
+            restrictPosition={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
