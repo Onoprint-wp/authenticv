@@ -16,7 +16,7 @@ import { VersionHistoryPanel } from "@/components/VersionHistoryPanel";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { logout } from "@/app/login/actions";
 import {
-  FileText, LogOut, Sparkles, Briefcase, Download, Loader2,
+  FileText, LogOut, Sparkles, Briefcase, Download, Loader2, Printer,
   Zap, MessageSquare, Eye, PenLine, Palette, UserX, Mail, User, CheckCircle, X, GraduationCap, BarChart2,
 } from "lucide-react";
 import { CvEditorView } from "@/components/editor/CvEditorView";
@@ -94,95 +94,28 @@ export default function BuilderPage() {
     setLastAiUpdateTs();
   };
 
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = () => {
     if (plan.loading) return;
     if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
 
+    // Déclencher immédiatement — le serveur génère le PDF et pose le header
+    // Content-Disposition: attachment; filename="CV_Prénom_Nom.pdf"
+    // Aucun await avant le clic → pas de perte de contexte geste (fix Firefox UUID)
     setIsPdfDownloading(true);
-    setPdfError(null);
+    const a = document.createElement("a");
+    a.href = "/api/export-pdf";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    posthog.capture("pdf_exported");
+    setTimeout(() => setIsPdfDownloading(false), 4000);
+  };
 
-    try {
-      const { cvData } = useCvStore.getState();
-      const layout = cvData.designSettings?.layout ?? "classic";
-
-      const [{ pdf }, docModule] = await Promise.all([
-        import("@react-pdf/renderer"),
-        layout === "modern"
-          ? import("@/components/pdf/CvDocumentModern")
-          : layout === "minimal"
-            ? import("@/components/pdf/CvDocumentMinimal")
-            : import("@/components/pdf/CvDocument"),
-      ]);
-
-      const CvDocument =
-        "CvDocumentModern" in docModule
-          ? (docModule as { CvDocumentModern: React.ComponentType<{ cvData: typeof cvData }> }).CvDocumentModern
-          : "CvDocumentMinimal" in docModule
-            ? (docModule as { CvDocumentMinimal: React.ComponentType<{ cvData: typeof cvData }> }).CvDocumentMinimal
-            : (docModule as { CvDocument: React.ComponentType<{ cvData: typeof cvData }> }).CvDocument;
-
-      const pdfData = { ...cvData, personalInfo: { ...cvData.personalInfo } };
-
-      // Convertir la photo en base64 PNG — react-pdf ne peut pas fetcher les URLs Supabase
-      if (pdfData.personalInfo.photoUrl) {
-        try {
-          const res = await fetch(pdfData.personalInfo.photoUrl);
-          if (res.ok) {
-            const blob = await res.blob();
-            const base64 = await new Promise<string>((resolve) => {
-              const img = new Image();
-              const objectUrl = URL.createObjectURL(blob);
-              img.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                canvas.getContext("2d")!.drawImage(img, 0, 0);
-                URL.revokeObjectURL(objectUrl);
-                resolve(canvas.toDataURL("image/png"));
-              };
-              img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(""); };
-              img.src = objectUrl;
-            });
-            pdfData.personalInfo.photoUrl = base64;
-          } else {
-            pdfData.personalInfo.photoUrl = "";
-          }
-        } catch {
-          pdfData.personalInfo.photoUrl = "";
-        }
-      }
-
-      const pdfBlob = await pdf(<CvDocument cvData={pdfData} />).toBlob();
-
-      const firstName = pdfData.personalInfo?.firstName?.trim() || "Authenti";
-      const lastName = pdfData.personalInfo?.lastName?.trim() || "CV";
-      const fileName = `CV_${firstName}_${lastName}.pdf`.replace(/\s+/g, "_");
-
-      // Firefox ignores the `download` attribute on blob: URLs for PDFs in async
-      // contexts. Using a data URL embedded directly in href forces all browsers
-      // to respect the download attribute and use the correct filename.
-      const arrayBuffer = await pdfBlob.arrayBuffer();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(new Blob([arrayBuffer], { type: "application/octet-stream" }));
-      });
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = dataUrl;
-      a.setAttribute("download", fileName);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      posthog.capture("pdf_exported", { file_name: fileName });
-    } catch (err) {
-      console.error("[PDF Download Error]:", err);
-      setPdfError("Impossible de générer le PDF. Veuillez réessayer.");
-      setTimeout(() => setPdfError(null), 5000);
-    } finally {
-      setIsPdfDownloading(false);
-    }
+  const handlePrintPdf = () => {
+    if (plan.loading) return;
+    if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
+    window.open("/api/export-pdf", "_blank", "noopener,noreferrer");
   };
 
   const handleOpenJobMatch = () => {
@@ -382,16 +315,26 @@ export default function BuilderPage() {
                   </button>
                   {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
-                <button
-                  onClick={handleDownloadPdf}
-                  disabled={isPdfDownloading || plan.loading}
-                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
-                >
-                  {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                  <span className="hidden lg:inline">
-                    {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
-                  </span>
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleDownloadPdf}
+                    disabled={isPdfDownloading || plan.loading}
+                    className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+                  >
+                    {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                    <span className="hidden lg:inline">
+                      {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={handlePrintPdf}
+                    disabled={plan.loading}
+                    title="Imprimer le CV"
+                    className="flex items-center justify-center text-xs border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-40 p-1.5 rounded-md transition-all active:scale-95"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
@@ -464,14 +407,24 @@ export default function BuilderPage() {
                   </button>
                   {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
-                <button
-                  onClick={handleDownloadPdf}
-                  disabled={isPdfDownloading || plan.loading}
-                  className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all active:scale-95"
-                >
-                  {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                  {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleDownloadPdf}
+                    disabled={isPdfDownloading || plan.loading}
+                    className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all active:scale-95"
+                  >
+                    {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                    {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                  </button>
+                  <button
+                    onClick={handlePrintPdf}
+                    disabled={plan.loading}
+                    title="Imprimer le CV"
+                    className="flex items-center justify-center text-xs border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-40 p-1.5 rounded-md transition-all active:scale-95"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-hidden">
                 <HtmlCvPreview />

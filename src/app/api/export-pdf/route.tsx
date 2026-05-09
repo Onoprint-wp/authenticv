@@ -1,5 +1,7 @@
 import { renderToStream } from "@react-pdf/renderer";
 import { CvDocument } from "@/components/pdf/CvDocument";
+import { CvDocumentModern } from "@/components/pdf/CvDocumentModern";
+import { CvDocumentMinimal } from "@/components/pdf/CvDocumentMinimal";
 import { createClient } from "@/utils/supabase/server";
 import { getUserPlan } from "@/lib/plan";
 import React from "react";
@@ -64,8 +66,18 @@ export async function GET() {
       }
     }
 
-    // Génération du flux PDF côté serveur
-    const stream = await renderToStream(<CvDocument cvData={cvData} />);
+    // Génération du flux PDF selon le layout choisi
+    const layout = cvData.designSettings?.layout ?? "classic";
+    let docElement: React.ReactElement;
+    if (layout === "modern") {
+      docElement = <CvDocumentModern cvData={cvData} />;
+    } else if (layout === "minimal") {
+      docElement = <CvDocumentMinimal cvData={cvData} />;
+    } else {
+      docElement = <CvDocument cvData={cvData} />;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stream = await renderToStream(docElement as any);
 
     // Construction du nom de fichier dynamique
     const firstName = cvData.personalInfo?.firstName?.trim() || "Authenti";
