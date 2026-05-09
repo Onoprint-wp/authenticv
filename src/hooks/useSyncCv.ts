@@ -92,6 +92,10 @@ export function useSyncCv() {
   // ── Manual Refetch ────────────────────────────────────────────────
   const refetch = useCallback(async () => {
     try {
+      // Cancel any pending auto-save debounce before overwriting with server data.
+      // Without this, an optimistic store update would schedule a 2s write that
+      // fires AFTER the refetch, re-writing stale optimistic data over canonical DB content.
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
       const response = await fetch("/api/resumes");
       if (response.status === 401) { window.location.href = "/login"; return; }
       if (!response.ok) { console.warn(`[Sync] Refetch failed: ${response.status}`); return; }

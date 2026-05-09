@@ -6,6 +6,43 @@ import { useCvStore } from "@/store/useCvStore";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
 
+// Applies a single AI tool call directly to the Zustand store for immediate re-render,
+// before the background Supabase refetch confirms the canonical data.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyOptimisticUpdate(toolName: string, args: Record<string, any>) {
+  const store = useCvStore.getState();
+  switch (toolName) {
+    case "updatePersonalInfo":       store.updatePersonalInfo(args); break;
+    case "updateSummary":            store.updateSummary(args.summary); break;
+    case "setSkills":                store.setSkills(args.skills); break;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    case "addExperience":            store.addExperience(args as any); break;
+    case "updateExperience":         store.updateExperience(args.id, args.data); break;
+    case "removeExperience":         store.removeExperience(args.id); break;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    case "addEducation":             store.addEducation(args as any); break;
+    case "updateEducation":          store.updateEducation(args.id, args.data); break;
+    case "removeEducation":          store.removeEducation(args.id); break;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    case "addLanguage":              store.addLanguage(args as any); break;
+    case "updateLanguage":           store.updateLanguage(args.id, args.data); break;
+    case "removeLanguage":           store.removeLanguage(args.id); break;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    case "addCertification":         store.addCertification(args as any); break;
+    case "updateCertification":      store.updateCertification(args.id, args.data); break;
+    case "removeCertification":      store.removeCertification(args.id); break;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    case "addProject":               store.addProject(args as any); break;
+    case "updateProject":            store.updateProject(args.id, args.data); break;
+    case "removeProject":            store.removeProject(args.id); break;
+    case "removeSkill": {
+      const skill = args.skill as string;
+      store.setSkills(store.cvData.skills.filter(s => s.toLowerCase() !== skill.toLowerCase()));
+      break;
+    }
+  }
+}
+
 // Interface publique exposée via ref (utilisée par BuilderPage + JobMatchPanel)
 export interface ChatPanelHandle {
   sendExternalMessage: (text: string) => void;
@@ -30,9 +67,19 @@ export const ChatPanel = forwardRef<
     },
     onFinish({ message }) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const hasTools = (message as any).parts?.some((p: any) => p.type === "tool-invocation");
-      if (hasTools && onToolFinish) {
-        onToolFinish();
+      const parts: any[] = (message as any).parts ?? [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const toolParts = parts.filter((p: any) => p.type === "tool-invocation" && p.toolInvocation?.state === "result");
+
+      if (toolParts.length > 0) {
+        // Optimistic update: apply tool results to local store immediately so the CV
+        // re-renders before the background Supabase refetch completes.
+        for (const part of toolParts) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { toolName, args } = part.toolInvocation as { toolName: string; args: Record<string, any> };
+          applyOptimisticUpdate(toolName, args ?? {});
+        }
+        if (onToolFinish) onToolFinish();
       }
       // Save a version checkpoint after each complete coach response
       onCheckpoint?.();
