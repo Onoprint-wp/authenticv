@@ -54,7 +54,7 @@ const SectionCard = ({
           <div className="p-2.5 bg-slate-800/80 rounded-lg text-indigo-400 border border-slate-700/50 shadow-sm">
             <Icon size={18} />
           </div>
-          <h3 className="font-semibold text-slate-200 tracking-wide">{title}</h3>
+          <h3 className="text-lg font-semibold text-slate-200 tracking-wide">{title}</h3>
         </div>
         {isOpen ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
       </button>

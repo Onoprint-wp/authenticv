@@ -10,7 +10,7 @@ function SectionTitle({ children, accent }: { children: React.ReactNode; accent:
   return (
     <div className="flex items-center gap-2 mb-4">
       <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: accent }} />
-      <h3 className="text-xs font-bold uppercase tracking-widest text-slate-800">{children}</h3>
+      <h3 className="text-sm font-bold uppercase tracking-widest text-slate-800">{children}</h3>
     </div>
   );
 }
