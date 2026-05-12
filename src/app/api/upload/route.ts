@@ -162,7 +162,7 @@ export async function POST(req: Request) {
 
   if (!rawText.trim()) {
     return NextResponse.json(
-      { error: "Le fichier ne contient pas de texte lisible." },
+      { error: "Aucun texte détecté. Si votre CV est un PDF scanné (image), il n'est pas pris en charge — exportez-le en PDF texte depuis Word ou Google Docs." },
       { status: 422 }
     );
   }

@@ -7,6 +7,8 @@ import type { CvData } from "@/store/useCvStore";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
+const UPLOAD_TIMEOUT_MS = 55_000;
+
 export function UploadCvButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
@@ -24,10 +26,14 @@ export function UploadCvButton() {
     const formData = new FormData();
     formData.append("file", file);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+
     try {
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
 
       const data = await response.json();
@@ -39,29 +45,36 @@ export function UploadCvButton() {
       // Sauvegarder l'état actuel avant d'écraser (permet l'undo via VersionHistoryPanel)
       saveCheckpoint();
 
-      // Mettre à jour le store Zustand avec les données parsées
-      setCvData(data.cvData as CvData);
+      // Préserver le thème/layout actuel — l'import ne doit pas réinitialiser le design
+      const { cvData: current } = useCvStore.getState();
+      const merged: CvData = {
+        ...(data.cvData as CvData),
+        designSettings: current.designSettings,
+      };
+
+      setCvData(merged);
 
       // Persister immédiatement en DB pour éviter la race condition avec les tool calls du coach
-      // (sans ce POST, le debounce de 2s pourrait laisser le chat lire l'ancienne version)
       await fetch("/api/resumes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: data.cvData }),
+        body: JSON.stringify({ content: merged }),
       });
 
       setStatus("success");
-
-      // Retour à l'état normal après 3s
       setTimeout(() => setStatus("idle"), 3000);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Une erreur est survenue";
+      let message = "Une erreur est survenue";
+      if (err instanceof Error) {
+        message = err.name === "AbortError"
+          ? "Délai dépassé — le fichier est peut-être trop volumineux. Réessayez."
+          : err.message;
+      }
       setErrorMsg(message);
       setStatus("error");
-      setTimeout(() => setStatus("idle"), 4000);
+      setTimeout(() => setStatus("idle"), 5000);
     } finally {
-      // Reset l'input pour permettre de re-uploader le même fichier
+      clearTimeout(timeoutId);
       if (inputRef.current) inputRef.current.value = "";
     }
   };
