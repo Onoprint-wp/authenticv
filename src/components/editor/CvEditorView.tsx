@@ -194,10 +194,10 @@ const PhotoUpload = () => {
 };
 
 export const CvEditorView = () => {
-  const { 
-    cvData, 
-    updatePersonalInfo, 
-    updateDocumentTitle, 
+  const {
+    cvData,
+    updatePersonalInfo,
+    updateDocumentTitle,
     updateSummary,
     addExperience, updateExperience, removeExperience,
     addEducation, updateEducation, removeEducation,
@@ -207,9 +207,28 @@ export const CvEditorView = () => {
     addCertification, updateCertification, removeCertification
   } = useCvStore();
 
+  // État local pour la textarea compétences — évite la réinitialisation du curseur
+  // à chaque frappe (problème des controlled inputs qui parsent en temps réel)
+  const [localSkillsText, setLocalSkillsText] = React.useState(() => cvData.skills.join(', '));
+  const isSkillsFocused = useRef(false);
+
+  // Sync depuis le store uniquement quand l'utilisateur n'est pas en train de saisir
+  // (ex: mise à jour via le coach IA)
+  React.useEffect(() => {
+    if (!isSkillsFocused.current) {
+      setLocalSkillsText(cvData.skills.join(', '));
+    }
+  }, [cvData.skills]);
+
   const handleSkillsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const skillsArray = e.target.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    setLocalSkillsText(e.target.value);
+  };
+
+  const handleSkillsBlur = () => {
+    isSkillsFocused.current = false;
+    const skillsArray = localSkillsText.split(',').map(s => s.trim()).filter(s => s.length > 0);
     setSkills(skillsArray);
+    setLocalSkillsText(skillsArray.join(', '));
   };
 
   return (
@@ -395,9 +414,11 @@ export const CvEditorView = () => {
       <SectionCard title="Compétences" icon={Code}>
         <div className="space-y-2">
           <p className="text-xs text-slate-400 ml-1 mb-2">Entrez les compétences séparées par des virgules</p>
-          <Textarea 
-            value={cvData.skills.join(', ')} 
+          <Textarea
+            value={localSkillsText}
             onChange={handleSkillsChange}
+            onFocus={() => { isSkillsFocused.current = true; }}
+            onBlur={handleSkillsBlur}
             placeholder="React, TypeScript, Node.js, ..."
             className="min-h-[80px]"
           />
