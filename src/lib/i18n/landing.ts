@@ -264,8 +264,8 @@ export const en: LandingDict = {
     cta1: "Build my CV for free",
     cta2: "See how it works",
     benefit1: "ATS-optimized CV",
-    benefit2: "20 free messages",
-    benefit3: "No credit card required",
+    benefit2: "Free unlimited AI Coach",
+    benefit3: "Mobile Money & Card payment",
     aiLabel: "Alex (AI)",
     aiQuestion: "What were your main responsibilities?",
     cvGenerated: "CV generated",
@@ -330,77 +330,77 @@ export const en: LandingDict = {
     ],
   },
   pricing: {
-    title: "Simple, transparent pricing",
-    subtitle: "Start for free. Upgrade to Pro when you're ready.",
+    title: "Flexible & Transparent Pricing",
+    subtitle: "Start for free with Mobile Money. Pay 1,000 FCFA for a single application or 5,000 FCFA/month for unlimited access.",
     free: {
       label: "Free",
-      price: "€0",
+      price: "0 FCFA",
       period: "/month",
-      note: "No credit card required",
-      cta: "Get started for free",
+      note: "No credit card, no commitment",
+      cta: "Get started (Free)",
       features: [
         { label: "1 CV", included: true },
-        { label: "20 Alex messages / month", included: true },
+        { label: "Unlimited Alex chat", included: true },
         { label: "Real-time web preview", included: true },
         { label: "ATS dashboard & application tracker", included: true },
         { label: "Auto-save", included: true },
-        { label: "Multi-CV (multiple CVs)", included: false },
-        { label: "PDF export", included: false },
+        { label: "PDF export (with watermark)", included: true },
+        { label: "Multi-CVs (per job application)", included: false },
         { label: "AI cover letter", included: false },
         { label: "Sector benchmark", included: false },
       ],
     },
     pro: {
       label: "Pro",
-      price: "€9",
+      price: "5 000 FCFA",
       period: "/month · no commitment",
-      note: "≈ 5,900 FCFA · Cancel anytime",
+      note: "≈ €8 · Cancel anytime",
       badge: "Recommended",
       features: [
-        "Unlimited Alex messages",
-        "Multi-CV — one CV per application",
-        "One-click PDF export",
+        "Unlimited Alex chat",
+        "Multi-CVs — one tailored CV per application",
+        "Unlimited clean HD PDF exports",
         "Personalized AI cover letter",
-        "Job Match — optimize for a specific offer",
+        "Job Match — optimize for a specific job offer",
         "Sector benchmark — your rank among candidates",
-        "Priority access to new features",
+        "Priority access to new AI models",
       ],
     },
-    footer: "Secure payment · Credit card & Mobile Money (MTN / Orange) · Cancel in one click",
+    footer: "Secure payment · MTN MoMo, Orange Money & Credit Card via Campay.net · Cancel in one click",
   },
   faq: {
     title: "Frequently asked questions",
     subtitle: "Everything you need to know before getting started.",
     items: [
       {
-        question: "Do I need a credit card to get started?",
+        question: "Is AuthentiCV really free to start?",
         answer:
-          "No. The free plan requires no credit card. You can build your CV, chat with Alex, and preview the result immediately. You only pay if you decide to upgrade to Pro.",
+          "Yes! The free plan requires no credit card. You can chat with Alex without limits, create your CV, and preview it in real time. Free PDF exports include a discreet watermark.",
       },
       {
-        question: "What happens when I reach the 20 free messages?",
+        question: "How does the 1,000 FCFA single application pass work?",
         answer:
-          "The counter resets every month. If you need more messages before the end of the month, you can upgrade to Pro for unlimited messages. Your CV remains accessible and saved even after the limit.",
+          "If you only need to apply to one specific job, you can unlock 1 clean HD PDF export with no watermark, 1 AI-tailored cover letter, and 1 ATS Job Match analysis for just 1,000 FCFA via MTN MoMo or Orange Money.",
       },
       {
         question: "Can I cancel my Pro subscription at any time?",
         answer:
-          "Yes, with no conditions or fees. Your subscription stays active until the end of the paid period, then automatically reverts to the free plan. Cancellation takes one click from the billing portal.",
+          "Yes, with no conditions or fees. Your subscription stays active until the end of the paid period, then automatically reverts to the free plan. Cancellation takes one click.",
       },
       {
-        question: "Is my CV compatible with recruitment software (ATS)?",
+        question: "Which payment methods are accepted?",
         answer:
-          "Yes. The generated PDF follows ATS best practices: no images in the body, readable font, clearly labeled sections. It is compatible with the major tools used by recruiters (Workday, Lever, Greenhouse, etc.).",
+          "We accept Mobile Money (MTN Mobile Money, Orange Money) and Credit Cards (Visa, Mastercard) through our secure payment partner Campay.net.",
+      },
+      {
+        question: "Is my CV compatible with applicant tracking systems (ATS)?",
+        answer:
+          "Yes. The generated PDF follows ATS best practices: clean typography, standard formatting, and clearly labeled sections compatible with Workday, Taleo, Greenhouse, and other recruitment software.",
       },
       {
         question: "Is my personal data secure?",
         answer:
-          "Your data is hosted in Europe on Supabase (encrypted PostgreSQL). It is never sold or shared with third parties. Each user only has access to their own data through Row-Level Security (RLS).",
-      },
-      {
-        question: "How does the Job Match feature work?",
-        answer:
-          "Paste a job offer and Alex analyses the keywords, skills, and requirements of the role to suggest targeted improvements to your CV. Available on the Pro plan.",
+          "Your data is hosted securely on Supabase (encrypted PostgreSQL). It is never sold or shared with third parties without your consent. Each user only has access to their own data through Row-Level Security (RLS).",
       },
     ],
   },
