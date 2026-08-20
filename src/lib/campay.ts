@@ -168,19 +168,28 @@ export async function createPaymentLink(opts: {
   userId: string;
   userEmail: string;
   redirectUrl?: string;
+  failureRedirectUrl?: string;
   description?: string;
 }): Promise<PaymentLinkResponse> {
+  const redirectUrl = opts.redirectUrl ?? `${SITE_URL}/builder?upgraded=true`;
+  const failureRedirectUrl = opts.failureRedirectUrl ?? `${SITE_URL}/builder?payment=failed`;
+
+  // CamPay demo environment has a strict max limit of 25 XAF
+  const isDemo = CAMPAY_API_BASE.includes("demo.campay.net");
+  const requestAmount = isDemo ? Math.min(opts.amount, 25) : opts.amount;
+
   return campayFetch<PaymentLinkResponse>("/get_payment_link/", {
     method: "POST",
     body: JSON.stringify({
-      amount: String(opts.amount),
+      amount: String(requestAmount),
       currency: "XAF",
       description: opts.description ?? "AuthenticV Pro – Abonnement mensuel",
-      redirect_url: opts.redirectUrl ?? `${SITE_URL}/builder?upgraded=true`,
+      redirect_url: redirectUrl,
+      failure_redirect_url: failureRedirectUrl,
       external_reference: opts.userId,
       // CamPay uses these for the checkout page
-      name: opts.userEmail,
-      email: opts.userEmail,
+      name: opts.userEmail || "Client AuthenticV",
+      email: opts.userEmail || "client@authenticv.app",
     }),
   });
 }

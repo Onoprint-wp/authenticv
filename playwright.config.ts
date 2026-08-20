@@ -48,10 +48,11 @@ export default defineConfig({
       },
     },
 
-    // 3. Bloc 1 (auth guards) — PAS de session
+    // 3. Bloc 1 & 8 (auth guards / public pricing flows) — PAS de session
     {
       name: "bloc1-noauth",
-      testMatch: /bloc1-auth\.spec\.ts/,
+      testMatch: /bloc[18]-.*\.spec\.ts/,
+      grepInvert: /Avec Session/,
       use: {
         ...devices["Desktop Chrome"],
         storageState: { cookies: [], origins: [] },
@@ -72,11 +73,11 @@ export default defineConfig({
       dependencies: ["setup"],
     },
 
-    // 5. Blocs 2, 3 (auth), 4, 5, 6, 7 — AVEC session
+    // 5. Blocs 2, 3 (auth), 4, 5, 6, 7, 8 — AVEC session
     {
       name: "blocs-with-auth",
-      testMatch: /bloc[234567]-.*\.spec\.ts/,
-      grepInvert: /sans auth/,
+      testMatch: /bloc[2345678]-.*\.spec\.ts/,
+      grepInvert: /sans auth|Sans Session/,
       use: {
         ...devices["Desktop Chrome"],
         storageState: path.join(__dirname, "tests/.auth/user.json"),
