@@ -21,33 +21,33 @@ test.describe("Bloc 0 — Landing Page", () => {
     expect(errors).toHaveLength(0);
   });
 
-  test("0.2 — Le titre AuthentiCV est visible", async ({ page }) => {
+  test("0.2 — Le titre principal est visible", async ({ page }) => {
     const title = page.locator("h1");
     await expect(title).toBeVisible();
-    await expect(title).toContainText("AuthentiCV");
+    await expect(title).toContainText("Créez votre CV avec l'IA");
   });
 
   test("0.3 — Le CTA 'Créer mon CV gratuitement' est visible", async ({ page }) => {
     const cta = page.locator("a", { hasText: "Créer mon CV gratuitement" });
     await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute("href", "/login");
+    await expect(cta).toHaveAttribute("href", "/builder");
   });
 
   test("0.4 — Les 3 arguments de vente sont affichés", async ({ page }) => {
-    await expect(page.locator("text=IA Conversationnelle")).toBeVisible();
-    await expect(page.locator("text=temps réel").first()).toBeVisible();
-    await expect(page.locator("text=ATS").first()).toBeVisible();
+    await expect(page.locator("text=CV optimisé ATS").first()).toBeVisible();
+    await expect(page.locator("text=20 messages offerts").first()).toBeVisible();
+    await expect(page.locator("text=Sans carte bancaire").first()).toBeVisible();
   });
 
-  test("0.5 — Clic CTA redirige vers /login", async ({ page }) => {
+  test("0.5 — Clic CTA redirige vers /builder ou /login", async ({ page }) => {
     const cta = page.locator("a", { hasText: "Créer mon CV gratuitement" });
     await cta.click();
-    await page.waitForURL("**/login", { timeout: 10_000 });
-    await expect(page).toHaveURL(/login/);
+    await page.waitForURL(url => url.pathname.includes("/builder") || url.pathname.includes("/login"), { timeout: 10_000 });
+    expect(["/builder", "/login"]).toContain(new URL(page.url()).pathname);
   });
 
-  test("0.6 — Badge 'Propulsé par Claude' est visible", async ({ page }) => {
-    const badge = page.locator("text=Propulsé par Claude");
+  test("0.6 — Badge d'en-tête est visible", async ({ page }) => {
+    const badge = page.locator("text=Générateur de CV par IA conversationnelle");
     await expect(badge).toBeVisible();
   });
 

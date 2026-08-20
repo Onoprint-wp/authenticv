@@ -14,7 +14,7 @@ export const maxDuration = 120;
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
 const DEFAULT_MODEL_PRO = "claude-sonnet-4-6";
-const DEFAULT_MODEL_FREE = "claude-3-5-haiku-20241022";
+const DEFAULT_MODEL_FREE = "claude-haiku-4-5";
 
 const getAnthropicModel = (isPro: boolean = false) => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });

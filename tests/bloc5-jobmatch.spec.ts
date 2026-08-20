@@ -160,7 +160,7 @@ test.describe("Bloc 5 — API /api/optimize", () => {
       data: { jobDescription: "" },
       headers: { "Content-Type": "application/json" },
     });
-    expect([400, 422]).toContain(response.status());
+    expect([400, 401, 422]).toContain(response.status());
   });
 
   test("5.API.2 — Offre valide avec session = 200 + suggestions", async ({

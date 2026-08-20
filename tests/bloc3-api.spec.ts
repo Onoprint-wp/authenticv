@@ -34,6 +34,8 @@ test.describe("Bloc 3 — API /api/resumes (sans auth)", () => {
 });
 
 test.describe("Bloc 3 — API /api/resumes (avec auth)", () => {
+  test.use({ storageState: require("path").join(__dirname, ".auth/user.json") });
+
   test("3.4 — GET /api/resumes avec session = 200", async ({ request }) => {
     const response = await request.get("/api/resumes");
     // 200 = OK (résumé trouvé ou null retourné)
