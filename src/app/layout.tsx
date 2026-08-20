@@ -79,7 +79,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${geistSans.variable} h-full antialiased`}>
-      <head>
+      <body className="h-full bg-slate-950">
         {GTM_ID && (
           <Script
             id="gtm-script"
@@ -89,8 +89,7 @@ export default function RootLayout({
             }}
           />
         )}
-      </head>
-      <body className="h-full bg-slate-950">
+
         {GTM_ID && (
           <noscript>
             <iframe

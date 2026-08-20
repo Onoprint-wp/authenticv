@@ -92,30 +92,69 @@ export async function POST(req: Request) {
   try {
     switch (payload.status) {
       case "SUCCESSFUL": {
-        // Payment succeeded → activate Pro subscription
-        const oneMonthFromNow = new Date();
-        oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+        const paidAmount = Number(payload.amount || 0);
 
-        const { error } = await supabase.from("user_subscriptions").upsert(
-          {
-            user_id: userId,
-            campay_reference: payload.reference,
-            campay_payment_reference: payload.reference,
-            campay_operator: payload.operator,
-            campay_phone: payload.endpoint,
-            campay_payment_status: payload.status,
-            plan_name: "pro",
-            status: "active",
-            current_period_end: oneMonthFromNow.toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id" },
-        );
+        if (paidAmount === 1000) {
+          // Single-use unlock credit (1 000 FCFA)
+          const { data: currentSub } = await supabase
+            .from("user_subscriptions")
+            .select("single_credits")
+            .eq("user_id", userId)
+            .maybeSingle();
 
-        if (error) {
-          console.error("[CamPay Webhook] Supabase upsert error:", error);
+          const existingCredits = currentSub?.single_credits ?? 0;
+
+          const { error } = await supabase.from("user_subscriptions").upsert(
+            {
+              user_id: userId,
+              campay_reference: payload.reference,
+              campay_payment_reference: payload.reference,
+              campay_operator: payload.operator,
+              campay_phone: payload.endpoint,
+              campay_payment_status: payload.status,
+              single_credits: existingCredits + 1,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          );
+
+          if (error) {
+            console.error("[CamPay Webhook] Supabase single_credits error:", error);
+          } else {
+            console.log(`[CamPay Webhook] User ${userId} +1 single credit (1000 XAF) via ${payload.operator}`);
+          }
         } else {
-          console.log(`[CamPay Webhook] User ${userId} → active (Pro) via ${payload.operator}`);
+          // Subscription (5 000 XAF monthly or 18 000 XAF annual)
+          const periodEnd = new Date();
+          if (paidAmount === 18000) {
+            periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+          } else {
+            periodEnd.setMonth(periodEnd.getMonth() + 1);
+          }
+
+          const planName = paidAmount === 18000 ? "pro_annual" : "pro";
+
+          const { error } = await supabase.from("user_subscriptions").upsert(
+            {
+              user_id: userId,
+              campay_reference: payload.reference,
+              campay_payment_reference: payload.reference,
+              campay_operator: payload.operator,
+              campay_phone: payload.endpoint,
+              campay_payment_status: payload.status,
+              plan_name: planName,
+              status: "active",
+              current_period_end: periodEnd.toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          );
+
+          if (error) {
+            console.error("[CamPay Webhook] Supabase upsert error:", error);
+          } else {
+            console.log(`[CamPay Webhook] User ${userId} → active (${planName}) via ${payload.operator}`);
+          }
         }
         break;
       }

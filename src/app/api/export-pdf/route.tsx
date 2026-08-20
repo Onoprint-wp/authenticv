@@ -3,7 +3,7 @@ import { CvDocument } from "@/components/pdf/CvDocument";
 import { CvDocumentModern } from "@/components/pdf/CvDocumentModern";
 import { CvDocumentMinimal } from "@/components/pdf/CvDocumentMinimal";
 import { createClient } from "@/utils/supabase/server";
-import { getUserPlan } from "@/lib/plan";
+import { getUserPlan, getUserSingleCredits, consumeSingleCredit } from "@/lib/plan";
 import React from "react";
 
 export const runtime = "nodejs"; // Requis pour @react-pdf/renderer sur le serveur
@@ -19,11 +19,17 @@ export async function GET() {
     }
 
     const plan = await getUserPlan(user.id);
-    if (plan !== "pro") {
-      return new Response(
-        JSON.stringify({ error: "pro_required", details: "L'export PDF est réservé aux abonnés Pro." }),
-        { status: 402, headers: { "Content-Type": "application/json" } }
-      );
+    let showWatermark = plan !== "pro";
+
+    // Si l'utilisateur a acheté un déblocage à l'acte (1 000 FCFA), on consomme 1 crédit pour exporter sans filigrane
+    if (showWatermark) {
+      const singleCredits = await getUserSingleCredits(user.id);
+      if (singleCredits > 0) {
+        const consumed = await consumeSingleCredit(user.id);
+        if (consumed) {
+          showWatermark = false;
+        }
+      }
     }
 
     // Récupérer le CV via Supabase
@@ -70,11 +76,11 @@ export async function GET() {
     const layout = cvData.designSettings?.layout ?? "classic";
     let docElement: React.ReactElement;
     if (layout === "modern") {
-      docElement = <CvDocumentModern cvData={cvData} />;
+      docElement = <CvDocumentModern cvData={cvData} showWatermark={showWatermark} />;
     } else if (layout === "minimal") {
-      docElement = <CvDocumentMinimal cvData={cvData} />;
+      docElement = <CvDocumentMinimal cvData={cvData} showWatermark={showWatermark} />;
     } else {
-      docElement = <CvDocument cvData={cvData} />;
+      docElement = <CvDocument cvData={cvData} showWatermark={showWatermark} />;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const stream = await renderToStream(docElement as any);

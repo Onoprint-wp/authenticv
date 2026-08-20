@@ -13,11 +13,12 @@ export const maxDuration = 120;
 // ── Sanitize API key (strip invisible \r\n from Vercel env vars) ──────────────
 const sanitizedApiKey = (process.env.ANTHROPIC_API_KEY ?? "").replace(/[\r\n\s]+/g, "");
 
-const DEFAULT_MODEL = "claude-sonnet-4-6";
+const DEFAULT_MODEL_PRO = "claude-sonnet-4-6";
+const DEFAULT_MODEL_FREE = "claude-3-5-haiku-20241022";
 
-const getAnthropicModel = () => {
+const getAnthropicModel = (isPro: boolean = false) => {
   const provider = createAnthropic({ apiKey: sanitizedApiKey });
-  const modelId = process.env.ANTHROPIC_MODEL ?? DEFAULT_MODEL;
+  const modelId = process.env.ANTHROPIC_MODEL ?? (isPro ? DEFAULT_MODEL_PRO : DEFAULT_MODEL_FREE);
   return provider(modelId);
 };
 
@@ -228,25 +229,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérification du quota mensuel pour les utilisateurs Free
-    const [plan, messageCount] = await Promise.all([
-      getUserPlan(user.id),
-      getMonthlyMessageCount(user.id),
-    ]);
-
-    if (plan === "free" && messageCount >= FREE_MONTHLY_MESSAGES) {
-      return new Response(
-        JSON.stringify({
-          error: "quota_exceeded",
-          details: `Vous avez atteint la limite de ${FREE_MONTHLY_MESSAGES} messages gratuits ce mois-ci. Passez à Pro pour continuer.`,
-        }),
-        { status: 402, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    // Suivi de l'utilisation mensuelle (non-bloquant pour la création de CV de base)
+    const plan = await getUserPlan(user.id);
 
     const { messages } = await req.json();
 
-    // Incrémenter le compteur après lecture du body (évite d'incrémenter si body invalide)
     if (plan === "free") {
       await incrementMessageCount(user.id);
     }
@@ -561,7 +548,7 @@ export async function POST(req: Request) {
     };
 
     const result = streamText({
-      model: getAnthropicModel(),
+      model: getAnthropicModel(plan === "pro"),
       system: dynamicSystemPrompt,
       messages: coreMessages,
       ...(tools !== undefined ? { tools } : {}),

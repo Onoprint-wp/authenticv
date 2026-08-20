@@ -206,6 +206,31 @@ function createStyles(
     certName: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a", lineHeight: 1.3 },
     certIssuer: { fontSize: 8.5, color: "#64748b", marginTop: 1 },
     certDate: { fontSize: 8, color: "#94a3b8", marginTop: 2 },
+
+    // Watermark
+    watermarkFooter: {
+      position: "absolute",
+      bottom: 6,
+      left: 0,
+      right: 0,
+      paddingVertical: 3,
+      backgroundColor: "#ffffff",
+      borderTopWidth: 0.5,
+      borderTopColor: "#e2e8f0",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    watermarkText: {
+      fontSize: 7.5,
+      color: "#94a3b8",
+      fontFamily: fontBase,
+      textAlign: "center",
+    },
+    watermarkBrand: {
+      fontFamily: fontBold,
+      color: "#6366f1",
+    },
   });
 }
 
@@ -213,9 +238,10 @@ function createStyles(
 
 interface CvDocumentProps {
   cvData: CvData;
+  showWatermark?: boolean;
 }
 
-export function CvDocument({ cvData }: CvDocumentProps) {
+export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
   const {
     personalInfo, summary, experiences, education,
     skills, projects, languages, certifications, designSettings,
@@ -411,6 +437,14 @@ export function CvDocument({ cvData }: CvDocumentProps) {
             )}
           </View>
         </View>
+
+        {showWatermark && (
+          <View style={styles.watermarkFooter} fixed>
+            <Text style={styles.watermarkText}>
+              Créé avec <Text style={styles.watermarkBrand}>AuthentiCV.app</Text> • Créez votre CV gratuitement sur www.authenticv.app
+            </Text>
+          </View>
+        )}
       </Page>
     </Document>
   );

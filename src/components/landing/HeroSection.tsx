@@ -77,6 +77,16 @@ export function HeroSection({ dict }: Props) {
                 <span>{dict.benefit3}</span>
               </div>
             </div>
+
+            {/* Mobile Money Reassurance */}
+            <div className="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-center lg:justify-start gap-4 text-xs text-slate-500">
+              <span>Paiement sécurisé via :</span>
+              <div className="flex items-center gap-2 font-semibold text-slate-300">
+                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">MTN MoMo</span>
+                <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded">Orange Money</span>
+                <span className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 rounded">Campay.net</span>
+              </div>
+            </div>
           </motion.div>
 
           {/* Visual Element */}

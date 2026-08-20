@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
+import { RecruiterCTASection } from "@/components/landing/RecruiterCTASection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { Footer } from "@/components/landing/Footer";
 import { fr } from "@/lib/i18n/landing";
@@ -25,13 +26,13 @@ const softwareSchema = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Sans formulaire, juste une conversation.",
+    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Compatible MTN MoMo & Orange Money via Campay.net.",
   url: "https://authenticv.app",
   offers: {
     "@type": "Offer",
     price: "0",
-    priceCurrency: "EUR",
-    description: "Plan gratuit — 20 messages par mois, sans carte bancaire",
+    priceCurrency: "XAF",
+    description: "Plan gratuit — création de CV illimitée, paiement à l'acte (1 000 FCFA) ou Pro (5 000 FCFA/mois)",
   },
   featureList: [
     "Coach IA conversationnel (Alex)",
@@ -40,6 +41,7 @@ const softwareSchema = {
     "Lettre de motivation IA",
     "Job Match",
     "Préparation entretien IA",
+    "Paiement Mobile Money via Campay",
   ],
 };
 
@@ -64,6 +66,7 @@ export default function Home() {
         <HowItWorks dict={fr.howItWorks} />
         <FeaturesSection dict={fr.features} />
         <PricingSection dict={fr.pricing} />
+        <RecruiterCTASection />
         <FaqSection dict={fr.faq} />
         <Footer dict={fr.footer} />
       </main>

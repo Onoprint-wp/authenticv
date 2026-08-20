@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { ArrowLeft, FileText, Eye, TrendingUp, Users } from "lucide-react";
 import { DashboardCharts } from "./DashboardCharts";
+import { ReferralBanner } from "@/components/ReferralBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -238,6 +239,9 @@ export default async function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* Parrainage & Récompense Pro */}
+        <ReferralBanner userId={user.id} />
       </main>
     </div>
   );
