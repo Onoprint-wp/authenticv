@@ -13,11 +13,13 @@ interface Props {
 function LocaleSwitcher() {
   const pathname = usePathname();
   const isEn = pathname.startsWith("/en");
+  const frPath = isEn ? (pathname.replace(/^\/en/, "") || "/") : pathname;
+  const enPath = isEn ? pathname : `/en${pathname === "/" ? "" : pathname}`;
 
   return (
     <div className="flex items-center gap-1 bg-slate-800/60 border border-slate-700/50 rounded-lg p-0.5 text-xs font-semibold">
       <Link
-        href="/"
+        href={frPath}
         className={`px-2 py-1 rounded-md transition-colors ${
           !isEn ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
         }`}
@@ -25,7 +27,7 @@ function LocaleSwitcher() {
         FR
       </Link>
       <Link
-        href="/en"
+        href={enPath}
         className={`px-2 py-1 rounded-md transition-colors ${
           isEn ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
         }`}
