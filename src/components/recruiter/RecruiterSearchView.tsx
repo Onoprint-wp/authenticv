@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2 } from "lucide-react";
+import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, CheckCircle } from "lucide-react";
+import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
 
 interface CandidateProfile {
   id: string;
@@ -58,10 +59,13 @@ interface Props {
 }
 
 export function RecruiterSearchView({ isEn = false }: Props) {
+  const [activeTab, setActiveTab] = useState<"search" | "unlocked">("search");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [profiles, setProfiles] = useState<CandidateProfile[]>(MOCK_TALENTS);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [creditsBalance, setCreditsBalance] = useState<number>(5);
 
   const backUrl = isEn ? "/en/recruiter" : "/recruiter";
 
@@ -81,6 +85,9 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             p.id === profileId ? { ...p, isUnlocked: true, contact: data.contact } : p
           )
         );
+        if (typeof data.credits_balance === "number") {
+          setCreditsBalance(data.credits_balance);
+        }
       } else {
         // Fallback simulation for demo
         setProfiles((prev) =>
@@ -121,7 +128,11 @@ export function RecruiterSearchView({ isEn = false }: Props) {
     }
   };
 
+  const unlockedCount = profiles.filter((p) => p.isUnlocked).length;
+
   const filteredProfiles = profiles.filter((p) => {
+    if (activeTab === "unlocked" && !p.isUnlocked) return false;
+
     const matchesSearch =
       p.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.skills.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -134,9 +145,15 @@ export function RecruiterSearchView({ isEn = false }: Props) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <RecruiterBuyCreditsModal
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+        isEn={isEn}
+      />
+
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link
               href={backUrl}
@@ -151,14 +168,56 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             </h1>
           </div>
 
-          <div className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-            {isEn ? "Available credits: " : "Crédits disponibles : "}<span className="text-amber-400 font-bold">{isEn ? "5 Credits" : "5 Crédits"}</span>
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+              {isEn ? "Available credits: " : "Crédits disponibles : "}<span className="text-amber-400 font-bold">{isEn ? `${creditsBalance} Credits` : `${creditsBalance} Crédits`}</span>
+            </div>
+
+            <button
+              onClick={() => setIsBuyModalOpen(true)}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs px-3.5 py-1.5 rounded-full transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>{isEn ? "Buy Credits" : "Acheter des Crédits"}</span>
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
+        
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 mb-6 border-b border-slate-800 pb-3">
+          <button
+            onClick={() => setActiveTab("search")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === "search"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>{isEn ? "All Talents (CEMAC)" : "Tous les Talents CEMAC"}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("unlocked")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === "unlocked"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+            }`}
+          >
+            <Users className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{isEn ? "My Unlocked Talents" : "Mes Talents Débloqués"}</span>
+            {unlockedCount > 0 && (
+              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                {unlockedCount}
+              </span>
+            )}
+          </button>
+        </div>
         
         {/* Search Bar & Filters */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 mb-8 shadow-xl flex flex-col md:flex-row gap-4">

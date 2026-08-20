@@ -94,6 +94,51 @@ export async function POST(req: Request) {
       case "SUCCESSFUL": {
         const paidAmount = Number(payload.amount || 0);
 
+        // ── B2B Recruiter Purchases ──
+        if (userId.startsWith("recruiter:")) {
+          const parts = userId.split(":");
+          const recruiterUserId = parts[1];
+          const pack = parts[2] || "pack5";
+
+          const { data: comp } = await supabase
+            .from("companies")
+            .select("credits_balance, plan")
+            .eq("user_id", recruiterUserId)
+            .maybeSingle();
+
+          let additionalCredits = 5;
+          let newPlan = comp?.plan ?? "pay_as_you_go";
+
+          if (pack === "single" || paidAmount === 5000) {
+            additionalCredits = 1;
+          } else if (pack === "pack15" || paidAmount === 50000) {
+            additionalCredits = 15;
+          } else if (pack === "monthly_pro" || paidAmount === 75000) {
+            additionalCredits = 999;
+            newPlan = "monthly_pro";
+          }
+
+          const currentCredits = comp?.credits_balance ?? 0;
+          const { error: compError } = await supabase.from("companies").upsert(
+            {
+              user_id: recruiterUserId,
+              company_name: payload.external_user || "Entreprise Recruteur",
+              email: payload.endpoint || "",
+              credits_balance: currentCredits + additionalCredits,
+              plan: newPlan,
+            },
+            { onConflict: "user_id" }
+          );
+
+          if (compError) {
+            console.error("[CamPay Webhook] B2B company credits update error:", compError);
+          } else {
+            console.log(`[CamPay Webhook] Recruiter ${recruiterUserId} credited with ${additionalCredits} credits (Plan: ${newPlan})`);
+          }
+          break;
+        }
+
+        // ── B2C Candidate Purchases ──
         if (paidAmount === 1000) {
           // Single-use unlock credit (1 000 FCFA)
           const { data: currentSub } = await supabase

@@ -21,10 +21,14 @@ export async function POST(req: Request) {
   }
 
   let tier: "single" | "monthly" | "annual" = "monthly";
+  let promoCode = "";
   try {
     const body = await req.json();
     if (body.tier === "single" || body.tier === "annual" || body.tier === "monthly") {
       tier = body.tier;
+    }
+    if (body.promoCode) {
+      promoCode = String(body.promoCode).trim().toUpperCase();
     }
   } catch {
     // default to monthly if no json body
@@ -52,12 +56,31 @@ export async function POST(req: Request) {
     description = "AuthenticV Pro – Pass Annuel Carrière (18 000 FCFA)";
   }
 
+  // Apply promo code discount if provided
+  if (promoCode) {
+    const PROMOS: Record<string, number> = {
+      CAMPUS20: 20,
+      STUDENT50: 50,
+      UY1: 30,
+      UDLA: 30,
+      UBUEA: 30,
+      UDSH: 30,
+      AUTHVIP: 25,
+      LAUNCH2026: 20,
+    };
+    const discount = PROMOS[promoCode];
+    if (discount) {
+      amount = Math.max(100, Math.round(amount * (1 - discount / 100)));
+      description = `${description} [Code: ${promoCode} -${discount}%]`;
+    }
+  }
+
   try {
     const result = await createPaymentLink({
       amount,
       userId: user.id,
       userEmail: user.email ?? "",
-      redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}`,
+      redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}${promoCode ? `&promo=${promoCode}` : ""}`,
       description,
     });
 

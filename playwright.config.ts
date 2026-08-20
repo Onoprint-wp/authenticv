@@ -72,10 +72,10 @@ export default defineConfig({
       dependencies: ["setup"],
     },
 
-    // 5. Blocs 2, 3 (auth), 4, 5, 6 — AVEC session
+    // 5. Blocs 2, 3 (auth), 4, 5, 6, 7 — AVEC session
     {
       name: "blocs-with-auth",
-      testMatch: /bloc[23456]-.*\.spec\.ts/,
+      testMatch: /bloc[234567]-.*\.spec\.ts/,
       grepInvert: /sans auth/,
       use: {
         ...devices["Desktop Chrome"],

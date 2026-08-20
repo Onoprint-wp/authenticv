@@ -27,11 +27,52 @@ const PRO_FEATURES = [
 
 export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalProps) {
   const [loading, setLoading] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [validatingPromo, setValidatingPromo] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    partnerName: string;
+    discountPercent: number;
+    discountedPrice: number;
+  } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setValidatingPromo(true);
+    setPromoError(null);
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ promoCode: promoInput.trim(), tier: "monthly" }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setAppliedPromo(data);
+        setPromoError(null);
+      } else {
+        setPromoError(data.error || "Code promo invalide");
+        setAppliedPromo(null);
+      }
+    } catch {
+      setPromoError("Erreur lors de la validation");
+    } finally {
+      setValidatingPromo(false);
+    }
+  };
 
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/campay/checkout", { method: "POST" });
+      const res = await fetch("/api/campay/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tier: "monthly",
+          promoCode: appliedPromo?.code || undefined,
+        }),
+      });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
     } catch {
@@ -40,6 +81,8 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
   };
 
   if (!isOpen) return null;
+
+  const currentPrice = appliedPromo ? appliedPromo.discountedPrice : 5000;
 
   return (
     <>
@@ -81,18 +124,64 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
             ))}
           </div>
 
+          {/* Promo Code Input */}
+          <div className="px-6 py-2 border-t border-slate-800/80">
+            {appliedPromo ? (
+              <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-700/50 rounded-xl px-3 py-2 text-xs text-emerald-300">
+                <span>✓ {appliedPromo.partnerName}</span>
+                <button
+                  onClick={() => {
+                    setAppliedPromo(null);
+                    setPromoInput("");
+                  }}
+                  className="text-slate-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                    placeholder="Code Promo / Université (ex: UY1)"
+                    className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyPromo}
+                    disabled={validatingPromo || !promoInput.trim()}
+                    className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                  >
+                    {validatingPromo ? "..." : "Appliquer"}
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-[11px] text-red-400">{promoError}</p>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Price + CTA */}
-          <div className="px-6 pb-6 space-y-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold text-white">5 000 FCFA</span>
-              <span className="text-sm text-slate-500">/mois · sans engagement</span>
+          <div className="px-6 pb-6 pt-2 space-y-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-white">
+                {currentPrice.toLocaleString("fr-FR")} FCFA
+              </span>
+              {appliedPromo && (
+                <span className="text-sm line-through text-slate-500">5 000 FCFA</span>
+              )}
+              <span className="text-xs text-slate-500">/mois</span>
             </div>
             <button
               onClick={handleUpgrade}
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500
                 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold
-                rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95"
+                rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95 cursor-pointer"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Redirection…</>
@@ -101,7 +190,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               )}
             </button>
             <p className="text-center text-xs text-slate-600">
-              Paiement sécurisé par Campay (Mobile Money, Visa, Mastercard) · Résiliable à tout moment
+              Paiement sécurisé par Campay (MTN MoMo, Orange Money, Cartes) · Résiliable en 1 clic
             </p>
           </div>
         </div>
