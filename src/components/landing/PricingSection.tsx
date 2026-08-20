@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, X, Zap, Sparkles } from "lucide-react";
+import { Check, X, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UpgradeButton } from "@/components/UpgradeButton";
@@ -11,7 +11,7 @@ interface Props {
   dict?: LandingDict["pricing"];
 }
 
-export function PricingSection({ dict }: Props) {
+export function PricingSection({}: Props = {}) {
   const pathname = usePathname();
   const isEn = pathname.startsWith("/en");
 

@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Link, GraduationCap, Languages, Award, FolderGit2, Briefcase } from "lucide-react";
+import { Mail, Phone, MapPin, Link, GraduationCap, FolderGit2, Briefcase } from "lucide-react";
 import type { CvData } from "@/store/useCvStore";
 import { getTheme } from "@/lib/themes";
 

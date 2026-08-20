@@ -39,7 +39,7 @@ export function ReferralBanner({ userId }: ReferralBannerProps) {
               Offrez AuthenticV et gagnez 1 Mois Pro Gratuit ! 🎁
             </h3>
             <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl">
-              Partagez votre lien unique à vos camarades et amis. Dès qu'un ami génère son premier CV, vous recevez automatiquement **30 jours Pro offerts**.
+              Partagez votre lien unique à vos camarades et amis. Dès qu&apos;un ami génère son premier CV, vous recevez automatiquement <strong>30 jours Pro offerts</strong>.
             </p>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
 import { chatRateLimit } from "@/lib/rate-limit";
-import { getUserPlan, getMonthlyMessageCount, incrementMessageCount, FREE_MONTHLY_MESSAGES } from "@/lib/plan";
+import { getUserPlan, incrementMessageCount } from "@/lib/plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
