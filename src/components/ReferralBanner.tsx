@@ -66,12 +66,10 @@ export function ReferralBanner({ userId }: ReferralBannerProps) {
               <h3 className="font-bold text-base md:text-lg text-white">
                 Offrez AuthenticV et gagnez 1 Mois Pro Gratuit ! 🎁
               </h3>
-              {stats.totalReferrals > 0 && (
-                <span className="text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                  <Award className="w-3 h-3 text-emerald-400" />
-                  <span>{stats.rewardedCount} Mois Pro Gagné(s)</span>
-                </span>
-              )}
+              <span className="text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Award className="w-3 h-3 text-emerald-400" />
+                <span>{stats.rewardedCount > 0 ? `${stats.rewardedCount} Mois Pro Gagné(s)` : "Programme Parrainage"}</span>
+              </span>
             </div>
 
             <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl">
