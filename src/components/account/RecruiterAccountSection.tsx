@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, Zap, Search, PlusCircle, Check, Loader2, Save, Download } from "lucide-react";
+import { Building2, Zap, Search, PlusCircle, Check, Loader2, Save, Download, Upload } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { RecruiterBuyCreditsModal } from "@/components/recruiter/RecruiterBuyCreditsModal";
@@ -26,6 +26,46 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [uploadingContract, setUploadingContract] = useState(false);
+  const [contractUploadMsg, setContractUploadMsg] = useState<string | null>(null);
+
+  const handleUploadSignedContract = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size < 10 * 1024) {
+      setError(`Le fichier est trop petit (${(file.size / 1024).toFixed(1)} Ko). La taille minimum requise est de 10 Ko.`);
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError(`Le fichier est trop volumineux (${(file.size / (1024 * 1024)).toFixed(1)} Mo). La taille maximum est de 10 Mo.`);
+      return;
+    }
+
+    setUploadingContract(true);
+    setError(null);
+    setContractUploadMsg(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("entityType", "company");
+
+      const res = await fetch("/api/contracts/upload-signed", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur lors du téléversement");
+
+      setContractUploadMsg("✅ Scan du contrat signé téléversé avec succès (10 Ko - 10 Mo validés) ! En attente de validation administrateur.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur lors de l'upload du contrat");
+    } finally {
+      setUploadingContract(false);
+    }
+  };
 
   const handleDownloadB2bContract = async () => {
     try {
@@ -195,12 +235,33 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
                 </div>
               )}
 
-              {success && (
+              {contractUploadMsg && (
                 <div className="text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 p-2.5 rounded-xl flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400" />
-                  <span>Informations entreprise enregistrées !</span>
+                  <span>{contractUploadMsg}</span>
                 </div>
               )}
+
+              {/* Redépôt du contrat signé (Méthode A) */}
+              <div className="pt-3 border-t border-slate-800/80">
+                <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
+                  <Upload className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Redéposer mon Contrat Signé &amp; Tamponné (Scan PDF / Image)</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleUploadSignedContract}
+                    disabled={uploadingContract}
+                    className="block w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-950 file:text-indigo-300 hover:file:bg-indigo-900 border border-slate-800 rounded-xl p-1 bg-slate-950 cursor-pointer"
+                  />
+                  {uploadingContract && <Loader2 className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Méthode A : Téléchargez votre contrat PDF, signez-le et tamponnez-le, puis téléversez le scan (PDF, JPG, PNG | Taille : 10 Ko min - 10 Mo max).
+                </p>
+              </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
                 <button
