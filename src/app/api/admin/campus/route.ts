@@ -28,14 +28,24 @@ export async function GET() {
     const admin = createAdminClient();
     const { data: partners, error } = await admin
       .from("campus_partners")
-      .select("id, name, domain, promo_code, discount_percent, created_at")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
       throw error;
     }
 
-    return NextResponse.json({ partners: partners || [] });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formatted = (partners || []).map((p: any) => ({
+      id: p.id,
+      name: p.university_name || p.name || "Université",
+      domain: p.domain,
+      promo_code: p.promo_code || p.domain?.toUpperCase() || "CAMPUS20",
+      discount_percent: p.discount_percent || 20,
+      created_at: p.created_at,
+    }));
+
+    return NextResponse.json({ partners: formatted });
   } catch (err) {
     console.error("[Admin Campus GET Error]:", err);
     return NextResponse.json({ partners: [] }, { status: 500 });
@@ -70,12 +80,13 @@ export async function POST(req: Request) {
     }
 
     const admin = createAdminClient();
+    const cleanDomain = domain ? String(domain).trim().toLowerCase() : String(promo_code).trim().toLowerCase();
+
     const { data: newPartner, error } = await admin
       .from("campus_partners")
       .insert({
-        name: String(name).trim(),
-        domain: domain ? String(domain).trim().toLowerCase() : null,
-        promo_code: String(promo_code).trim().toUpperCase(),
+        university_name: String(name).trim(),
+        domain: cleanDomain,
         discount_percent: Number(discount_percent) || 20,
       })
       .select()
@@ -87,8 +98,15 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      partner: newPartner,
-      message: `Partenaire campus ${newPartner.name} créé avec succès !`,
+      partner: {
+        id: newPartner.id,
+        name: newPartner.university_name,
+        domain: newPartner.domain,
+        promo_code: String(promo_code).trim().toUpperCase(),
+        discount_percent: newPartner.discount_percent,
+        created_at: newPartner.created_at,
+      },
+      message: `Partenaire campus ${newPartner.university_name} créé avec succès !`,
     });
   } catch (err) {
     console.error("[Admin Campus POST Error]:", err);
