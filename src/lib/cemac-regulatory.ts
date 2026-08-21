@@ -7,6 +7,8 @@ export interface CemacCountryConfig {
   higherEduMinistry: string;
   businessLaw: string;
   taxExemptionClause: string;
+  defaultGateway: "campay" | "moov";
+  operators: string[];
 }
 
 export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
@@ -19,6 +21,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministère de l'Enseignement Supérieur (MINESUP Cameroun)",
     businessLaw: "Droit Harmonisé des Affaires OHADA & Code Général des Impôts du Cameroun",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "campay",
+    operators: ["MTN Mobile Money", "Orange Money"],
   },
   GA: {
     code: "GA",
@@ -29,6 +33,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (Gabon)",
     businessLaw: "Droit Harmonisé des Affaires OHADA & Code des Impôts du Gabon",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "moov",
+    operators: ["Moov Money Gabon", "Airtel Money Gabon"],
   },
   CG: {
     code: "CG",
@@ -39,6 +45,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministère de l'Enseignement Supérieur et de l'Innovation (Congo)",
     businessLaw: "Droit Harmonisé des Affaires OHADA & Code des Impôts du Congo",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "moov",
+    operators: ["MTN Mobile Money", "Airtel Money"],
   },
   TD: {
     code: "TD",
@@ -49,6 +57,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministère de l'Enseignement Supérieur (Tchad)",
     businessLaw: "Droit Harmonisé des Affaires OHADA",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "moov",
+    operators: ["Moov Money Tchad", "Airtel Money Tchad"],
   },
   CF: {
     code: "CF",
@@ -59,6 +69,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministère de l'Enseignement Supérieur (RCA)",
     businessLaw: "Droit Harmonisé des Affaires OHADA",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "moov",
+    operators: ["Telecel Money", "Orange Money RCA"],
   },
   GQ: {
     code: "GQ",
@@ -69,6 +81,8 @@ export const CEMAC_COUNTRIES: Record<string, CemacCountryConfig> = {
     higherEduMinistry: "Ministerio de Educación, Enseñanza Universitaria y Deportes",
     businessLaw: "Derecho Armonizado de Negocios OHADA",
     taxExemptionClause: "TVA non applicable — Régime d'exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC.",
+    defaultGateway: "moov",
+    operators: ["Getesa Money"],
   },
 };
 
@@ -76,3 +90,4 @@ export function getCemacConfig(countryCode?: string): CemacCountryConfig {
   const code = (countryCode || "CM").toUpperCase();
   return CEMAC_COUNTRIES[code] || CEMAC_COUNTRIES.CM;
 }
+

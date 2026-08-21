@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { VideoShowcaseSection } from "@/components/landing/VideoShowcaseSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { RecruiterCTASection } from "@/components/landing/RecruiterCTASection";
@@ -64,6 +65,7 @@ export default function Home() {
         <Navbar dict={fr.navbar} />
         <HeroSection dict={fr.hero} />
         <HowItWorks dict={fr.howItWorks} />
+        <VideoShowcaseSection />
         <FeaturesSection dict={fr.features} />
         <PricingSection dict={fr.pricing} />
         <RecruiterCTASection />

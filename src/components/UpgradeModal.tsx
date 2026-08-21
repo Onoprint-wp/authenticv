@@ -27,6 +27,7 @@ const PRO_FEATURES = [
 
 export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalProps) {
   const [selectedTier, setSelectedTier] = useState<"single" | "monthly" | "annual">("monthly");
+  const [selectedCountry, setSelectedCountry] = useState<"CM" | "GA" | "TD" | "CG" | "CF">("CM");
   const [loading, setLoading] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [validatingPromo, setValidatingPromo] = useState(false);
@@ -78,11 +79,17 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/campay/checkout", {
+      // Direct Gabon and Tchad to Moov Africa checkout API, Cameroun to CamPay
+      const checkoutEndpoint = (selectedCountry === "GA" || selectedCountry === "TD" || selectedCountry === "CG")
+        ? "/api/moov/checkout"
+        : "/api/campay/checkout";
+
+      const res = await fetch(checkoutEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tier: selectedTier,
+          countryCode: selectedCountry,
           promoCode: appliedPromo?.code || undefined,
         }),
       });
@@ -126,8 +133,24 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
             <p className="text-xs text-slate-300 leading-relaxed">{REASONS[reason]}</p>
           </div>
 
+          {/* Country Selection */}
+          <div className="px-5 pt-3 pb-1 border-b border-slate-800/60 flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-400">Votre pays de résidence :</span>
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value as "CM" | "GA" | "TD" | "CG" | "CF")}
+              className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"
+            >
+              <option value="CM">🇨🇲 Cameroun (MTN / Orange)</option>
+              <option value="GA">🇬🇦 Gabon (Moov Money / Airtel)</option>
+              <option value="TD">🇹🇩 Tchad (Moov Money / Airtel)</option>
+              <option value="CG">🇨🇬 Congo (Moov / MTN)</option>
+              <option value="CF">🇨🇫 RCA / Autres CEMAC</option>
+            </select>
+          </div>
+
           {/* Tier Selection Grid */}
-          <div className="px-5 pt-4 pb-2 space-y-2">
+          <div className="px-5 pt-3 pb-2 space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sélectionnez une formule :</p>
             <div className="grid grid-cols-3 gap-2">
 
@@ -216,7 +239,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
                     type="text"
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                    placeholder="Code Promo / Université (ex: UY1)"
+                    placeholder="Code Promo / Université (ex: UY1, GABON2026)"
                     className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
                   />
                   <button
@@ -266,7 +289,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
             </button>
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-              <span>Paiement sécurisé Campay (MoMo / OM / Cartes)</span>
+              <span>Paiement sécurisé ({selectedCountry === "GA" || selectedCountry === "TD" ? "Moov Money / Airtel" : "CamPay / MoMo / OM"})</span>
               <a href="/recruiter" className="text-indigo-400 hover:underline">Espace Recruteurs</a>
             </div>
           </div>
@@ -275,3 +298,4 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
     </>
   );
 }
+
