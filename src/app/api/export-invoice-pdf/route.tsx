@@ -195,14 +195,11 @@ function InvoiceDocument({
           </View>
         </View>
 
-        <View style={{ marginTop: 10, padding: 6, backgroundColor: "#F8FAFC", borderRadius: 4 }}>
-          <Text style={{ fontSize: 7.5, color: "#64748B", textAlign: "center" }}>
-            *TVA non applicable — Régime d&apos;exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC (Droit Harmonisé OHADA).
-          </Text>
-        </View>
-
         {/* Footer */}
         <View style={styles.footer}>
+          <Text style={{ fontSize: 7.5, color: "#475569", marginBottom: 4, fontFamily: "Helvetica-Bold" }}>
+            *TVA non applicable — Régime d&apos;exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC (Droit Harmonisé OHADA).
+          </Text>
           <Text>
             Document officiel généré automatiquement par AuthentiCV.app — Numéro de transaction certifié CamPay MoMo/Orange Money.
           </Text>
