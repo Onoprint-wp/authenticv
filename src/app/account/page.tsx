@@ -5,6 +5,9 @@ import Link from "next/link";
 import { FileText, ArrowLeft, Shield, CreditCard, BarChart3, UserCircle, Calendar, Mail, Bell } from "lucide-react";
 import { AccountActions } from "./AccountActions";
 import { NudgeToggle } from "./NudgeToggle";
+import { ProfileEditForm } from "@/components/account/ProfileEditForm";
+import { PaymentHistorySection } from "@/components/account/PaymentHistorySection";
+import { PasswordChangeSection } from "@/components/account/PasswordChangeSection";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +25,7 @@ export default async function AccountPage() {
   // Get subscription details
   const { data: sub } = await supabase
     .from("user_subscriptions")
-    .select("status, campay_reference, updated_at")
+    .select("status, campay_reference, updated_at, created_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -42,6 +45,11 @@ export default async function AccountPage() {
 
   const isPro = plan === "pro";
   const messageLimit = isPro ? "∞" : String(FREE_MONTHLY_MESSAGES);
+
+  const userMeta = user.user_metadata ?? {};
+  const initialFirstName = userMeta.first_name || (userMeta.full_name ? userMeta.full_name.split(" ")[0] : "");
+  const initialLastName = userMeta.last_name || (userMeta.full_name ? userMeta.full_name.split(" ").slice(1).join(" ") : "");
+  const initialPhone = userMeta.phone || user.phone || "";
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -101,6 +109,13 @@ export default async function AccountPage() {
                   <p className="text-sm text-slate-200">{createdAt}</p>
                 </div>
               </div>
+
+              {/* Formulaire d'édition de profil */}
+              <ProfileEditForm
+                initialFirstName={initialFirstName}
+                initialLastName={initialLastName}
+                initialPhone={initialPhone}
+              />
             </div>
           </section>
 
@@ -165,6 +180,9 @@ export default async function AccountPage() {
             </div>
           </section>
 
+          {/* ── Payment History ── */}
+          <PaymentHistorySection subscriptions={sub ? [sub] : []} isPro={isPro} />
+
           {/* ── Usage Card ── */}
           <section className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-800 flex items-center gap-2">
@@ -223,6 +241,9 @@ export default async function AccountPage() {
               <NudgeToggle initialEnabled={nudgeEnabled} />
             </div>
           </section>
+
+          {/* ── Password Security Section ── */}
+          <PasswordChangeSection />
 
           {/* ── Danger Zone ── */}
           <section className="bg-slate-900 border border-red-900/30 rounded-2xl overflow-hidden">

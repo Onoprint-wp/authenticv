@@ -41,8 +41,8 @@ export function AccountActions({ isPro, hasSubscription, deleteOnly }: Props) {
         <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium
           border border-indigo-700/40 text-indigo-300 bg-indigo-950/30
           rounded-xl">
-          <ExternalLink className="w-4 h-4" />
-          Abonnement actif via Campay
+          <Zap className="w-4 h-4 text-amber-400" />
+          Abonnement Pro Actif
         </div>
       ) : (
         // Free user — upgrade
