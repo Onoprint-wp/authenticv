@@ -187,12 +187,18 @@ function InvoiceDocument({
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>TVA (0%) :</Text>
-            <Text style={styles.totalLabel}>0 FCFA</Text>
+            <Text style={styles.totalLabel}>0 FCFA*</Text>
           </View>
           <View style={[styles.totalRow, { marginTop: 4 }]}>
             <Text style={styles.totalVal}>TOTAL RÉGLÉ :</Text>
             <Text style={styles.totalVal}>{amount}</Text>
           </View>
+        </View>
+
+        <View style={{ marginTop: 10, padding: 6, backgroundColor: "#F8FAFC", borderRadius: 4 }}>
+          <Text style={{ fontSize: 7.5, color: "#64748B", textAlign: "center" }}>
+            *TVA non applicable — Régime d&apos;exonération des prestations de services numériques dématérialisés EdTech en Zone CEMAC (Droit Harmonisé OHADA).
+          </Text>
         </View>
 
         {/* Footer */}

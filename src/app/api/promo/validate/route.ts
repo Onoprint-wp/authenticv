@@ -6,13 +6,13 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Static configured promo codes (with partner attribution)
-const STATIC_PROMO_CODES: Record<string, { discountPercent: number; name: string }> = {
+const STATIC_PROMO_CODES: Record<string, { discountPercent: number; name: string; requiredDomain?: string }> = {
   CAMPUS20: { discountPercent: 20, name: "Partenariat Campus CEMAC (-20%)" },
   STUDENT50: { discountPercent: 50, name: "Tarif Étudiant Spécial (-50%)" },
-  UY1: { discountPercent: 30, name: "Université de Yaoundé I (-30%)" },
-  UDLA: { discountPercent: 30, name: "Université de Douala (-30%)" },
-  UBUEA: { discountPercent: 30, name: "University of Buea (-30%)" },
-  UDSH: { discountPercent: 30, name: "Université de Dschang (-30%)" },
+  UY1: { discountPercent: 30, name: "Université de Yaoundé I (-30%)", requiredDomain: "univ-yaounde1.cm" },
+  UDLA: { discountPercent: 30, name: "Université de Douala (-30%)", requiredDomain: "univ-douala.cm" },
+  UBUEA: { discountPercent: 30, name: "University of Buea (-30%)", requiredDomain: "ubuea.cm" },
+  UDSH: { discountPercent: 30, name: "Université de Dschang (-30%)", requiredDomain: "univ-dschang.org" },
   AUTHVIP: { discountPercent: 25, name: "Code Partenaire VIP (-25%)" },
   LAUNCH2026: { discountPercent: 20, name: "Offre Spéciale Lancement (-20%)" },
 };
@@ -34,23 +34,25 @@ export async function POST(req: Request) {
 
     let discountPercent = 0;
     let partnerName = "";
+    let requiredDomain: string | undefined;
 
     // 1. Check static promo codes
     if (promoCode && STATIC_PROMO_CODES[promoCode]) {
       discountPercent = STATIC_PROMO_CODES[promoCode].discountPercent;
       partnerName = STATIC_PROMO_CODES[promoCode].name;
+      requiredDomain = STATIC_PROMO_CODES[promoCode].requiredDomain;
     }
 
     // 2. Check campus_partners table by email domain or promo code in DB
     if (!discountPercent && (email || promoCode)) {
       const supabase = await createClient();
-      const domain = email ? email.split("@")[1] : "";
+      const userDomain = email ? email.split("@")[1] : "";
 
-      if (domain) {
+      if (userDomain) {
         const { data: partnerByDomain } = await supabase
           .from("campus_partners")
-          .select("university_name, discount_percent")
-          .eq("domain", domain)
+          .select("university_name, discount_percent, domain")
+          .eq("domain", userDomain)
           .maybeSingle();
 
         if (partnerByDomain) {
@@ -62,13 +64,14 @@ export async function POST(req: Request) {
       if (!discountPercent && promoCode) {
         const { data: partnerByCode } = await supabase
           .from("campus_partners")
-          .select("university_name, discount_percent")
+          .select("university_name, discount_percent, domain")
           .or(`domain.ilike.%${promoCode}%,university_name.ilike.%${promoCode}%`)
           .maybeSingle();
 
         if (partnerByCode) {
           discountPercent = partnerByCode.discount_percent || 20;
           partnerName = `${partnerByCode.university_name} (-${discountPercent}%)`;
+          requiredDomain = partnerByCode.domain || undefined;
         }
       }
     }
@@ -78,6 +81,17 @@ export async function POST(req: Request) {
         { valid: false, error: "Code promo ou partenariat non reconnu." },
         { status: 400 }
       );
+    }
+
+    // Verification du domaine académique si requis
+    if (requiredDomain && email) {
+      const userDomain = email.split("@")[1];
+      if (userDomain && !userDomain.toLowerCase().endsWith(requiredDomain.toLowerCase())) {
+        return NextResponse.json({
+          valid: false,
+          error: `Ce code promo est exclusivement réservé aux étudiants de l'établissement avec une adresse email @${requiredDomain}.`,
+        }, { status: 400 });
+      }
     }
 
     const discountedPrice = Math.max(100, Math.round(basePrice * (1 - discountPercent / 100)));
