@@ -150,6 +150,10 @@ export function AdminB2BPipeline() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error);
 
+      if (data.lead) {
+        setLeads((prev) => [data.lead, ...prev.filter((l) => l.id !== data.lead.id)]);
+      }
+
       setIsModalOpen(false);
       // Reset form
       setCompanyName("");

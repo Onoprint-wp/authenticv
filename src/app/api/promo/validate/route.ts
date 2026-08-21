@@ -15,6 +15,9 @@ const STATIC_PROMO_CODES: Record<string, { discountPercent: number; name: string
   UDSH: { discountPercent: 30, name: "Université de Dschang (-30%)", requiredDomain: "univ-dschang.org" },
   AUTHVIP: { discountPercent: 25, name: "Code Partenaire VIP (-25%)" },
   LAUNCH2026: { discountPercent: 20, name: "Offre Spéciale Lancement (-20%)" },
+  CHRISTIAN10: { discountPercent: 10, name: "Affiliation Commerciale Christian Bekono (-10%)" },
+  ALINE10: { discountPercent: 10, name: "Affiliation Commerciale Aline Mba (-10%)" },
+  SERGE10: { discountPercent: 10, name: "Affiliation Commerciale Serge Ngoma (-10%)" },
 };
 
 /**
