@@ -107,6 +107,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                     name: "Jean-Paul MBOUMI",
                     phone: "+237 699 00 11 22",
                     email: "jp.mboumi@example.com",
+                    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80",
                   },
                 }
               : p
@@ -126,6 +127,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                   name: "Jean-Paul MBOUMI",
                   phone: "+237 699 00 11 22",
                   email: "jp.mboumi@example.com",
+                  photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80",
                 },
               }
             : p
