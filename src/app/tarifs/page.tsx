@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     "cv ia gratuit",
     "abonnement cv pro",
     "authenticv prix",
-    "cv campay mtn orange",
+    "cv mobile money mtn orange",
   ],
   alternates: {
     canonical: "https://www.authenticv.app/tarifs",

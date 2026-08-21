@@ -366,11 +366,11 @@ export const en: LandingDict = {
         "Priority access to new AI models",
       ],
     },
-    footer: "Secure payment · MTN MoMo, Orange Money & Credit Card via Campay.net · Cancel in one click",
+    footer: "Secure payment · MTN MoMo, Orange Money & Credit Card · Cancel in one click",
   },
   faq: {
     title: "Frequently asked questions",
-    subtitle: "Everything you need to know before getting started.",
+    subtitle: "Everything you need to know about AuthentiCV and our pricing.",
     items: [
       {
         question: "Is AuthentiCV really free to start?",
@@ -388,9 +388,9 @@ export const en: LandingDict = {
           "Yes, with no conditions or fees. Your subscription stays active until the end of the paid period, then automatically reverts to the free plan. Cancellation takes one click.",
       },
       {
-        question: "Which payment methods are accepted?",
+        question: "What payment methods are accepted?",
         answer:
-          "We accept Mobile Money (MTN Mobile Money, Orange Money) and Credit Cards (Visa, Mastercard) through our secure payment partner Campay.net.",
+          "We accept Mobile Money (MTN Mobile Money, Orange Money) and Credit Cards (Visa, Mastercard) through our secure payment gateway.",
       },
       {
         question: "Is my CV compatible with applicant tracking systems (ATS)?",

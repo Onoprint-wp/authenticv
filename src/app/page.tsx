@@ -27,7 +27,7 @@ const softwareSchema = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Compatible MTN MoMo & Orange Money via Campay.net.",
+    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Compatible MTN MoMo & Orange Money.",
   url: "https://authenticv.app",
   offers: {
     "@type": "Offer",
@@ -42,7 +42,7 @@ const softwareSchema = {
     "Lettre de motivation IA",
     "Job Match",
     "Préparation entretien IA",
-    "Paiement Mobile Money via Campay",
+    "Paiement Mobile Money (MTN MoMo & Orange Money)",
   ],
 };
 

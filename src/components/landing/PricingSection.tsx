@@ -225,8 +225,8 @@ export function PricingSection({}: Props = {}) {
 
         <p className="text-center mt-8 text-xs text-slate-500">
           {isEn
-            ? "Secure payment via Mobile Money (MTN MoMo / Orange Money) & Credit Card powered by Campay.net."
-            : "Paiement sécurisé Mobile Money (MTN MoMo / Orange Money) & Carte bancaire via Campay.net."}
+            ? "Secure payment via Mobile Money (MTN MoMo / Orange Money) & Credit Card."
+            : "Paiement sécurisé Mobile Money (MTN MoMo / Orange Money) & Carte bancaire."}
         </p>
       </div>
     </section>
