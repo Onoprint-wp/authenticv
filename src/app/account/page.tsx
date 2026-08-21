@@ -8,6 +8,7 @@ import { NudgeToggle } from "./NudgeToggle";
 import { ProfileEditForm } from "@/components/account/ProfileEditForm";
 import { PaymentHistorySection } from "@/components/account/PaymentHistorySection";
 import { PasswordChangeSection } from "@/components/account/PasswordChangeSection";
+import { RecruiterAccountSection } from "@/components/account/RecruiterAccountSection";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,17 @@ export default async function AccountPage() {
 
   if (!user) redirect("/login");
 
-  const [plan, messagesUsed] = await Promise.all([
+  const [plan, messagesUsed, companyRes] = await Promise.all([
     getUserPlan(user.id),
     getMonthlyMessageCount(user.id),
+    supabase
+      .from("companies")
+      .select("id, company_name, credits_balance, plan")
+      .eq("user_id", user.id)
+      .maybeSingle(),
   ]);
+
+  const company = companyRes.data;
 
   // Get subscription details
   const { data: sub } = await supabase
@@ -182,6 +190,9 @@ export default async function AccountPage() {
 
           {/* ── Payment History ── */}
           <PaymentHistorySection subscriptions={sub ? [sub] : []} isPro={isPro} />
+
+          {/* ── Recruiter & Company Section ── */}
+          <RecruiterAccountSection company={company} userEmail={user.email ?? ""} />
 
           {/* ── Usage Card ── */}
           <section className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, CheckCircle } from "lucide-react";
+import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users } from "lucide-react";
 import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
 
 interface CandidateProfile {
@@ -69,6 +69,29 @@ export function RecruiterSearchView({ isEn = false }: Props) {
   const [creditsBalance, setCreditsBalance] = useState<number>(5);
 
   const backUrl = isEn ? "/en/recruiter" : "/recruiter";
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadTalents() {
+      try {
+        const res = await fetch(`/api/recruiter/talents?query=${encodeURIComponent(searchTerm)}&location=${encodeURIComponent(selectedLocation)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.profiles && Array.isArray(data.profiles) && data.profiles.length > 0) {
+            const liveProfiles: CandidateProfile[] = data.profiles;
+            const liveIds = new Set(liveProfiles.map((p) => p.id));
+            const remainingMocks = MOCK_TALENTS.filter((m) => !liveIds.has(m.id));
+            setProfiles([...liveProfiles, ...remainingMocks]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load live talents:", err);
+      }
+    }
+
+    loadTalents();
+    return () => { isMounted = false; };
+  }, [searchTerm, selectedLocation]);
 
   const handleUnlock = async (profileId: string) => {
     if (creditsBalance <= 0) {
