@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       representativeName = "Le Représentant Légal",
       promoCode = "CAMPUS20",
       discountPercent = 20,
+      commissionPercent = 0,
       companyName,
       rccm = "En cours",
       niu = "En cours",
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
           representativeName={representativeName}
           promoCode={promoCode}
           discountPercent={Number(discountPercent) || 20}
+          commissionPercent={Number(commissionPercent) || 0}
         />
       );
       return new Response(stream as unknown as ReadableStream, {

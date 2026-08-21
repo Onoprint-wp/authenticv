@@ -140,6 +140,7 @@ export interface CampusContractProps {
   representativeName: string;
   promoCode: string;
   discountPercent: number;
+  commissionPercent?: number; // Facultatif: Si > 0, modèle cashback BDE
   dateStr?: string;
 }
 
@@ -149,9 +150,11 @@ export function CampusCemacContractDocument({
   representativeName,
   promoCode,
   discountPercent,
+  commissionPercent = 0,
   dateStr = new Date().toLocaleDateString("fr-FR"),
 }: CampusContractProps) {
   const config = getCemacConfig(countryCode);
+  const isCashbackModel = commissionPercent > 0;
 
   return (
     <Document title={`Convention_Campus_${universityName.replace(/\s+/g, "_")}`}>
@@ -188,7 +191,7 @@ export function CampusCemacContractDocument({
           </View>
 
           <View style={styles.partyBox}>
-            <Text style={styles.partyTitle}>{"ET L'ÉTABLISSEMENT PARTENAIRE :"}</Text>
+            <Text style={styles.partyTitle}>{"ET L'ÉTABLISSEMENT / BDE PARTENAIRE :"}</Text>
             <Text style={[styles.partyText, { fontFamily: "Helvetica-Bold" }]}>{universityName}</Text>
             <Text style={styles.partyText}>Représenté(e) par : {representativeName}</Text>
             <Text style={styles.partyText}>{"Pays d'Implantation :"} {config.name}</Text>
@@ -206,21 +209,45 @@ export function CampusCemacContractDocument({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ARTICLE 2 : AVANTAGES ÉTUDIANTS &amp; TARIFICATION PRÉFÉRENTIELLE</Text>
-          <Text style={styles.paragraph}>
-            {"AuthentiCV.app s'engage à accorder une remise systématique de "}
-            {discountPercent}
-            {"% sur l'ensemble de ses tarifs publics (Pass 1 Candidature, Pass Mensuel Pro, Pass Annuel) à tous les étudiants régulièrement inscrits au sein de "}
-            {universityName}.
+          <Text style={styles.sectionTitle}>
+            {isCashbackModel
+              ? "ARTICLE 2 : TARIFICATION ÉTUDIANTE & RÉTROCESSON DE COMMISSION (CASHBACK BDE)"
+              : "ARTICLE 2 : AVANTAGES ÉTUDIANTS & TARIFICATION PRÉFÉRENTIELLE"}
           </Text>
+          {isCashbackModel ? (
+            <Text style={styles.paragraph}>
+              {"AuthentiCV.app s'engage à accorder une remise immédiate de "}
+              {discountPercent}
+              {"% aux étudiants de l'établissement. En contrepartie de la promotion active assurée par "}
+              {universityName}
+              {", AuthentiCV.app reversera une commission d'apporteur d'affaires de "}
+              {commissionPercent}
+              {"% du chiffre d'affaires HT généré par le code promo "}
+              {promoCode}
+              {". Les versements seront effectués mensuellement par Mobile Money ("}
+              {config.currency}
+              {") sur présentation d'un état récapitulatif."}
+            </Text>
+          ) : (
+            <Text style={styles.paragraph}>
+              {"AuthentiCV.app s'engage à accorder une remise systématique de "}
+              {discountPercent}
+              {"% sur l'ensemble de ses tarifs publics (Pass 1 Candidature, Pass Mensuel Pro, Pass Annuel) à tous les étudiants régulièrement inscrits au sein de "}
+              {universityName}.
+            </Text>
+          )}
           <Text style={styles.bulletItem}>• Code Promo Officiel attribué : {promoCode}</Text>
-          <Text style={styles.bulletItem}>• Monnaie de règlement : {config.currency} via MTN MoMo / Orange Money / Airtel Money</Text>
+          <Text style={styles.bulletItem}>• Remise Directe Étudiant : -{discountPercent}%</Text>
+          {isCashbackModel && (
+            <Text style={styles.bulletItem}>• Rétrocession Commission BDE / Établissement : {commissionPercent}% du CA généré</Text>
+          )}
+          <Text style={styles.bulletItem}>• Règlement des forfaits : {config.currency} via Mobile Money (MTN MoMo / Orange Money / Airtel Money)</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{"ARTICLE 3 : ENGAGEMENT DE GRATUITÉ POUR L'ÉTABLISSEMENT"}</Text>
+          <Text style={styles.sectionTitle}>{"ARTICLE 3 : ENGAGEMENT DE GRATUITÉ INSTITUTIONNELLE"}</Text>
           <Text style={styles.paragraph}>
-            {"Le présent partenariat est conclu à titre gracieux pour "}
+            {"Le présent partenariat est conclu à titre gracieux pour l'infrastructure de "}
             {universityName}
             {". Aucun budget, frais d'installation ou redevance logicielle ne sera facturé à l'établissement d'enseignement supérieur."}
           </Text>

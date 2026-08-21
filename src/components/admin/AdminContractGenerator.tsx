@@ -14,6 +14,7 @@ export function AdminContractGenerator() {
   const [representativeName, setRepresentativeName] = useState("Le Recteur / Directeur Général");
   const [promoCode, setPromoCode] = useState("UDLA20");
   const [discountPercent, setDiscountPercent] = useState("20");
+  const [commissionPercent, setCommissionPercent] = useState("0");
 
   // Champs Recruteur B2B
   const [companyName, setCompanyName] = useState("MTN Cameroun S.A.");
@@ -34,6 +35,7 @@ export function AdminContractGenerator() {
         representativeName,
         promoCode,
         discountPercent,
+        commissionPercent,
         companyName,
         rccm,
         niu,
@@ -117,46 +119,61 @@ export function AdminContractGenerator() {
 
         {/* Champs Formulaire Campus */}
         {contractType === "campus" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-slate-950/60 border border-slate-800/80 rounded-lg">
-            <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Nom de l&apos;Université / École</label>
-              <input
-                type="text"
-                value={universityName}
-                onChange={(e) => setUniversityName(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
-              />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-4 bg-slate-950/60 border border-slate-800/80 rounded-lg">
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Nom Université / Établissement</label>
+                <input
+                  type="text"
+                  value={universityName}
+                  onChange={(e) => setUniversityName(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Représentant Légal</label>
+                <input
+                  type="text"
+                  value={representativeName}
+                  onChange={(e) => setRepresentativeName(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Code Promo Campus</label>
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono uppercase"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Remise Étudiant %</label>
+                <input
+                  type="number"
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Cashback BDE % (Si Hybride)</label>
+                <input
+                  type="number"
+                  value={commissionPercent}
+                  onChange={(e) => setCommissionPercent(e.target.value)}
+                  placeholder="0 (Si 100% étudiant)"
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Représentant Légal</label>
-              <input
-                type="text"
-                value={representativeName}
-                onChange={(e) => setRepresentativeName(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Code Promo Campus</label>
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono uppercase"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Réduction %</label>
-              <input
-                type="number"
-                value={discountPercent}
-                onChange={(e) => setDiscountPercent(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
-              />
+            <div className="text-[11px] text-slate-400 bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/60">
+              💡 <strong>Règle Contractuelle :</strong> Si la commission Cashback est réglée à 0%, la convention stipulera une offre sociale pure (100% remise étudiant sans flux financier). Si &gt; 0%, l&apos;Article 2 intégrera automatiquement la clause de rétrocession de commission pour l&apos;association/BDE.
             </div>
           </div>
         )}
