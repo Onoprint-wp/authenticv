@@ -78,18 +78,23 @@ export function ReferralBanner({ userId }: ReferralBannerProps) {
               Partagez votre lien unique. Dès qu&apos;un ami génère son premier CV, vous recevez automatiquement <strong>30 jours Pro offerts</strong>.
             </p>
 
-            {stats.totalReferrals > 0 && (
-              <div className="mt-2.5 flex items-center gap-3 text-xs text-slate-400">
-                <span className="flex items-center gap-1 text-slate-300 font-medium">
-                  <Users className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>{stats.totalReferrals} ami(s) invité(s)</span>
+            <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+              <span className="flex items-center gap-1 text-slate-300 font-medium">
+                <Users className="w-3.5 h-3.5 text-indigo-400" />
+                <span>{stats.totalReferrals} ami(s) invité(s)</span>
+              </span>
+              <span>•</span>
+              {stats.rewardedCount > 0 ? (
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <Award className="w-3.5 h-3.5" />
+                  <span>{stats.rewardedCount} mois Pro gagné(s) ✓</span>
                 </span>
-                <span>•</span>
-                <span className="text-emerald-400 font-medium">
-                  {stats.rewardedCount} récompense(s) validée(s) ✓
+              ) : (
+                <span className="text-amber-400/90 font-medium">
+                  Partagez votre lien pour gagner 30j Pro !
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
