@@ -176,7 +176,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               >
                 <span className="text-[10px] font-semibold text-violet-400 uppercase">Pass 1 An</span>
                 <span className="text-sm font-bold text-white mt-0.5">18 000 FCFA</span>
-                <span className="text-[10px] text-slate-400 mt-1 leading-tight">Illimité toute l'année (-70%)</span>
+                <span className="text-[10px] text-slate-400 mt-1 leading-tight">Illimité toute l&apos;année (-70%)</span>
               </button>
 
             </div>

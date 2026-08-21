@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, Users, FileText, Building2, Gift, GraduationCap,
+  TrendingUp, FileText, Building2, Gift, GraduationCap,
   ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle, ExternalLink, Download,
 } from "lucide-react";
 import { AdminUserLookup } from "@/components/admin/AdminUserLookup";

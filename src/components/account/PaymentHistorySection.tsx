@@ -24,7 +24,7 @@ export function PaymentHistorySection({ subscriptions = [], isPro }: Props) {
   const items: PaymentItem[] = subscriptions.length > 0
     ? subscriptions.map((sub, idx) => ({
         id: `sub-${idx}`,
-        date: new Date(sub.updated_at || sub.created_at || Date.now()).toLocaleDateString("fr-FR", {
+        date: new Date(sub.updated_at || sub.created_at || "2026-08-21").toLocaleDateString("fr-FR", {
           day: "numeric",
           month: "short",
           year: "numeric",
@@ -37,11 +37,7 @@ export function PaymentHistorySection({ subscriptions = [], isPro }: Props) {
       ? [
           {
             id: "sub-current",
-            date: new Date().toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            }),
+            date: "Recouvrement actif",
             description: "Abonnement Plan Pro Mensuel",
             amount: "5 000 FCFA",
             status: "Payé",

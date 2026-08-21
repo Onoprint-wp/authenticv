@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GraduationCap, PlusCircle, Check, Loader2, AlertCircle, Building, Tag, Percent } from "lucide-react";
+import { GraduationCap, PlusCircle, Check, Loader2, AlertCircle } from "lucide-react";
 
 interface CampusPartner {
   id: string;
