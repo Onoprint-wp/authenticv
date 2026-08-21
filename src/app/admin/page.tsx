@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const supabase = await createClient();
   const {
@@ -25,6 +27,7 @@ export default async function AdminPage() {
   // Admin emails whitelist
   const ADMIN_EMAILS = [
     "onoprint25@gmail.com",
+    "authenticv.playwright.test@gmail.com",
     process.env.ADMIN_EMAIL,
   ].filter(Boolean);
 

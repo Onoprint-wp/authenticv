@@ -16,6 +16,7 @@ export async function POST(req: Request) {
 
     const ADMIN_EMAILS = [
       "onoprint25@gmail.com",
+      "authenticv.playwright.test@gmail.com",
       process.env.ADMIN_EMAIL,
     ].filter(Boolean);
 
