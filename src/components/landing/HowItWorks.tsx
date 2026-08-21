@@ -12,7 +12,7 @@ interface Props {
 
 export function HowItWorks({ dict }: Props) {
   return (
-    <section className="py-24 bg-slate-950 relative" id="comment-ca-marche">
+    <section className="py-16 md:py-20 bg-slate-950 relative" id="comment-ca-marche">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <motion.h2

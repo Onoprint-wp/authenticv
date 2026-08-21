@@ -103,7 +103,7 @@ export function VideoShowcaseSection() {
   };
 
   return (
-    <section className="relative py-24 bg-slate-950 border-t border-b border-slate-900 overflow-hidden">
+    <section className="relative py-16 md:py-20 bg-slate-950 border-t border-b border-slate-900 overflow-hidden">
       {/* Background glow accents */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none" />
