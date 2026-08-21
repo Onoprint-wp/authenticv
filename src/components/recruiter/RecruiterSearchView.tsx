@@ -70,6 +70,10 @@ export function RecruiterSearchView({ isEn = false }: Props) {
   const backUrl = isEn ? "/en/recruiter" : "/recruiter";
 
   const handleUnlock = async (profileId: string) => {
+    if (creditsBalance <= 0) {
+      setIsBuyModalOpen(true);
+      return;
+    }
     setUnlockingId(profileId);
     try {
       const res = await fetch("/api/recruiter/unlock", {
@@ -87,6 +91,8 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         );
         if (typeof data.credits_balance === "number") {
           setCreditsBalance(data.credits_balance);
+        } else {
+          setCreditsBalance((prev) => Math.max(0, prev - 1));
         }
       } else {
         // Fallback simulation for demo
@@ -105,6 +111,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               : p
           )
         );
+        setCreditsBalance((prev) => Math.max(0, prev - 1));
       }
     } catch {
       // Demo fallback
@@ -123,6 +130,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             : p
         )
       );
+      setCreditsBalance((prev) => Math.max(0, prev - 1));
     } finally {
       setUnlockingId(null);
     }
@@ -324,7 +332,11 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                       {unlockingId === profile.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <span>{isEn ? "Unlock (5,000 FCFA)" : "Débloquer (5 000 FCFA)"}</span>
+                        <span>
+                          {creditsBalance > 0
+                            ? (isEn ? "Débloquer (1 Crédit)" : "Débloquer (1 Crédit)")
+                            : (isEn ? "Acheter des Crédits (5 000 FCFA)" : "Débloquer (5 000 FCFA)")}
+                        </span>
                       )}
                     </button>
                   </div>
