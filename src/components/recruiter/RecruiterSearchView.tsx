@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users } from "lucide-react";
+import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, FileText } from "lucide-react";
 import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
+import { RecruiterInvoicesView } from "./RecruiterInvoicesView";
 
 interface CandidateProfile {
   id: string;
@@ -60,7 +61,7 @@ interface Props {
 }
 
 export function RecruiterSearchView({ isEn = false }: Props) {
-  const [activeTab, setActiveTab] = useState<"search" | "unlocked">("search");
+  const [activeTab, setActiveTab] = useState<"search" | "unlocked" | "invoices">("search");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [profiles, setProfiles] = useState<CandidateProfile[]>(MOCK_TALENTS);
@@ -251,9 +252,26 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               </span>
             )}
           </button>
+
+          <button
+            onClick={() => setActiveTab("invoices")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === "invoices"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{isEn ? "Billing & Fiscal Info" : "Facturation & Justificatifs Fiscaux"}</span>
+          </button>
         </div>
-        
-        {/* Search Bar & Filters */}
+
+        {/* Invoices View */}
+        {activeTab === "invoices" ? (
+          <RecruiterInvoicesView />
+        ) : (
+          <>
+            {/* Search Bar & Filters */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 mb-8 shadow-xl flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -387,6 +405,8 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             </div>
           ))}
         </div>
+        </>
+        )}
 
       </main>
     </div>

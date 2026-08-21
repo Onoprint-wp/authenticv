@@ -43,7 +43,28 @@ export async function POST(req: Request) {
       requiredDomain = STATIC_PROMO_CODES[promoCode].requiredDomain;
     }
 
-    // 2. Check campus_partners table by email domain or promo code in DB
+    // 2. Check dynamic promo_codes table
+    if (!discountPercent && promoCode) {
+      const supabase = await createClient();
+      const { data: dbPromo } = await supabase
+        .from("promo_codes")
+        .select("code, discount_percent, campaign_name, is_active, expires_at, target_plan")
+        .eq("code", promoCode)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (dbPromo) {
+        const isExpired = dbPromo.expires_at && new Date(dbPromo.expires_at) < new Date();
+        const planAllowed = dbPromo.target_plan === "all" || dbPromo.target_plan === tier || (dbPromo.target_plan === "monthly" && tier === "annual");
+
+        if (!isExpired && planAllowed) {
+          discountPercent = dbPromo.discount_percent;
+          partnerName = dbPromo.campaign_name || `Promotion ${dbPromo.code} (-${discountPercent}%)`;
+        }
+      }
+    }
+
+    // 3. Check campus_partners table by email domain or promo code in DB
     if (!discountPercent && (email || promoCode)) {
       const supabase = await createClient();
       const userDomain = email ? email.split("@")[1] : "";
