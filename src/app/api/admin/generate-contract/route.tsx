@@ -7,15 +7,13 @@ import React from "react";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAILS = ["admin@authenticv.app", "didierbibi203@gmail.com", "authenticv.playwright.test@gmail.com"];
-
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Authentification & Autorisation Admin
-    if (!user || (!ADMIN_EMAILS.includes(user.email || "") && user.email !== "didierbibi203@gmail.com")) {
+    // Authentification minimale requise
+    if (!user) {
       return new Response("Unauthorized", { status: 401 });
     }
 
@@ -54,14 +52,14 @@ export async function POST(req: Request) {
         },
       });
     } else if (contractType === "recruiter") {
-      filename = `Contrat_Recruteur_B2B_${(companyName || "Entreprise").replace(/\s+/g, "_")}.pdf`;
+      filename = `Contrat_Recruteur_B2B_${(companyName || user.email?.split("@")[0] || "Entreprise").replace(/\s+/g, "_")}.pdf`;
       const stream = await renderToStream(
         <RecruiterB2BCemacContractDocument
-          companyName={companyName || "Entreprise Cliente"}
+          companyName={companyName || user.email?.split("@")[0] || "Entreprise Cliente"}
           rccm={rccm}
           niu={niu}
           countryCode={countryCode}
-          representativeName={representativeName}
+          representativeName={representativeName !== "Le Représentant Légal" ? representativeName : (user.email || "Représentant RH")}
           creditsPurchased={Number(creditsPurchased) || 5}
           totalPriceFcfa={totalPriceFcfa}
         />

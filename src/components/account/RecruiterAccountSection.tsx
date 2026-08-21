@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, Zap, Search, PlusCircle, Check, Loader2, Save } from "lucide-react";
+import { Building2, Zap, Search, PlusCircle, Check, Loader2, Save, Download } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { RecruiterBuyCreditsModal } from "@/components/recruiter/RecruiterBuyCreditsModal";
@@ -26,6 +26,37 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+
+  const handleDownloadB2bContract = async () => {
+    try {
+      const res = await fetch("/api/admin/generate-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractType: "recruiter",
+          countryCode: "CM",
+          companyName: companyName || userEmail.split("@")[0] || "Entreprise Cliente",
+          representativeName: userEmail,
+          creditsPurchased: creditsBalance,
+          totalPriceFcfa: "Offre B2B Recruteur",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de la génération");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Contrat_Recruteur_B2B_${(companyName || "Entreprise").replace(/\s+/g, "_")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert("Erreur lors du téléchargement de votre contrat B2B.");
+    }
+  };
 
   // Initialize company profile for recruiter
   const handleCreateCompany = async () => {
@@ -179,13 +210,22 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
                   <span>Enregistrer le nom d&apos;entreprise</span>
                 </button>
 
-                <div className="w-full sm:w-auto flex items-center gap-2">
+                <div className="w-full sm:w-auto flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handleDownloadB2bContract}
+                    className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs px-3.5 py-2 rounded-xl border border-indigo-700/50 transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Contrat B2B PDF</span>
+                  </button>
+
                   <Link
                     href="/recruiter/search"
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-indigo-600/20 active:scale-95"
                   >
                     <Search className="w-3.5 h-3.5" />
-                    <span>Moteur de Recherche Talents</span>
+                    <span>Moteur de Recherche</span>
                   </Link>
 
                   <button

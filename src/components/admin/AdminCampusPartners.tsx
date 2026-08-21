@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GraduationCap, PlusCircle, Check, Loader2, AlertCircle } from "lucide-react";
+import { GraduationCap, PlusCircle, Check, Loader2, AlertCircle, Download } from "lucide-react";
 
 interface CampusPartner {
   id: string;
@@ -43,6 +43,36 @@ export function AdminCampusPartners() {
   useEffect(() => {
     fetchPartners();
   }, []);
+
+  const handleDownloadContract = async (p: CampusPartner) => {
+    try {
+      const res = await fetch("/api/admin/generate-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractType: "campus",
+          countryCode: "CM",
+          universityName: p.name,
+          promoCode: p.promo_code,
+          discountPercent: p.discount_percent,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de la génération");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Convention_Campus_${p.name.replace(/\s+/g, "_")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert("Erreur lors du téléchargement de la convention PDF.");
+    }
+  };
 
   const handleAddPartner = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,6 +224,7 @@ export function AdminCampusPartners() {
                 <th className="py-2.5 px-3">Domaine Email</th>
                 <th className="py-2.5 px-3">Code Promo</th>
                 <th className="py-2.5 px-3">Réduction</th>
+                <th className="py-2.5 px-3 text-right">Convention PDF</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-200">
@@ -210,6 +241,15 @@ export function AdminCampusPartners() {
                     <span className="bg-emerald-950/80 border border-emerald-700/50 text-emerald-400 font-bold px-2 py-0.5 rounded text-[11px]">
                       -{p.discount_percent}%
                     </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <button
+                      onClick={() => handleDownloadContract(p)}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-700/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Convention PDF</span>
+                    </button>
                   </td>
                 </tr>
               ))}
