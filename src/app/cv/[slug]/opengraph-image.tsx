@@ -6,6 +6,22 @@ export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+async function getBase64Image(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    const mimeType = res.headers.get("content-type") || "image/png";
+    return `data:${mimeType};base64,${base64}`;
+  } catch {
+    return null;
+  }
+}
+
 export default async function OgImage({ params }: { params: Promise<{ slug: string }> }) {
   let name = "Candidat";
   let jobTitle = "";
@@ -34,7 +50,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
       skills = (cv.skills ?? []).slice(0, 5);
       initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || "CV";
       if (cv.personalInfo?.photoUrl && cv.personalInfo.photoUrl.startsWith("http")) {
-        photoUrl = cv.personalInfo.photoUrl;
+        photoUrl = await getBase64Image(cv.personalInfo.photoUrl);
       }
     }
   } catch (err) {
