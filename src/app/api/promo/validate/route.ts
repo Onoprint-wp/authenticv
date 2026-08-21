@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         const { data: partnerByCode } = await supabase
           .from("campus_partners")
           .select("university_name, discount_percent")
-          .ilike("domain", `%${promoCode}%`)
+          .or(`domain.ilike.%${promoCode}%,university_name.ilike.%${promoCode}%`)
           .maybeSingle();
 
         if (partnerByCode) {
