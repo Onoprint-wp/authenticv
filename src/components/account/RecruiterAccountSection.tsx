@@ -5,6 +5,7 @@ import { Building2, Zap, Search, PlusCircle, Check, Loader2, Save } from "lucide
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { RecruiterBuyCreditsModal } from "@/components/recruiter/RecruiterBuyCreditsModal";
+import { RecruiterTeamSection } from "@/components/account/RecruiterTeamSection";
 
 interface Props {
   company?: {
@@ -201,6 +202,9 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
           )}
         </div>
       </section>
+
+      {/* Recruiter Team & Multi-Collaborators Section */}
+      {hasCompany && <RecruiterTeamSection />}
     </>
   );
 }
