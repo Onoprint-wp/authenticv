@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { User, GraduationCap, Building2, Play, CheckCircle2, Sparkles, Smartphone, ShieldCheck, ArrowRight } from "lucide-react";
+import { User, GraduationCap, Building2, Play, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { VideoModal } from "./VideoModal";
 
@@ -113,7 +113,7 @@ export function VideoShowcaseSection() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-cyan-400 text-xs font-semibold mb-4 tracking-wider uppercase">
             <Sparkles className="w-3.5 h-3.5" />
-            L'Écosystème AuthentiCV en Action
+            L&apos;Écosystème AuthentiCV en Action
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
             Un écosystème conçu pour{" "}
@@ -122,7 +122,7 @@ export function VideoShowcaseSection() {
             </span>
           </h2>
           <p className="text-slate-400 text-base md:text-lg">
-            Découvrez comment AuthentiCV transforme la recherche d'emploi et le recrutement à travers nos trois piliers dédiés.
+            Découvrez comment AuthentiCV transforme la recherche d&apos;emploi et le recrutement à travers nos trois piliers dédiés.
           </p>
 
           {/* Master film banner CTA */}

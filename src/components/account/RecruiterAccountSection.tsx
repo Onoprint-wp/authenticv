@@ -235,6 +235,13 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
                 </div>
               )}
 
+              {success && (
+                <div className="text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 p-2.5 rounded-xl flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span>Profil entreprise mis à jour avec succès.</span>
+                </div>
+              )}
+
               {contractUploadMsg && (
                 <div className="text-xs text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 p-2.5 rounded-xl flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400" />

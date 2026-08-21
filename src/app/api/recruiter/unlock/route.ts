@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     }
 
     // 4. Fetch candidate resume personal info
-    const { data: resume, error: resumeError } = await supabase
+    const { data: resume } = await supabase
       .from("resumes")
       .select("content")
       .eq("id", resumeId)

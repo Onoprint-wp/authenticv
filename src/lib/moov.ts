@@ -90,6 +90,7 @@ export async function createMoovPaymentLink(
     customer_zip_code: "00241",
     notify_url: `${SITE_URL}/api/moov/webhook`,
     return_url: redirectUrl,
+    cancel_url: failureRedirectUrl,
     channels: opts.channels ?? "MOBILE_MONEY",
     metadata: JSON.stringify({
       user_id: opts.userId,

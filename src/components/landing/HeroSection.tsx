@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, CheckCircle, Play, Sparkles, MessageSquareText, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle, Play, Sparkles, MessageSquareText } from "lucide-react";
 import type { LandingDict } from "@/lib/i18n/landing";
 import { VideoModal } from "./VideoModal";
 
@@ -164,7 +163,7 @@ export function HeroSection({ dict }: Props) {
                   </div>
                 </div>
                 <div className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-                  Prêt pour l'embauche
+                  Prêt pour l&apos;embauche
                 </div>
               </div>
             </div>

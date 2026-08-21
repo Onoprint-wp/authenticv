@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Volume2, Sparkles, ShieldCheck } from "lucide-react";
+import { X, Sparkles, ShieldCheck } from "lucide-react";
 
 interface VideoModalProps {
   isOpen: boolean;

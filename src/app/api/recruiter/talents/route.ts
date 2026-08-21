@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
-import type { CvData } from "@/store/useCvStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +14,6 @@ export async function GET(req: Request) {
     const supabaseUser = await createClient();
     const { data: { user } } = await supabaseUser.auth.getUser();
 
-    let companyId: string | null = null;
     let unlockedResumeIds = new Set<string>();
 
     if (user) {
@@ -27,7 +25,6 @@ export async function GET(req: Request) {
         .maybeSingle();
 
       if (company) {
-        companyId = company.id;
         const { data: unlocks } = await adminClient
           .from("unlocked_contacts")
           .select("resume_id")
