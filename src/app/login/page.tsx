@@ -2,7 +2,7 @@ import { login, signup, requestPasswordReset } from "./actions";
 import { FileText, Sparkles } from "lucide-react";
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string; message?: string; reset?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; reset?: string; next?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -10,6 +10,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const error = params.error;
   const message = params.message;
   const isReset = params.reset === "true";
+  const next = params.next || "";
+  const isRecruiterFlow = next.includes("recruiter");
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
@@ -104,6 +106,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Connectez-vous ou créez votre compte gratuitement
               </p>
 
+              {/* Recruiter Contextual Badge */}
+              {isRecruiterFlow && (
+                <div className="mb-4 p-2.5 bg-indigo-950/80 border border-indigo-700/50 rounded-xl flex items-center gap-2 text-xs text-indigo-300 font-medium shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                  <span>Espace Recruteur — Connexion & Accès CVthèque</span>
+                </div>
+              )}
+
               {/* Error message */}
               {error && (
                 <div className="mb-4 px-4 py-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-400 text-sm">
@@ -119,6 +129,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               )}
 
               <form className="space-y-4">
+                {next && <input type="hidden" name="next" value={next} />}
                 <div>
                   <label
                     htmlFor="email"

@@ -27,15 +27,18 @@ export async function login(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const next = (formData.get("next") as string) || "";
+  const destination = next.startsWith("/") ? next : "/builder";
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    const errorUrl = next ? `/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/", "layout");
-  redirect("/builder");
+  redirect(destination);
 }
 
 export async function signup(formData: FormData) {
@@ -43,15 +46,18 @@ export async function signup(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const next = (formData.get("next") as string) || "";
+  const destination = next.startsWith("/") ? next : "/builder";
 
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    const errorUrl = next ? `/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/", "layout");
-  redirect("/builder");
+  redirect(destination);
 }
 
 export async function logout() {
