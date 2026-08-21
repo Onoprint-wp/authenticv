@@ -18,6 +18,7 @@ interface CandidateProfile {
     name: string;
     phone: string;
     email: string;
+    photoUrl?: string;
   };
 }
 
@@ -314,9 +315,24 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                       <Unlock className="w-3.5 h-3.5" />
                       <span>{isEn ? "Contact Details Unlocked" : "Coordonnées Débloquées"}</span>
                     </div>
-                    <div className="text-sm font-bold text-white">{profile.contact.name}</div>
-                    <div className="text-xs text-slate-300">{profile.contact.phone}</div>
-                    <div className="text-xs text-indigo-400 truncate">{profile.contact.email}</div>
+                    <div className="flex items-center gap-3">
+                      {profile.contact.photoUrl ? (
+                        <img
+                          src={profile.contact.photoUrl}
+                          alt={profile.contact.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500/50 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-bold text-xs flex-shrink-0">
+                          {profile.contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </div>
+                      )}
+                      <div className="overflow-hidden">
+                        <div className="text-sm font-bold text-white truncate">{profile.contact.name}</div>
+                        <div className="text-xs text-slate-300">{profile.contact.phone}</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-indigo-400 truncate pt-1">{profile.contact.email}</div>
                   </div>
                 ) : (
                   <div className="space-y-3 w-full">

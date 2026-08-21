@@ -105,6 +105,7 @@ export async function POST(req: Request) {
       name: `${personalInfo.firstName ?? "Jean-Paul"} ${personalInfo.lastName ?? "MBOUMI"}`.trim(),
       phone: personalInfo.phone || "+237 699 00 11 22",
       email: personalInfo.email || "candidat@authenticv.app",
+      photoUrl: personalInfo.photoUrl || undefined,
     };
 
     // Remaining credits
