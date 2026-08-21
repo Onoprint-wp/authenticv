@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { AdminUserLookup } from "@/components/admin/AdminUserLookup";
 import { AdminCampusPartners } from "@/components/admin/AdminCampusPartners";
+import { AdminContractGenerator } from "@/components/admin/AdminContractGenerator";
 
 interface AdminMetrics {
   financial: {
@@ -136,6 +137,9 @@ export function AdminDashboardView() {
 
         {/* ── Campus Partners Management ── */}
         <AdminCampusPartners />
+
+        {/* ── Automated Legal Contract Generator (CEMAC) ── */}
+        <AdminContractGenerator />
 
         {/* ── KPI Cards Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
