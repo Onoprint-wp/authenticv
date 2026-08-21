@@ -45,9 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const pageTitle = jobTitle ? `${name} — ${jobTitle} · AuthentiCV` : `${name} · AuthentiCV`;
   const canonicalUrl = `${SITE_URL}/cv/${slug}`;
 
-  // Image OpenGraph : Photo du candidat si présente et valide, sinon bannière officielle AuthenticV
-  const rawPhoto = cv.personalInfo?.photoUrl;
-  const photoUrl = rawPhoto && rawPhoto.startsWith("http") ? rawPhoto : `${SITE_URL}/og-image.png`;
+  // Image OpenGraph dynamique (1200x630) combinant la photo/initiales du candidat + logo AuthentiCV
+  const ogImageUrl = `${SITE_URL}/cv/${slug}/opengraph-image`;
 
   return {
     title: pageTitle,
@@ -58,17 +57,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: jobTitle ? `${name} — ${jobTitle}` : name,
       description: summary,
       url: canonicalUrl,
-      siteName: "AuthentiCV",
+      siteName: "AuthentiCV.app",
       locale: "fr_FR",
       type: "profile",
       firstName,
       lastName,
       images: [
         {
-          url: photoUrl,
-          width: photoUrl.includes("og-image.png") ? 1200 : 800,
-          height: photoUrl.includes("og-image.png") ? 630 : 800,
-          alt: name,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${name} — CV ${jobTitle}`,
         },
       ],
     },
@@ -76,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: jobTitle ? `${name} — ${jobTitle}` : name,
       description: summary,
-      images: [photoUrl],
+      images: [ogImageUrl],
     },
   };
 }

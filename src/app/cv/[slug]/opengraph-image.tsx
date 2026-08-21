@@ -76,23 +76,39 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "40px", flex: 1 }}>
-          {/* Avatar initiales */}
-          <div style={{
-            width: "120px",
-            height: "120px",
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "42px",
-            fontWeight: 700,
-            color: "white",
-            flexShrink: 0,
-            border: "3px solid rgba(99,102,241,0.4)",
-          }}>
-            {initials}
-          </div>
+          {/* Avatar photo ou initiales */}
+          {cv.personalInfo?.photoUrl && cv.personalInfo.photoUrl.startsWith("http") ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={cv.personalInfo.photoUrl}
+              alt={name}
+              style={{
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "3px solid rgba(99,102,241,0.6)",
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <div style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "42px",
+              fontWeight: 700,
+              color: "white",
+              flexShrink: 0,
+              border: "3px solid rgba(99,102,241,0.4)",
+            }}>
+              {initials}
+            </div>
+          )}
 
           {/* Infos */}
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", flex: 1 }}>
