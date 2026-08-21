@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   TrendingUp, Users, FileText, Building2, Gift, GraduationCap,
-  ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle, ExternalLink,
+  ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle, ExternalLink, Download,
 } from "lucide-react";
+import { AdminUserLookup } from "@/components/admin/AdminUserLookup";
 
 interface AdminMetrics {
   financial: {
@@ -97,10 +98,18 @@ export function AdminDashboardView() {
           </div>
 
           <div className="flex items-center gap-3">
+            <a
+              href="/api/admin/export-csv"
+              download
+              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 font-medium text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </a>
             <button
               onClick={fetchStats}
               disabled={loading}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors"
+              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               <span>Actualiser</span>
@@ -120,6 +129,9 @@ export function AdminDashboardView() {
             {error}
           </div>
         )}
+
+        {/* ── Admin User Support & Lookup ── */}
+        <AdminUserLookup />
 
         {/* ── KPI Cards Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

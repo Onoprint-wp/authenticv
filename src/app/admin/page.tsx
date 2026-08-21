@@ -22,5 +22,16 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
+  // Admin emails whitelist
+  const ADMIN_EMAILS = [
+    "onoprint25@gmail.com",
+    process.env.ADMIN_EMAIL,
+  ].filter(Boolean);
+
+  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  if (!isAdmin && process.env.NODE_ENV === "production") {
+    redirect("/dashboard");
+  }
+
   return <AdminDashboardView />;
 }
