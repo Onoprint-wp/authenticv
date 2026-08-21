@@ -7,6 +7,7 @@ import {
   ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle, ExternalLink, Download,
 } from "lucide-react";
 import { AdminUserLookup } from "@/components/admin/AdminUserLookup";
+import { AdminCampusPartners } from "@/components/admin/AdminCampusPartners";
 
 interface AdminMetrics {
   financial: {
@@ -132,6 +133,9 @@ export function AdminDashboardView() {
 
         {/* ── Admin User Support & Lookup ── */}
         <AdminUserLookup />
+
+        {/* ── Campus Partners Management ── */}
+        <AdminCampusPartners />
 
         {/* ── KPI Cards Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
