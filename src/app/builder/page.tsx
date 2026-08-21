@@ -153,9 +153,15 @@ export default function BuilderPage() {
             <FileText className="w-4 h-4 text-white" />
           </div>
           <span className="text-white font-semibold tracking-tight hidden sm:block">AuthentiCV</span>
-          <span className="hidden md:flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-2 py-0.5 rounded-full">
-            <Sparkles className="w-3 h-3" />AI Coach
-          </span>
+          {!plan.loading && plan.plan === "pro" ? (
+            <span className="hidden md:flex items-center gap-1 text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-700/50 px-2.5 py-0.5 rounded-full font-medium" title="Propulsé par Claude 3.7 Sonnet">
+              <Sparkles className="w-3 h-3 text-indigo-400" />Alex Pro ⚡ (Sonnet 4.6)
+            </span>
+          ) : (
+            <span className="hidden md:flex items-center gap-1 text-xs text-slate-400 bg-slate-900/60 border border-slate-800 px-2.5 py-0.5 rounded-full" title="Passez à Pro pour débloquer Claude Sonnet 4.6">
+              <Sparkles className="w-3 h-3 text-slate-500" />Coach IA — Alex (Haiku 4.5)
+            </span>
+          )}
           <CvSwitcher onSwitch={switchResume} onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "multi-cv" })} />
         </div>
 
@@ -169,7 +175,7 @@ export default function BuilderPage() {
           {/* Plan badge */}
           {!plan.loading && (
             plan.plan === "pro" ? (
-              <span className="flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-700/40 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-700/40 px-2 py-0.5 rounded-full font-semibold">
                 <Zap className="w-3 h-3" />Pro
               </span>
             ) : (
@@ -273,8 +279,8 @@ export default function BuilderPage() {
                   <button
                     key={mode}
                     onClick={() => {
-                      if ((mode === "letter" || mode === "preview-pdf") && plan.plan !== "pro") {
-                        setUpgradeModal({ open: true, reason: mode === "letter" ? "letter" : "pdf" });
+                      if (mode === "letter" && plan.plan !== "pro") {
+                        setUpgradeModal({ open: true, reason: "letter" });
                         return;
                       }
                       setViewMode(mode);
@@ -284,7 +290,7 @@ export default function BuilderPage() {
                     }`}
                   >
                     {mode === "preview-web" ? "Aperçu Web"
-                      : mode === "preview-pdf" ? <><span>Aperçu PDF</span>{plan.plan !== "pro" && <Zap className="w-2.5 h-2.5 text-indigo-400" />}</>
+                      : mode === "preview-pdf" ? <><span>Aperçu PDF</span>{plan.plan !== "pro" && <span className="text-[10px] bg-slate-800 text-indigo-400 px-1 rounded border border-indigo-900">Gratuit</span>}</>
                       : mode === "edit" ? "Édition"
                       : "Lettre"}
                   </button>
@@ -323,7 +329,7 @@ export default function BuilderPage() {
                   >
                     {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                     <span className="hidden lg:inline">
-                      {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                      {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro / 1000 FCFA"}
                     </span>
                   </button>
                   <button
@@ -339,7 +345,27 @@ export default function BuilderPage() {
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
               {viewMode === "preview-web" && <HtmlCvPreview />}
-              {viewMode === "preview-pdf" && <DynamicPdfViewer />}
+              {viewMode === "preview-pdf" && (
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {plan.plan !== "pro" && (
+                    <div className="bg-indigo-950/90 border-b border-indigo-800/50 px-4 py-2 flex items-center justify-between text-xs text-indigo-200 flex-shrink-0">
+                      <span className="flex items-center gap-2">
+                        <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                        <span>Aperçu PDF gratuit avec filigrane AuthenticV.</span>
+                      </span>
+                      <button
+                        onClick={() => setUpgradeModal({ open: true, reason: "pdf" })}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1 rounded-md transition-colors text-[11px]"
+                      >
+                        Télécharger sans filigrane (Dès 1 000 FCFA)
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex-1 overflow-hidden">
+                    <DynamicPdfViewer showWatermark={plan.plan !== "pro"} />
+                  </div>
+                </div>
+              )}
               {viewMode === "edit" && <CvEditorView />}
               {viewMode === "letter" && (
                 <CoverLetterPanel onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "letter" })} />

@@ -13,9 +13,9 @@ let PDFViewer: React.ComponentType<{
   showToolbar?: boolean;
 }>;
 
-const CvDocumentComponents: Record<Layout, React.ComponentType<{ cvData: CvData }>> = {} as never;
+const CvDocumentComponents: Record<Layout, React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>> = {} as never;
 
-export function DynamicPdfViewer() {
+export function DynamicPdfViewer({ showWatermark = false }: { showWatermark?: boolean }) {
   const cvData = useCvStore((s) => s.cvData);
   const [ready, setReady] = useState(false);
   const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | undefined>(undefined);
@@ -28,9 +28,9 @@ export function DynamicPdfViewer() {
       import("./CvDocumentMinimal").then((m) => m.CvDocumentMinimal),
     ]).then(([viewer, classic, modern, minimal]) => {
       PDFViewer = viewer as typeof PDFViewer;
-      CvDocumentComponents.classic = classic as React.ComponentType<{ cvData: CvData }>;
-      CvDocumentComponents.modern = modern as React.ComponentType<{ cvData: CvData }>;
-      CvDocumentComponents.minimal = minimal as React.ComponentType<{ cvData: CvData }>;
+      CvDocumentComponents.classic = classic as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
+      CvDocumentComponents.modern = modern as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
+      CvDocumentComponents.minimal = minimal as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
       setReady(true);
     });
   }, []);
@@ -111,7 +111,7 @@ export function DynamicPdfViewer() {
       style={{ width: "100%", height: "100%", border: "none" }}
       showToolbar={false}
     >
-      <CvDocumentComponent cvData={displayCvData} />
+      <CvDocumentComponent cvData={displayCvData} showWatermark={showWatermark} />
     </PDFViewer>
   );
 }

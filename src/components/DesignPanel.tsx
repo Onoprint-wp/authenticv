@@ -182,7 +182,7 @@ export function DesignPanel({ onClose }: Props) {
 
       {/* Espacement */}
       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Espacement</p>
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-5">
         {(["compact", "normal", "spacious"] as const).map((s) => (
           <button
             key={s}
@@ -196,6 +196,33 @@ export function DesignPanel({ onClose }: Props) {
             {s === "compact" ? "Compact" : s === "normal" ? "Normal" : "Aéré"}
           </button>
         ))}
+      </div>
+
+      {/* Visibilité Recruteurs B2B */}
+      <div className="pt-3 border-t border-slate-800">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+              <span>Visibilité CVthèque Recruteurs</span>
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              Profil anonymisé visible par les entreprises partenaires CEMAC
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => updateDesignSettings({ recruiterVisible: !(designSettings?.recruiterVisible ?? true) })}
+            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              (designSettings?.recruiterVisible ?? true) ? "bg-indigo-600" : "bg-slate-700"
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                (designSettings?.recruiterVisible ?? true) ? "translate-x-4" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
       </div>
     </div>
   );

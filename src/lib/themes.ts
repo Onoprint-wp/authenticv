@@ -15,6 +15,7 @@ export interface DesignSettings {
   fontFamily: "sans" | "serif";
   layout: "classic" | "modern" | "minimal";
   spacing: "compact" | "normal" | "spacious";
+  recruiterVisible?: boolean;
 }
 
 export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
@@ -22,6 +23,7 @@ export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   fontFamily: "sans",
   layout: "classic",
   spacing: "normal",
+  recruiterVisible: true,
 };
 
 export const PDF_SPACING = {
