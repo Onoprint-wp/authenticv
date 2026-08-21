@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   TrendingUp, FileText, Building2, Gift, GraduationCap,
   ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle,
-  ExternalLink, Download, ShoppingBag, CreditCard, ShieldCheck, Scale, Globe, Tag
+  ExternalLink, Download, ShoppingBag, CreditCard, ShieldCheck, Scale, Globe, Tag, Users
 } from "lucide-react";
 import { AdminUserLookup } from "@/components/admin/AdminUserLookup";
 import { AdminCampusPartners } from "@/components/admin/AdminCampusPartners";
@@ -14,6 +14,7 @@ import { AdminTransactionLedger } from "@/components/admin/AdminTransactionLedge
 import { AdminAbandonedCheckout } from "@/components/admin/AdminAbandonedCheckout";
 import { AdminB2BPipeline } from "@/components/admin/AdminB2BPipeline";
 import { AdminPromoManager } from "@/components/admin/AdminPromoManager";
+import { AdminCommercialsManager } from "@/components/admin/AdminCommercialsManager";
 
 interface AdminMetrics {
   financial: {
@@ -55,7 +56,7 @@ interface AdminMetrics {
   };
 }
 
-type TabType = "cockpit" | "transactions" | "b2b" | "campus" | "abandoned" | "support";
+type TabType = "cockpit" | "transactions" | "b2b" | "campus" | "abandoned" | "commercials" | "support";
 
 const CEMAC_COUNTRIES = [
   { code: "CM", name: "Cameroun", flag: "🇨🇲", share: "65%" },
@@ -136,6 +137,13 @@ export function AdminDashboardView() {
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <Link
+              href="/commercial"
+              className="flex items-center gap-1.5 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800/40 transition-colors"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Portail Commercial</span>
+            </Link>
             <a
               href="/api/admin/export-csv"
               download
@@ -160,7 +168,7 @@ export function AdminDashboardView() {
         </div>
       </header>
 
-      {/* ── Modern Navigation Tabs ── */}
+      {/* ── Modern Navigation Tabs (7 Tabs) ── */}
       <div className="border-b border-slate-800/80 bg-slate-900/60 sticky top-[57px] z-20 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 scrollbar-none">
           <button
@@ -229,6 +237,18 @@ export function AdminDashboardView() {
           </button>
 
           <button
+            onClick={() => setActiveTab("commercials")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              activeTab === "commercials"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+            }`}
+          >
+            <Users className="w-4 h-4 text-emerald-400" />
+            <span>6. Équipe Commerciale &amp; Commissions</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("support")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === "support"
@@ -237,7 +257,7 @@ export function AdminDashboardView() {
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>6. Support &amp; Déblocages</span>
+            <span>7. Support &amp; Déblocages</span>
           </button>
         </div>
       </div>
@@ -253,9 +273,7 @@ export function AdminDashboardView() {
         {/* ── TAB 1: COCKPIT & MARGE NETTE ── */}
         {activeTab === "cockpit" && (
           <div className="space-y-8">
-            {/* 4 Main KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {/* Gross Revenue */}
               <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -274,7 +292,6 @@ export function AdminDashboardView() {
                 </div>
               </div>
 
-              {/* Net Margin */}
               <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden bg-gradient-to-br from-slate-900 to-emerald-950/20">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
@@ -293,7 +310,6 @@ export function AdminDashboardView() {
                 </div>
               </div>
 
-              {/* Resumes & Users */}
               <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -312,7 +328,6 @@ export function AdminDashboardView() {
                 </div>
               </div>
 
-              {/* B2B Recruiters */}
               <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -332,9 +347,7 @@ export function AdminDashboardView() {
               </div>
             </div>
 
-            {/* Geographical Distribution & Revenue Breakdown */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Product Breakdown */}
               <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
@@ -351,7 +364,6 @@ export function AdminDashboardView() {
                   </span>
                 </div>
 
-                {/* Progress Bars */}
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between text-xs mb-1.5">
@@ -395,7 +407,6 @@ export function AdminDashboardView() {
                 </div>
               </div>
 
-              {/* CEMAC Regional Distribution */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
                 <div className="border-b border-slate-800 pb-3">
                   <h3 className="font-bold text-white text-base flex items-center gap-2">
@@ -432,10 +443,7 @@ export function AdminDashboardView() {
         {/* ── TAB 3: B2B PIPELINE & CONTRATS OHADA ── */}
         {activeTab === "b2b" && (
           <div className="space-y-10">
-            {/* 1. Kanban Pipeline */}
             <AdminB2BPipeline />
-
-            {/* 2. Direct Contract Generator */}
             <div className="pt-6 border-t border-slate-800">
               <AdminContractGenerator />
             </div>
@@ -445,10 +453,7 @@ export function AdminDashboardView() {
         {/* ── TAB 4: CAMPUS & PROMOS ── */}
         {activeTab === "campus" && (
           <div className="space-y-10">
-            {/* 1. Promo Codes Manager */}
             <AdminPromoManager />
-
-            {/* 2. Campus Partners Registry & Legal Agreements */}
             <div className="pt-6 border-t border-slate-800">
               <AdminCampusPartners />
             </div>
@@ -458,7 +463,10 @@ export function AdminDashboardView() {
         {/* ── TAB 5: ANTI-ABANDON & RELANCES ── */}
         {activeTab === "abandoned" && <AdminAbandonedCheckout />}
 
-        {/* ── TAB 6: SUPPORT & DÉBLOCAGES ── */}
+        {/* ── TAB 6: GESTION DE L'ÉQUIPE COMMERCIALE (NEW) ── */}
+        {activeTab === "commercials" && <AdminCommercialsManager />}
+
+        {/* ── TAB 7: SUPPORT & DÉBLOCAGES ── */}
         {activeTab === "support" && <AdminUserLookup />}
 
         {/* ── Footer ── */}
@@ -467,7 +475,7 @@ export function AdminDashboardView() {
             <CheckCircle className="w-4 h-4 text-emerald-400" />
             <span>Sécurité : Supabase RLS actif · Webhooks CamPay &amp; Moov validés HMAC-SHA256</span>
           </div>
-          <div>AuthentiCV Commercial ERP v2.6 — Zone CEMAC</div>
+          <div>AuthentiCV Commercial ERP v3.1 — Zone CEMAC</div>
         </div>
       </main>
     </div>
