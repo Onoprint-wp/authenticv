@@ -74,6 +74,31 @@ export function AdminCampusPartners() {
     }
   };
 
+  const handleExecutePayout = async (p: CampusPartner) => {
+    const amount = prompt(`Entrez le montant de la commission à verser au BDE / Établissement (${p.name}) en FCFA :`, "25 000");
+    if (!amount) return;
+
+    try {
+      const res = await fetch("/api/admin/campus/payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partnerId: p.id,
+          amountFcfa: `${amount} FCFA`,
+          phoneNumber: "MTN MoMo / Orange Money",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur lors du virement");
+
+      alert(data.message || "Rétrocession de commission exécutée avec succès !");
+      fetchPartners();
+    } catch {
+      alert("Erreur lors de l'exécution du virement automatique Mobile Money.");
+    }
+  };
+
   const handleAddPartner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !promoCode.trim()) {
@@ -243,13 +268,23 @@ export function AdminCampusPartners() {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-right">
-                    <button
-                      onClick={() => handleDownloadContract(p)}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-700/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>Convention PDF</span>
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleDownloadContract(p)}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-700/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3 h-3" />
+                        <span>Convention PDF</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleExecutePayout(p)}
+                        title="Répartition automatique des gains BDE / Campus par Mobile Money"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-950/60 hover:bg-amber-900 border border-amber-700/50 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <span>📲 Verser Commission MoMo</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
