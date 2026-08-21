@@ -150,14 +150,11 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
 
         <div className="p-6 space-y-4">
           {!hasCompany ? (
-            <div className="text-center py-4 space-y-3">
-              <p className="text-xs text-slate-300">
-                Vous recrutez en zone CEMAC ? Activez votre profil Entreprise pour accéder au moteur de recherche de talents qualifiés.
-              </p>
+            <div className="flex items-center gap-3 flex-wrap">
               <button
                 onClick={handleCreateCompany}
                 disabled={creating}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-600/20 active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 {creating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -165,6 +162,15 @@ export function RecruiterAccountSection({ company, userEmail }: Props) {
                   <Building2 className="w-4 h-4" />
                 )}
                 <span>Activer mon Profil Recruteur (5 Crédits Offerts)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadB2bContract}
+                className="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs px-3.5 py-2.5 rounded-xl border border-indigo-700/50 transition-all cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Contrat B2B PDF</span>
               </button>
             </div>
           ) : (
