@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { NextResponse } from "next/server";
 import { computeAtsScore } from "@/lib/ats-score";
 import { detectSector } from "@/lib/sector";
@@ -6,6 +7,46 @@ import type { CvData } from "@/store/useCvStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+async function processReferralReward(userId: string, req: Request) {
+  try {
+    const cookieHeader = req.headers.get("cookie") || "";
+    const match = cookieHeader.match(/authenticv_ref_id=([^;]+)/);
+    if (!match) return;
+
+    const referrerId = decodeURIComponent(match[1]).trim();
+    if (!referrerId || referrerId === userId) return;
+
+    const admin = createAdminClient();
+
+    const { data: existing } = await admin
+      .from("referrals")
+      .select("id")
+      .eq("referred_id", userId)
+      .maybeSingle();
+
+    if (existing) return;
+
+    await admin.from("referrals").insert({
+      referrer_id: referrerId,
+      referred_id: userId,
+      status: "rewarded",
+    });
+
+    await admin.from("user_subscriptions").upsert(
+      {
+        user_id: referrerId,
+        status: "active",
+        plan_name: "pro",
+        campay_reference: `REFERRAL_REWARD_${userId.slice(0, 8)}`,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+  } catch (err) {
+    console.error("[Referral Reward Processing Error]:", err);
+  }
+}
 
 export async function GET() {
   try {
@@ -131,6 +172,9 @@ export async function POST(req: Request) {
         }
       })();
     }
+
+    // Trigger referral reward check if candidate was referred
+    void processReferralReward(user.id, req);
 
     return NextResponse.json(response);
   } catch (error) {

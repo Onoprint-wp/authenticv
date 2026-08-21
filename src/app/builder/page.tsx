@@ -28,6 +28,7 @@ import { CoverLetterPanel } from "@/components/CoverLetterPanel";
 import { ShareCvButton } from "@/components/ShareCvButton";
 import { AtsScoreBar } from "@/components/AtsScoreBar";
 import { CvSwitcher } from "@/components/CvSwitcher";
+import { ReferralTracker } from "@/components/ReferralTracker";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
@@ -143,6 +144,7 @@ export default function BuilderPage() {
     <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
       <Suspense fallback={null}>
         <UpgradeToastDetector onUpgraded={handleUpgraded} />
+        <ReferralTracker />
       </Suspense>
 
       {/* ── Header ── */}

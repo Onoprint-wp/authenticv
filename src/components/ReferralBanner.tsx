@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Gift, Copy, Check, Share2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Gift, Copy, Check, Share2, Users, Award } from "lucide-react";
 
 interface ReferralBannerProps {
   userId: string;
@@ -9,11 +9,38 @@ interface ReferralBannerProps {
 
 export function ReferralBanner({ userId }: ReferralBannerProps) {
   const [copied, setCopied] = useState(false);
+  const [stats, setStats] = useState<{ totalReferrals: number; rewardedCount: number }>({
+    totalReferrals: 0,
+    rewardedCount: 0,
+  });
+
   const shareUrl = typeof window !== "undefined"
     ? `${window.location.origin}/builder?ref=${userId}`
     : `https://www.authenticv.app/builder?ref=${userId}`;
 
   const message = `Salut ! Crée ton CV professionnel gratuitement avec Alex, l'IA d'AuthenticV. C'est ultra rapide et optimisé ATS : ${shareUrl}`;
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/referrals/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setStats({
+              totalReferrals: data.totalReferrals ?? 0,
+              rewardedCount: data.rewardedCount ?? 0,
+            });
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+    loadStats();
+    return () => { isMounted = false; };
+  }, []);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -27,7 +54,7 @@ export function ReferralBanner({ userId }: ReferralBannerProps) {
   };
 
   return (
-    <div className="bg-gradient-to-r from-indigo-950 to-slate-900 border border-indigo-500/30 rounded-2xl p-5 md:p-6 shadow-xl text-white my-6">
+    <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 border border-indigo-500/30 rounded-2xl p-5 md:p-6 shadow-xl text-white my-6 relative overflow-hidden">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         
         <div className="flex items-start gap-4">
@@ -35,12 +62,34 @@ export function ReferralBanner({ userId }: ReferralBannerProps) {
             <Gift className="w-6 h-6 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-bold text-base md:text-lg text-white flex items-center gap-2">
-              Offrez AuthenticV et gagnez 1 Mois Pro Gratuit ! 🎁
-            </h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-bold text-base md:text-lg text-white">
+                Offrez AuthenticV et gagnez 1 Mois Pro Gratuit ! 🎁
+              </h3>
+              {stats.totalReferrals > 0 && (
+                <span className="text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <Award className="w-3 h-3 text-emerald-400" />
+                  <span>{stats.rewardedCount} Mois Pro Gagné(s)</span>
+                </span>
+              )}
+            </div>
+
             <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl">
-              Partagez votre lien unique à vos camarades et amis. Dès qu&apos;un ami génère son premier CV, vous recevez automatiquement <strong>30 jours Pro offerts</strong>.
+              Partagez votre lien unique. Dès qu&apos;un ami génère son premier CV, vous recevez automatiquement <strong>30 jours Pro offerts</strong>.
             </p>
+
+            {stats.totalReferrals > 0 && (
+              <div className="mt-2.5 flex items-center gap-3 text-xs text-slate-400">
+                <span className="flex items-center gap-1 text-slate-300 font-medium">
+                  <Users className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>{stats.totalReferrals} ami(s) invité(s)</span>
+                </span>
+                <span>•</span>
+                <span className="text-emerald-400 font-medium">
+                  {stats.rewardedCount} récompense(s) validée(s) ✓
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
