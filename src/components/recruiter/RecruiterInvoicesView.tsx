@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   FileText, Building2, Save, Download, CheckCircle2,
-  AlertCircle, ArrowUpRight, DollarSign, ShieldCheck, Loader2
+  AlertCircle, ShieldCheck, Loader2
 } from "lucide-react";
 
 interface CompanyProfile {
@@ -55,7 +55,7 @@ export function RecruiterInvoicesView() {
         if (data.company) setProfile(data.company);
         if (data.invoices) setInvoices(data.invoices);
       }
-    } catch (err) {
+    } catch {
       setError("Impossible de charger les informations de facturation.");
     } finally {
       setLoading(false);
@@ -230,7 +230,12 @@ export function RecruiterInvoicesView() {
           <span className="text-[11px] text-slate-400">TVA non applicable (Régime EdTech CEMAC)</span>
         </div>
 
-        {invoices.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8 text-slate-500 text-xs flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+            <span>Chargement des factures...</span>
+          </div>
+        ) : invoices.length === 0 ? (
           <div className="text-center py-8 text-slate-500 text-xs">
             Aucune facture disponible pour le moment. Vos prochains achats de packs de crédits apparaîtront automatiquement ici.
           </div>

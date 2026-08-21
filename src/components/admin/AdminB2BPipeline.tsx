@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  Building2, PlusCircle, RefreshCw, CheckCircle2,
-  DollarSign, ArrowRight, ArrowLeft, Phone, Mail, FileText,
+  Building2, PlusCircle, RefreshCw,
+  ArrowRight, ArrowLeft, Phone, Mail,
   AlertCircle, X
 } from "lucide-react";
 
@@ -72,7 +72,7 @@ export function AdminB2BPipeline() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -87,11 +87,11 @@ export function AdminB2BPipeline() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [countryFilter]);
 
   useEffect(() => {
     fetchLeads();
-  }, [countryFilter]);
+  }, [fetchLeads]);
 
   const handleMoveStage = async (lead: Lead, direction: "next" | "prev") => {
     const stageOrder: Lead["stage"][] = ["prospect", "demo", "negociation", "client_actif", "perdu"];

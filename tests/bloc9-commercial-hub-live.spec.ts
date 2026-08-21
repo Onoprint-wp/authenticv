@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import path from "path";
 
 /**
  * BLOC 9 — Test en Direct du Hub Commercial & CRM CEMAC (Vagues 1, 2, 3)

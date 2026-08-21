@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { company_name, email, rccm, niu_or_nif, country_code = "CM", city = "Douala", address } = body;
+    const { company_name, email } = body;
 
     const admin = createAdminClient();
 

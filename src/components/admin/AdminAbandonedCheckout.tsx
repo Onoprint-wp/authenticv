@@ -188,7 +188,6 @@ export function AdminAbandonedCheckout() {
               ) : (
                 abandonedList.map((cart) => {
                   const flag = COUNTRY_FLAGS[cart.countryCode] || "🇨🇲";
-                  const isMsgOpen = generatedMessage?.id === cart.resumeId;
 
                   return (
                     <tr key={cart.resumeId} className="hover:bg-slate-800/40 transition-colors">

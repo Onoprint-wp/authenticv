@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  Users, PlusCircle, RefreshCw, CheckCircle2,
-  DollarSign, Phone, Mail, Award, Target, AlertCircle, X, ShieldCheck
+  Users, PlusCircle, RefreshCw,
+  Phone, AlertCircle, X
 } from "lucide-react";
 import { CommercialAgentRecord } from "@/app/api/admin/commercials/route";
 

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   CreditCard, Search, RefreshCw, Download, CheckCircle2,
-  Clock, AlertCircle, Phone, ArrowUpRight, DollarSign, Filter
+  Clock, AlertCircle, Phone, ArrowUpRight, DollarSign
 } from "lucide-react";
 
 interface Transaction {

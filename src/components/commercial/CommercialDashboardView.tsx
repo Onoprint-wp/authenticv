@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Briefcase, TrendingUp, DollarSign, Award, Target, Phone,
-  Mail, MessageSquare, PlusCircle, ArrowLeft, RefreshCw, CheckCircle2,
-  Copy, ExternalLink, ShieldCheck, ChevronRight, FileText, Sparkles, Building2
+  Briefcase, DollarSign, Award, Target,
+  MessageSquare, ArrowLeft, RefreshCw, CheckCircle2,
+  Copy, ShieldCheck, ChevronRight, FileText, Sparkles, Building2
 } from "lucide-react";
 import { AdminB2BPipeline } from "@/components/admin/AdminB2BPipeline";
 

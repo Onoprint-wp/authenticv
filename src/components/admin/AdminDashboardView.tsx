@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, FileText, Building2, Gift, GraduationCap,
+  TrendingUp, FileText, Building2, GraduationCap,
   ArrowLeft, RefreshCw, Shield, Zap, DollarSign, PieChart, CheckCircle,
-  ExternalLink, Download, ShoppingBag, CreditCard, ShieldCheck, Scale, Globe, Tag, Users
+  Download, ShoppingBag, CreditCard, ShieldCheck, Globe, Users
 } from "lucide-react";
 import { AdminUserLookup } from "@/components/admin/AdminUserLookup";
 import { AdminCampusPartners } from "@/components/admin/AdminCampusPartners";

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Tag, PlusCircle, RefreshCw, CheckCircle2,
-  Copy, DollarSign, Calendar, Zap, AlertCircle, X
+  Copy, AlertCircle, X
 } from "lucide-react";
 
 interface PromoCode {

@@ -44,8 +44,8 @@ export async function GET() {
     const abandoned = (resumes || [])
       .filter((r) => !payingUserIds.has(r.user_id))
       .map((r) => {
-        const content = (r.content as Record<string, any>) || {};
-        const personalInfo = content.personalInfo || {};
+        const content = (r.content as Record<string, unknown>) || {};
+        const personalInfo = (content.personalInfo as Record<string, string>) || {};
         const location = personalInfo.location || "Cameroun (CEMAC)";
         const phone = personalInfo.phone || "";
         const email = personalInfo.email || "candidat@authenticv.app";
