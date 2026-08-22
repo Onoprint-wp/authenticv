@@ -13,14 +13,14 @@ export function FaqSection({ dict }: Props) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-24 bg-slate-900/50 border-t border-slate-800" id="faq">
+    <section className="py-24 bg-[#0F223D] border-t border-slate-700/60" id="faq">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-white mb-4"
+            className="text-3xl md:text-4xl font-bold font-heading text-white mb-4"
           >
             {dict.title}
           </motion.h2>
@@ -29,7 +29,7 @@ export function FaqSection({ dict }: Props) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-slate-400 text-lg"
+            className="text-slate-300 text-lg font-sans"
           >
             {dict.subtitle}
           </motion.p>
@@ -43,16 +43,16 @@ export function FaqSection({ dict }: Props) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="bg-slate-950/60 border border-slate-800 rounded-xl overflow-hidden"
+              className="bg-[#162B46] border border-slate-700/60 rounded-xl overflow-hidden shadow-xs"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-800/30 transition-colors"
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-800/40 transition-colors cursor-pointer"
               >
-                <span className="font-medium text-white pr-4">{faq.question}</span>
+                <span className="font-semibold text-white pr-4 font-sans">{faq.question}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
-                    openIndex === index ? "rotate-180" : ""
+                  className={`w-5 h-5 text-slate-300 flex-shrink-0 transition-transform duration-200 ${
+                    openIndex === index ? "rotate-180 text-[#32D3E1]" : ""
                   }`}
                 />
               </button>
@@ -64,7 +64,7 @@ export function FaqSection({ dict }: Props) {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2, ease: "easeInOut" }}
                   >
-                    <p className="px-6 pb-5 text-slate-400 text-sm leading-relaxed border-t border-slate-800 pt-4">
+                    <p className="px-6 pb-5 text-slate-200 text-sm leading-relaxed border-t border-slate-700/50 pt-4 font-sans">
                       {faq.answer}
                     </p>
                   </motion.div>

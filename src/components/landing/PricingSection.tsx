@@ -53,21 +53,21 @@ export function PricingSection({}: Props = {}) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between"
+            className="bg-[#162B46] border border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between shadow-md"
           >
             <div>
               <div className="mb-4">
-                <p className="text-sm font-medium text-slate-400 mb-1">{isEn ? "Free" : "Gratuit"}</p>
+                <p className="text-sm font-semibold text-slate-300 mb-1">{isEn ? "Free" : "Gratuit"}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold text-white">0 FCFA</span>
-                  <span className="text-slate-500 text-xs">{isEn ? "/month" : "/mois"}</span>
+                  <span className="text-slate-400 text-xs">{isEn ? "/month" : "/mois"}</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   {isEn ? "No card, no commitment" : "Sans carte ni engagement"}
                 </p>
               </div>
 
-              <ul className="space-y-2.5 mb-6 text-sm text-slate-300">
+              <ul className="space-y-2.5 mb-6 text-sm text-slate-200">
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                   <span>{isEn ? "Unlimited Alex chat & CV drafting" : "Chat Alex & rédaction CV illimités"}</span>
@@ -80,12 +80,12 @@ export function PricingSection({}: Props = {}) {
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                   <span>{isEn ? "PDF export (with watermark)" : "Export PDF (avec filigrane)"}</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-slate-500">
-                  <X className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                <li className="flex items-center gap-2.5 text-slate-400">
+                  <X className="w-4 h-4 text-slate-500 flex-shrink-0" />
                   <span>{isEn ? "Clean HD PDF export (no watermark)" : "Export PDF HD sans filigrane"}</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-slate-500">
-                  <X className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                <li className="flex items-center gap-2.5 text-slate-400">
+                  <X className="w-4 h-4 text-slate-500 flex-shrink-0" />
                   <span>{isEn ? "AI Cover Letter" : "Lettre de motivation IA"}</span>
                 </li>
               </ul>
@@ -93,8 +93,8 @@ export function PricingSection({}: Props = {}) {
 
             <Link
               href="/builder"
-              className="w-full flex items-center justify-center py-2.5 border border-slate-700
-                text-slate-300 hover:text-white hover:border-slate-500 text-sm font-medium
+              className="w-full flex items-center justify-center py-2.5 border border-slate-600
+                text-slate-200 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 text-sm font-semibold
                 rounded-xl transition-all"
             >
               {isEn ? "Get Started (Free)" : "Commencer (Gratuit)"}
