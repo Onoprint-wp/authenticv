@@ -12,14 +12,14 @@ interface Props {
 
 export function FeaturesSection({ dict }: Props) {
   return (
-    <section className="py-24 bg-muted/30 relative border-y border-border" id="fonctionnalites">
+    <section className="py-24 bg-[#081426] relative border-y border-slate-800" id="fonctionnalites">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4"
+            className="text-3xl md:text-4xl font-extrabold font-heading text-white mb-4"
           >
             {dict.title}
           </motion.h2>
@@ -28,7 +28,7 @@ export function FeaturesSection({ dict }: Props) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-muted-foreground font-sans text-lg max-w-2xl mx-auto"
+            className="text-slate-300 font-sans text-lg max-w-2xl mx-auto leading-relaxed"
           >
             {dict.subtitle}
           </motion.p>
@@ -44,13 +44,13 @@ export function FeaturesSection({ dict }: Props) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-card border border-border rounded-2xl p-6 hover:border-brand-blue/30 elevation-1 transition-colors duration-300"
+                className="bg-[#162B46] border border-slate-700/60 rounded-2xl p-6 hover:border-[#3667F0]/60 shadow-md transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-center mb-5">
-                  <Icon className="w-6 h-6 text-brand-blue" />
+                <div className="w-12 h-12 bg-[#3667F0]/10 border border-[#3667F0]/30 rounded-xl flex items-center justify-center mb-5">
+                  <Icon className="w-6 h-6 text-[#32D3E1]" />
                 </div>
-                <h3 className="text-lg font-semibold font-heading text-card-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground font-sans text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-bold font-heading text-white mb-2">{feature.title}</h3>
+                <p className="text-slate-300 font-sans text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             );
           })}
