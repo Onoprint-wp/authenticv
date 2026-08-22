@@ -195,11 +195,10 @@ export function ChatMessageList({
                 {lastUserMsg && (
                   <button
                     onClick={() => {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const msg = lastUserMsg as any;
+                      const msg = lastUserMsg as unknown as { content?: string; parts?: Array<{ type: string; text?: string }> };
                       const text = typeof msg.content === "string"
                         ? msg.content
-                        : msg.parts?.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") ?? "";
+                        : msg.parts?.filter((p) => p.type === "text").map((p) => p.text ?? "").join("") ?? "";
                       if (text) onRetry(text);
                     }}
                     className="text-xs bg-indigo-600/80 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-indigo-500/50"

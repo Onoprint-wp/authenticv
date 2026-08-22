@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  CvDataSchema,
   parseCvData,
   DEFAULT_CV_DATA,
   ExperienceSchema,

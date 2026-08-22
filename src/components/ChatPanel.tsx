@@ -63,18 +63,18 @@ export const ChatPanel = forwardRef<
       console.error("[Chat] Error:", err);
     },
     onFinish({ message }) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const parts: any[] = (message as any).parts ?? [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const msg = message as unknown as { parts?: Array<{ type: string; toolInvocation?: { state: string; toolName: string; args: Record<string, unknown> } }> };
+      const parts = msg.parts ?? [];
       const toolParts = parts.filter(
-        (p: any) => p.type === "tool-invocation" && p.toolInvocation?.state === "result"
+        (p) => p.type === "tool-invocation" && p.toolInvocation?.state === "result"
       );
 
       if (toolParts.length > 0) {
         for (const part of toolParts) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { toolName, args } = part.toolInvocation as { toolName: string; args: Record<string, any> };
-          applyOptimisticUpdate(toolName, args ?? {});
+          if (part.toolInvocation) {
+            const { toolName, args } = part.toolInvocation;
+            applyOptimisticUpdate(toolName, args ?? {});
+          }
         }
         if (onToolFinish) onToolFinish();
       }

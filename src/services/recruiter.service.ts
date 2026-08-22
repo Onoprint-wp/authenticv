@@ -75,7 +75,6 @@ export class RecruiterMatchingService {
     }
 
     // 3. Années d'expérience estimées (Poids: 15%)
-    const experienceCount = (cv.experiences || []).length;
     let yearsOfExperience = 0;
     for (const exp of cv.experiences || []) {
       const startYear = parseInt(exp.startDate?.slice(0, 4) || "0", 10);

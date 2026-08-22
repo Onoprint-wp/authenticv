@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
+import { type SupabaseClient } from "@supabase/supabase-js";
 
 describe("PaymentLedgerService (Idempotency & Duplicate Guards)", () => {
   it("should return false when a transaction reference is empty or not found", async () => {
-    const mockSupabase: any = {
+    const mockSupabase = {
       from: () => ({
         select: () => ({
           eq: () => ({
@@ -13,7 +14,7 @@ describe("PaymentLedgerService (Idempotency & Duplicate Guards)", () => {
           }),
         }),
       }),
-    };
+    } as unknown as SupabaseClient;
 
     const isProcessedEmpty = await PaymentLedgerService.isTransactionProcessed(mockSupabase, "");
     expect(isProcessedEmpty).toBe(false);
@@ -23,13 +24,13 @@ describe("PaymentLedgerService (Idempotency & Duplicate Guards)", () => {
   });
 
   it("should return true when a transaction reference was already marked SUCCESSFUL", async () => {
-    const mockSupabase: any = {
+    const mockSupabase = {
       from: (table: string) => {
         if (table === "user_subscriptions") {
           return {
             select: () => ({
-              eq: (field: string, val: string) => ({
-                eq: (statusField: string, statusVal: string) => ({
+              eq: (_field: string, val: string) => ({
+                eq: (_statusField: string, statusVal: string) => ({
                   maybeSingle: async () => {
                     if (val === "CAMPAY_PROCESSED_999" && statusVal === "SUCCESSFUL") {
                       return { data: { campay_reference: val, campay_payment_status: "SUCCESSFUL" } };
@@ -51,7 +52,7 @@ describe("PaymentLedgerService (Idempotency & Duplicate Guards)", () => {
           }),
         };
       },
-    };
+    } as unknown as SupabaseClient;
 
     const isProcessed = await PaymentLedgerService.isTransactionProcessed(
       mockSupabase,

@@ -12,6 +12,7 @@ export const SkillsSection = () => {
 
   useEffect(() => {
     if (!isSkillsFocused.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalSkillsText(cvData.skills.join(', '));
     }
   }, [cvData.skills]);
