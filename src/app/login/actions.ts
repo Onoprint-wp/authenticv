@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function requestPasswordReset(formData: FormData) {
   const supabase = await createClient();
@@ -25,17 +26,52 @@ export async function requestPasswordReset(formData: FormData) {
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
   const next = (formData.get("next") as string) || "";
-  const destination = next.startsWith("/") ? next : "/builder";
+  let destination = next.startsWith("/") ? next : "";
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     const errorUrl = next ? `/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
     redirect(errorUrl);
   }
+
+  // Auto-routage intelligent si aucune destination explicite
+  if (!destination && data?.user) {
+    try {
+      const admin = createAdminClient();
+
+      // 1. Vérifier si l'utilisateur est un Agent Commercial
+      const { data: agent } = await admin
+        .from("commercial_agents")
+        .select("id, status")
+        .or(`user_id.eq.${data.user.id},email.eq.${data.user.email}`)
+        .maybeSingle();
+
+      if (agent && agent.status === "active") {
+        destination = "/commercial";
+      } else {
+        // 2. Vérifier si l'utilisateur est un Recruteur B2B
+        const { data: company } = await admin
+          .from("companies")
+          .select("id")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+
+        if (company) {
+          destination = "/recruiter/search";
+        } else {
+          destination = "/builder";
+        }
+      }
+    } catch {
+      destination = "/builder";
+    }
+  }
+
+  if (!destination) destination = "/builder";
 
   revalidatePath("/", "layout");
   redirect(destination);

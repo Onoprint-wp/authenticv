@@ -46,10 +46,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is accessing login page, but they are already logged in, redirect them to /builder
+  // If user is accessing login page, but they are already logged in, redirect them to destination or /builder
   if (user && request.nextUrl.pathname.startsWith('/login')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/builder'
+    const nextParam = request.nextUrl.searchParams.get('next')
+    url.pathname = nextParam && nextParam.startsWith('/') ? nextParam : '/builder'
+    url.search = ''
     return NextResponse.redirect(url)
   }
 

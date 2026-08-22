@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { logout } from "@/app/login/actions";
 import {
   Briefcase, DollarSign, Award, Target,
   MessageSquare, ArrowLeft, RefreshCw, CheckCircle2,
-  Copy, ShieldCheck, ChevronRight, FileText, Sparkles, Building2
+  Copy, ShieldCheck, ChevronRight, FileText, Sparkles, Building2, LogOut
 } from "lucide-react";
 import { AdminB2BPipeline } from "@/components/admin/AdminB2BPipeline";
 
@@ -113,10 +114,21 @@ export function CommercialDashboardView() {
             <button
               onClick={fetchDashboard}
               disabled={loading}
+              title="Actualiser les données"
               className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
             </button>
+
+            <form action={logout}>
+              <button
+                type="submit"
+                title="Se déconnecter"
+                className="p-2 bg-slate-800 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 rounded-xl border border-slate-700 hover:border-rose-800/50 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </form>
           </div>
         </div>
       </header>

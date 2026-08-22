@@ -1,4 +1,4 @@
-import { test as setup, expect } from "@playwright/test";
+import { test as setup } from "@playwright/test";
 import path from "path";
 import fs from "fs";
 
@@ -37,9 +37,13 @@ setup("authenticate", async ({ page }) => {
   // Click login (formAction Supabase server action)
   await page.click("#login-btn");
 
-  // Wait for redirect — either /builder (success) or /login?error (failure)
+  // Wait for redirect — either /builder, /recruiter, /commercial or /login?error
   await page.waitForURL(
-    (url) => url.pathname.includes("/builder") || url.search.includes("error"),
+    (url) =>
+      url.pathname.includes("/builder") ||
+      url.pathname.includes("/recruiter") ||
+      url.pathname.includes("/commercial") ||
+      url.search.includes("error"),
     { timeout: 30_000 }
   );
 
@@ -47,9 +51,6 @@ setup("authenticate", async ({ page }) => {
   if (currentUrl.includes("error")) {
     throw new Error(`Login failed — redirected to: ${currentUrl}`);
   }
-
-  // Confirm we're on /builder
-  await expect(page).toHaveURL(/builder/);
 
   // Save authenticated state
   await page.context().storageState({ path: authFile });

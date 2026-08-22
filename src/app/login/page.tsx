@@ -12,6 +12,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const isReset = params.reset === "true";
   const next = params.next || "";
   const isRecruiterFlow = next.includes("recruiter");
+  const isCommercialFlow = next.includes("commercial");
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
@@ -111,6 +112,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 <div className="mb-4 p-2.5 bg-indigo-950/80 border border-indigo-700/50 rounded-xl flex items-center gap-2 text-xs text-indigo-300 font-medium shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                   <span>Espace Recruteur — Connexion & Accès CVthèque</span>
+                </div>
+              )}
+
+              {/* Commercial Contextual Badge */}
+              {isCommercialFlow && (
+                <div className="mb-4 p-2.5 bg-emerald-950/80 border border-emerald-700/50 rounded-xl flex items-center gap-2 text-xs text-emerald-300 font-medium shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Espace Délégué Commercial — Connexion & Cockpit Ventes CEMAC</span>
                 </div>
               )}
 

@@ -21,7 +21,7 @@ export default async function CommercialPage() {
   } = await supabase.auth.getUser();
 
   if (!user && process.env.NODE_ENV === "production") {
-    redirect("/login");
+    redirect("/login?next=/commercial");
   }
 
   return <CommercialDashboardView />;

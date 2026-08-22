@@ -71,4 +71,25 @@ test.describe("AuthentiCV — Compte Commercial & Pilotage des Commissions CEMAC
     expect(dashData.agent).toHaveProperty("full_name");
     expect(dashData.metrics).toHaveProperty("pendingCommissionXaf");
   });
+
+  test("10.3 — Connexion Dédiée : Badge Contextuel /login?next=/commercial", async ({ browser, baseURL }) => {
+    // 1. Ouvrir une session anonyme (sans cookies de session)
+    const context = await browser.newContext({
+      baseURL,
+      storageState: { cookies: [], origins: [] },
+    });
+    const page = await context.newPage();
+
+    await page.goto("/login?next=/commercial");
+    await page.waitForLoadState("networkidle");
+
+    // Vérifier le badge contextuel
+    const commercialBadge = page.locator("text=Espace Délégué Commercial — Connexion & Cockpit Ventes CEMAC");
+    await expect(commercialBadge).toBeVisible();
+
+    // Capture d'écran Page de Connexion Commercial
+    await page.screenshot({ path: "tests/screenshots/step0-commercial-login-badge.png" });
+
+    await context.close();
+  });
 });
