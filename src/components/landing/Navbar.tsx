@@ -43,21 +43,21 @@ export function Navbar({ dict }: Props) {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-0 inset-x-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800"
+      className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur-md border-b border-border shadow-xs"
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:bg-indigo-500 transition-colors">
+          <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center shadow-md group-hover:opacity-90 transition-opacity">
             <FileText className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">AuthentiCV</span>
+          <span className="text-xl font-bold font-heading text-foreground tracking-tight">Authenti<span className="text-brand-blue">CV</span></span>
         </Link>
 
         <nav className="hidden md:flex gap-8">
-          <Link href="#comment-ca-marche" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+          <Link href="#comment-ca-marche" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.howItWorks}
           </Link>
-          <Link href="#fonctionnalites" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+          <Link href="#fonctionnalites" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.features}
           </Link>
           <Link href="#tarifs" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">

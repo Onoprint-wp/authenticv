@@ -179,7 +179,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <RecruiterBuyCreditsModal
         isOpen={isBuyModalOpen}
         onClose={() => setIsBuyModalOpen(false)}
@@ -187,24 +187,24 @@ export function RecruiterSearchView({ isEn = false }: Props) {
       />
 
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
+      <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link
               href={backUrl}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{isEn ? "Back" : "Retour"}</span>
             </Link>
-            <h1 className="font-bold text-white text-lg flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-indigo-400" />
+            <h1 className="font-bold text-foreground text-lg flex items-center gap-2 font-heading">
+              <Briefcase className="w-5 h-5 text-brand-blue" />
               <span>{isEn ? "CEMAC Talent Search Engine" : "Moteur de Recherche Talents CEMAC"}</span>
             </h1>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-xs text-slate-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+            <div className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
               {isEn ? "Available credits: " : "Crédits disponibles : "}<span className="text-amber-400 font-bold">{isEn ? `${creditsBalance} Credits` : `${creditsBalance} Crédits`}</span>
             </div>
 

@@ -16,21 +16,19 @@ export function PricingSection({}: Props = {}) {
   const isEn = pathname.startsWith("/en");
 
   return (
-    <section className="py-24 bg-slate-950 relative" id="tarifs">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/15 via-slate-950/0 to-slate-950/0 pointer-events-none" />
-
+    <section className="py-24 bg-background relative" id="tarifs">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-white mb-4"
+            className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4"
           >
             {isEn ? (
-              <>AuthentiCV Pricing — <span className="text-indigo-400">Flexible &amp; Transparent</span></>
+              <>AuthentiCV Pricing — <span className="text-brand-blue">Flexible &amp; Transparent</span></>
             ) : (
-              <>Tarifs AuthentiCV — <span className="text-indigo-400">Flexibles et sans surprise</span></>
+              <>Tarifs AuthentiCV — <span className="text-brand-blue">Flexibles et sans surprise</span></>
             )}
           </motion.h2>
           <motion.p
@@ -38,7 +36,7 @@ export function PricingSection({}: Props = {}) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-slate-400 text-base md:text-lg"
+            className="text-muted-foreground font-sans text-base md:text-lg"
           >
             {isEn
               ? "Start for free with Mobile Money. Pay 1,000 FCFA for a single application or 5,000 FCFA/month for unlimited access."

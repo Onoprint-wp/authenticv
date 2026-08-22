@@ -12,14 +12,14 @@ interface Props {
 
 export function FeaturesSection({ dict }: Props) {
   return (
-    <section className="py-24 bg-slate-900/50 relative border-y border-slate-800" id="fonctionnalites">
+    <section className="py-24 bg-muted/30 relative border-y border-border" id="fonctionnalites">
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-white mb-4"
+            className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4"
           >
             {dict.title}
           </motion.h2>
@@ -28,7 +28,7 @@ export function FeaturesSection({ dict }: Props) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-slate-400 text-lg max-w-2xl mx-auto"
+            className="text-muted-foreground font-sans text-lg max-w-2xl mx-auto"
           >
             {dict.subtitle}
           </motion.p>
@@ -44,13 +44,13 @@ export function FeaturesSection({ dict }: Props) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 hover:border-indigo-500/30 transition-colors duration-300"
+                className="bg-card border border-border rounded-2xl p-6 hover:border-brand-blue/30 elevation-1 transition-colors duration-300"
               >
-                <div className="w-12 h-12 bg-indigo-900/30 border border-indigo-800/50 rounded-xl flex items-center justify-center mb-5">
-                  <Icon className="w-6 h-6 text-indigo-400" />
+                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-center mb-5">
+                  <Icon className="w-6 h-6 text-brand-blue" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-semibold font-heading text-card-foreground mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground font-sans text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             );
           })}

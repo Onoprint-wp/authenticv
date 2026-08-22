@@ -15,11 +15,11 @@ export function HeroSection({ dict }: Props) {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   return (
-    <section className="relative pt-24 pb-12 md:pt-28 md:pb-16 overflow-hidden">
+    <section className="relative pt-24 pb-12 md:pt-28 md:pb-16 overflow-hidden bg-background">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-slate-950" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[400px] bg-blue-600/20 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute inset-0 bg-background" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#3341552e_1px,transparent_1px),linear-gradient(to_bottom,#3341552e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[400px] bg-blue-500/10 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -30,22 +30,22 @@ export function HeroSection({ dict }: Props) {
             transition={{ duration: 0.5 }}
             className="lg:col-span-7 text-center lg:text-left"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-cyan-300 text-xs font-semibold mb-6 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-brand-blue text-xs font-semibold mb-6 shadow-xs">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-blue"></span>
               </span>
               <span>{dict.badge}</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold font-heading text-foreground tracking-tight mb-6 leading-tight">
               {dict.title1}{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
+              <span className="gradient-text-brand">
                 {dict.title2}
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-slate-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground font-sans mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               {dict.description}
             </p>
 

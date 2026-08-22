@@ -15,23 +15,23 @@ export function RecruiterLandingView({ isEn = false }: Props) {
   const searchUrl = isEn ? "/en/recruiter/search" : "/recruiter/search";
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col text-slate-100">
+    <div className="min-h-screen bg-background flex flex-col text-foreground">
       <Navbar dict={dict.navbar} />
 
       <main className="flex-1 pt-32 pb-20 px-6 max-w-6xl mx-auto w-full">
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-brand-blue text-xs font-semibold mb-6 uppercase tracking-wider">
             <Briefcase className="w-4 h-4" /> {isEn ? "B2B HR & CEMAC Recruitment" : "B2B RH & Recrutement CEMAC"}
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold font-heading text-foreground tracking-tight mb-6 leading-tight">
             {isEn ? (
-              <>Find top candidates <span className="text-indigo-400">without wasting time on manual CV screening</span></>
+              <>Find top candidates <span className="text-brand-blue">without wasting time on manual CV screening</span></>
             ) : (
-              <>Trouvez les meilleurs candidats <span className="text-indigo-400">sans perdre de temps dans le tri manuel</span></>
+              <>Trouvez les meilleurs candidats <span className="text-brand-blue">sans perdre de temps dans le tri manuel</span></>
             )}
           </h1>
-          <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+          <p className="text-muted-foreground font-sans text-lg mb-8 leading-relaxed">
             {isEn
               ? "Access Central Africa's premier AI-curated talent database. Filter by skills and unlock contacts of job-ready candidates."
               : "Accédez à la 1ère CVthèque IA structurée d'Afrique centrale. Filtrez par compétences et débloquez les coordonnées des profils prêts à l'emploi."}
@@ -40,7 +40,7 @@ export function RecruiterLandingView({ isEn = false }: Props) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={searchUrl}
-              className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-base cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-md text-base cursor-pointer"
             >
               <Search className="w-5 h-5" />
               <span>{isEn ? "Explore Anonymized Talents" : "Explorer les Talents Anonymisés"}</span>
