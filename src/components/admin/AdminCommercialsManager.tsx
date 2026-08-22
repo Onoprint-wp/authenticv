@@ -169,7 +169,6 @@ export function AdminCommercialsManager() {
     totalCommissionsPaidXaf: 20000,
     pendingCommissionsXaf: 82750,
   });
-  const [agents, setAgents] = useState<CommercialAgentRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -203,7 +202,6 @@ export function AdminCommercialsManager() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Erreur de chargement");
       }
-      setAgents(data.agents || []);
       if (data.countryHubs) setCountryHubs(data.countryHubs);
       if (data.summary) setSummary(data.summary);
     } catch (err) {
@@ -317,6 +315,11 @@ export function AdminCommercialsManager() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="p-3 bg-red-950/60 border border-red-800 text-red-300 text-xs rounded-xl">
+          {error}
+        </div>
+      )}
       {/* ── Top Summary KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
