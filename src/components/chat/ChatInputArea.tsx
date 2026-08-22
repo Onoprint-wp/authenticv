@@ -30,7 +30,7 @@ export function ChatInputArea({
   onSubmit,
 }: ChatInputAreaProps) {
   return (
-    <div className="p-4 border-t border-slate-800">
+    <div className="p-4 border-t border-border bg-card shadow-xs">
       <form onSubmit={onSubmit} className="flex gap-2 items-center">
         {/* Language Toggle */}
         <button
@@ -38,7 +38,7 @@ export function ChatInputArea({
           type="button"
           onClick={() => setCoachLanguage(coachLanguage === "fr" ? "en" : "fr")}
           title={coachLanguage === "fr" ? "Passer en anglais" : "Switch to French"}
-          className="shrink-0 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-sm transition-all active:scale-95"
+          className="shrink-0 w-9 h-9 rounded-[10px] bg-muted hover:bg-muted/80 border border-border flex items-center justify-center text-sm transition-all active:scale-95 shadow-xs"
         >
           {coachLanguage === "fr" ? "🇫🇷" : "🇬🇧"}
         </button>
@@ -61,8 +61,8 @@ export function ChatInputArea({
               ? "Type your message..."
               : "Écrivez votre message…"
           }
-          className={`flex-1 px-4 py-2.5 bg-slate-800 border rounded-xl text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 transition-all ${
-            isListening ? "border-red-500/50 ring-1 ring-red-500/30" : "border-slate-700"
+          className={`flex-1 px-4 py-2.5 bg-background border rounded-[12px] text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-[#3667F0] focus:border-transparent disabled:opacity-50 transition-all font-sans shadow-xs ${
+            isListening ? "border-red-500/50 ring-2 ring-red-500/30" : "border-border"
           }`}
         />
 
@@ -74,16 +74,16 @@ export function ChatInputArea({
             onClick={toggleMic}
             disabled={isLoading}
             title={speechError || (isListening ? "Arrêter l'écoute" : "Dicter un message")}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`w-9 h-9 rounded-[10px] flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed border ${
               isListening
-                ? "mic-recording text-white"
-                : "bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white"
+                ? "mic-recording text-white border-red-500"
+                : "bg-muted hover:bg-muted/80 border-border text-foreground hover:text-[#3667F0]"
             }`}
           >
             {isListening ? (
               <MicOff className="w-4 h-4" />
             ) : (
-              <Mic className="w-4 h-4" />
+              <Mic className="w-4 h-4 text-muted-foreground" />
             )}
           </button>
         )}
@@ -92,7 +92,7 @@ export function ChatInputArea({
           id="chat-send-btn"
           type="submit"
           disabled={isLoading || !inputValue.trim() || !isHydrated}
-          className="w-10 h-10 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl flex items-center justify-center transition-all active:scale-95"
+          className="w-9 h-9 gradient-ai hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed rounded-[10px] flex items-center justify-center transition-all active:scale-95 shadow-sm text-white"
         >
           {isLoading ? (
             <Loader2 className="w-4 h-4 text-white animate-spin" />

@@ -94,10 +94,10 @@ export function UploadCvButton() {
   };
 
   const buttonColors: Record<UploadStatus, string> = {
-    idle: "text-slate-400 hover:text-slate-200 hover:bg-slate-800",
-    uploading: "text-indigo-400 bg-indigo-950/40 cursor-not-allowed",
-    success: "text-emerald-400 bg-emerald-950/40",
-    error: "text-red-400 bg-red-950/40",
+    idle: "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium",
+    uploading: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 cursor-not-allowed",
+    success: "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40",
+    error: "text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40",
   };
 
   return (

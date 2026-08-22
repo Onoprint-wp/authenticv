@@ -191,39 +191,36 @@ export default function BuilderPage() {
           <button
             id="open-job-match-btn"
             onClick={handleOpenJobMatch}
-            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-              border border-slate-700/50 text-slate-400 hover:text-violet-300
-              hover:bg-violet-950/40 hover:border-violet-800/50 transition-all duration-200"
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px]
+              border border-border text-foreground hover:bg-muted font-medium transition-all duration-200"
           >
-            <Briefcase className="w-3.5 h-3.5" />
+            <Briefcase className="w-3.5 h-3.5 text-brand-blue" />
             <span className="hidden lg:inline">Optimiser pour une offre</span>
           </button>
 
           <Link
             href="/dashboard"
-            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-              border border-slate-700/50 text-slate-400 hover:text-indigo-300
-              hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all duration-200"
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px]
+              border border-border text-foreground hover:bg-muted font-medium transition-all duration-200"
             title="Tableau de bord"
           >
-            <BarChart2 className="w-3.5 h-3.5" />
+            <BarChart2 className="w-3.5 h-3.5 text-brand-blue" />
             <span className="hidden lg:inline">Dashboard</span>
           </Link>
 
           <Link
             href="/account"
-            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-              border border-slate-700/50 text-slate-400 hover:text-indigo-300
-              hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all duration-200"
+            className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px]
+              border border-border text-foreground hover:bg-muted font-medium transition-all duration-200"
             title="Mon compte"
           >
-            <User className="w-3.5 h-3.5" />
+            <User className="w-3.5 h-3.5 text-brand-blue" />
             <span className="hidden lg:inline">Compte</span>
           </Link>
 
           <button
             onClick={() => setIsDeleteModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 text-xs text-slate-600 hover:text-red-400 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-500 transition-colors p-1"
             title="Supprimer mon compte"
           >
             <UserX className="w-3.5 h-3.5" />
@@ -233,7 +230,7 @@ export default function BuilderPage() {
             <button
               id="logout-btn"
               type="submit"
-              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors p-1"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Déconnexion</span>
