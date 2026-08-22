@@ -42,10 +42,33 @@ export function HtmlCvPreview() {
   const layout = cvData.designSettings?.layout ?? "classic";
 
   return (
-    <div className="flex-1 overflow-auto bg-slate-200 p-4 sm:p-8 flex justify-center items-start custom-scrollbar">
+    <div className="flex-1 overflow-auto bg-slate-200/80 dark:bg-slate-900/60 p-4 sm:p-8 flex justify-center items-start custom-scrollbar relative">
+      {/* Floating Canvas Zoom Controls */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-1 z-30 shadow-lg bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 p-1">
+        <button
+          type="button"
+          title="Zoom avant"
+          className="w-8 h-8 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors font-bold text-base"
+        >
+          +
+        </button>
+        <div className="h-px bg-slate-200 dark:bg-slate-700 mx-2" />
+        <span className="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300 font-label-bold text-[10px]">
+          100%
+        </span>
+        <div className="h-px bg-slate-200 dark:bg-slate-700 mx-2" />
+        <button
+          type="button"
+          title="Zoom arrière"
+          className="w-8 h-8 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors font-bold text-base"
+        >
+          -
+        </button>
+      </div>
+
       <div
         ref={paperRef}
-        className="relative w-full max-w-[850px] min-h-[1122px] bg-white rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col"
+        className="relative w-full max-w-[850px] min-h-[1122px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(15,34,61,0.08)] border border-slate-200/80 overflow-hidden flex flex-col"
       >
         {/* Page break indicators */}
         {Array.from({ length: Math.floor(paperHeight / A4_PAGE_PX) }, (_, i) => (
