@@ -119,7 +119,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               {isCommercialFlow && (
                 <div className="mb-4 p-2.5 bg-emerald-950/80 border border-emerald-700/50 rounded-xl flex items-center gap-2 text-xs text-emerald-300 font-medium shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Espace Délégué Commercial — Connexion & Cockpit Ventes CEMAC</span>
+                  <span>Portail Délégués &amp; Directeurs Commerciaux — Connexion &amp; Cockpit Ventes CEMAC</span>
                 </div>
               )}
 

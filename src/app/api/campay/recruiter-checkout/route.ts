@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/campay/recruiter-checkout
- * Body: { pack: "single" | "pack5" | "pack15" | "monthly_pro", companyName?: string }
+ * Body: { pack: "single" | "pack5" | "pack15" | "monthly_pro", companyName?: string, promoCode?: string }
  */
 export async function POST(req: Request) {
   try {
@@ -21,10 +21,28 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({}));
     const pack = (body.pack ?? "pack5") as RecruiterPackType;
+    const promoCode = (body.promoCode || "").trim().toUpperCase();
 
     const packConfig = RECRUITER_PRICES[pack];
     if (!packConfig) {
       return NextResponse.json({ error: "Pack recruteur invalide" }, { status: 400 });
+    }
+
+    let finalAmount = packConfig.amount;
+    let discountApplied = 0;
+
+    // Validate promo code if provided
+    if (promoCode) {
+      const { data: promo } = await supabase
+        .from("promo_codes")
+        .select("*")
+        .eq("code", promoCode)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      const discountPercent = promo?.discount_percent || 10; // Default 10% for commercial affiliate codes
+      discountApplied = Math.round(finalAmount * (discountPercent / 100));
+      finalAmount = finalAmount - discountApplied;
     }
 
     // Ensure company record exists in companies table
@@ -39,19 +57,19 @@ export async function POST(req: Request) {
       { onConflict: "user_id" }
     );
 
-    // External reference formatted to indicate recruiter purchase:
-    // "recruiter:{userId}:{pack}"
-    const externalRef = `recruiter:${user.id}:${pack}`;
+    // External reference formatted to indicate recruiter purchase & affiliate tracking:
+    // "recruiter:{userId}:{pack}:{promoCode}"
+    const externalRef = `recruiter:${user.id}:${pack}${promoCode ? `:${promoCode}` : ""}`;
 
     const result = await createPaymentLink({
-      amount: packConfig.amount,
+      amount: finalAmount,
       userId: externalRef,
       userEmail: user.email ?? "",
-      redirectUrl: `${SITE_URL}/recruiter/search?payment=success&pack=${pack}`,
-      description: `AuthenticV Recruteur – ${packConfig.label}`,
+      redirectUrl: `${SITE_URL}/recruiter/search?payment=success&pack=${pack}${promoCode ? `&ref=${promoCode}` : ""}`,
+      description: `AuthenticV Recruteur – ${packConfig.label}${discountApplied > 0 ? ` (-${discountApplied} F Réduction ${promoCode})` : ""}`,
     });
 
-    return NextResponse.json({ url: result.link });
+    return NextResponse.json({ url: result.link, finalAmount, discountApplied });
   } catch (err) {
     console.error("[Recruiter CamPay Checkout Error]:", err);
     return NextResponse.json(

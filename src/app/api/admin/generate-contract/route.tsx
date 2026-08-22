@@ -2,6 +2,7 @@ import { renderToStream } from "@react-pdf/renderer";
 import { createClient } from "@/utils/supabase/server";
 import { CampusCemacContractDocument } from "@/components/pdf/contracts/CampusCemacContractDocument";
 import { RecruiterB2BCemacContractDocument } from "@/components/pdf/contracts/RecruiterB2BCemacContractDocument";
+import { CountryDirectorMandateContractDocument } from "@/components/pdf/contracts/CountryDirectorMandateContractDocument";
 import React from "react";
 
 export const runtime = "nodejs";
@@ -31,11 +32,36 @@ export async function POST(req: Request) {
       niu = "En cours",
       creditsPurchased = 5,
       totalPriceFcfa = "25 000 FCFA",
+      directorName,
+      phone = "+237 699 12 34 56",
+      email = "commercial@authenticv.app",
+      monthlyQuotaXaf = 3500000,
+      overridePercent = 2.5,
     } = body;
 
     let filename = `Contrat_${Date.now()}.pdf`;
 
-    if (contractType === "campus") {
+    if (contractType === "director_mandate") {
+      filename = `Mandat_Directeur_Pays_${(directorName || "Directeur").replace(/\s+/g, "_")}.pdf`;
+      const stream = await renderToStream(
+        <CountryDirectorMandateContractDocument
+          directorName={directorName || "Directeur Commercial Pays"}
+          countryCode={countryCode}
+          phone={phone}
+          email={email}
+          promoCode={promoCode || `DIR${countryCode}10`}
+          monthlyQuotaXaf={Number(monthlyQuotaXaf) || 3500000}
+          commissionDirectPercent={10}
+          overridePercent={Number(overridePercent) || 2.5}
+        />
+      );
+      return new Response(stream as unknown as ReadableStream, {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        },
+      });
+    } else if (contractType === "campus") {
       filename = `Convention_Campus_${(universityName || "Université").replace(/\s+/g, "_")}.pdf`;
       const stream = await renderToStream(
         <CampusCemacContractDocument

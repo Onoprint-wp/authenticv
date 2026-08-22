@@ -19,11 +19,11 @@ test.describe("AuthentiCV — Compte Commercial & Pilotage des Commissions CEMAC
     await tabCommercials.click();
     await page.waitForTimeout(500);
 
-    // Vérifier les compteurs de commissions et la table des agents
-    await expect(page.locator("text=Gestion de l'Équipe Commerciale & Attribution des Secteurs")).toBeVisible();
+    // Vérifier les compteurs de commissions et la hiérarchie des hubs
+    await expect(page.locator("text=Architecture Hiérarchique & Pôles Nationaux CEMAC")).toBeVisible();
     await expect(page.locator("text=Équipe Commerciale CEMAC")).toBeVisible();
-    await expect(page.locator("text=Commissions en Attente")).toBeVisible();
-    await expect(page.locator("text=Christian Bekono")).toBeVisible();
+    await expect(page.locator("text=Christian Bekono").first()).toBeVisible();
+    await expect(page.locator("text=DIRCM10").first()).toBeVisible();
 
     // Capture d'écran Super-Admin Gestion Commerciaux
     await page.screenshot({ path: "tests/screenshots/vague4-admin-commercials.png", fullPage: true });
@@ -33,7 +33,7 @@ test.describe("AuthentiCV — Compte Commercial & Pilotage des Commissions CEMAC
     expect(res.status()).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
-    expect(json.agents.length).toBeGreaterThan(0);
+    expect(json.countryHubs.length).toBeGreaterThan(0);
   });
 
   test("10.2 — Portail Commercial : Cockpit Personnel, Quotas, Pipeline & Boîte à Outils (/commercial)", async ({ page, request }) => {
@@ -41,18 +41,17 @@ test.describe("AuthentiCV — Compte Commercial & Pilotage des Commissions CEMAC
     await page.goto("/commercial");
     await page.waitForLoadState("networkidle");
 
-    // Vérifier les KPIs du délégué commercial
-    await expect(page.locator("text=Espace Commercial")).toBeVisible();
-    await expect(page.locator("text=Objectif Mensuel")).toBeVisible();
-    await expect(page.locator("text=Commissions Dues (10%)")).toBeVisible();
-    await expect(page.locator("text=Mon Code Partenaire")).toBeVisible();
+    // Vérifier les KPIs du directeur commercial
+    await expect(page.locator("h1")).toContainText("Direction Commerciale");
+    await expect(page.locator("text=Quota National Pays")).toBeVisible();
+    await expect(page.locator("text=Commissions Dues (MoMo)")).toBeVisible();
+    await expect(page.locator("text=DIRCM10")).toBeVisible();
 
     // 2. Vérifier le Kanban de prospection B2B
-    await expect(page.locator("text=Mon Pipeline B2B & Prospects RH")).toBeVisible();
-    await expect(page.locator("text=Pipeline de Prospection B2B & Ventes Entreprises CEMAC")).toBeVisible();
+    await expect(page.locator("button:has-text('Pipeline B2B')")).toBeVisible();
 
     // 3. Basculer sur la boîte à outils et le pitch DRH
-    const pitchTab = page.locator("button:has-text('Boîte à Outils & Pitchs Vente')");
+    const pitchTab = page.locator("button:has-text('Boîte à Outils')");
     await expect(pitchTab).toBeVisible();
     await pitchTab.click();
     await page.waitForTimeout(500);
@@ -78,17 +77,17 @@ test.describe("AuthentiCV — Compte Commercial & Pilotage des Commissions CEMAC
       baseURL,
       storageState: { cookies: [], origins: [] },
     });
-    const page = await context.newPage();
+    const anonPage = await context.newPage();
 
-    await page.goto("/login?next=/commercial");
-    await page.waitForLoadState("networkidle");
+    // 2. Visiter /login?next=/commercial
+    await anonPage.goto("/login?next=/commercial");
+    await anonPage.waitForLoadState("networkidle");
 
-    // Vérifier le badge contextuel
-    const commercialBadge = page.locator("text=Espace Délégué Commercial — Connexion & Cockpit Ventes CEMAC");
-    await expect(commercialBadge).toBeVisible();
+    // 3. Vérifier la présence du badge d'accueil commercial
+    await expect(anonPage.locator("text=Portail Délégués & Directeurs Commerciaux")).toBeVisible();
 
-    // Capture d'écran Page de Connexion Commercial
-    await page.screenshot({ path: "tests/screenshots/step0-commercial-login-badge.png" });
+    // Capture d'écran
+    await anonPage.screenshot({ path: "tests/screenshots/step0-commercial-login-badge.png" });
 
     await context.close();
   });

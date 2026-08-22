@@ -5,9 +5,17 @@ import { Download, Loader2, Scale, Globe } from "lucide-react";
 import { CEMAC_COUNTRIES } from "@/lib/cemac-regulatory";
 
 export function AdminContractGenerator() {
-  const [contractType, setContractType] = useState<"campus" | "recruiter">("campus");
+  const [contractType, setContractType] = useState<"director_mandate" | "campus" | "recruiter">("director_mandate");
   const [countryCode, setCountryCode] = useState("CM");
   const [loading, setLoading] = useState(false);
+
+  // Champs Directeur Pays
+  const [directorName, setDirectorName] = useState("Christian Bekono");
+  const [phone, setPhone] = useState("+237 699 12 34 56");
+  const [email, setEmail] = useState("commercial.douala@authenticv.app");
+  const [directorPromoCode, setDirectorPromoCode] = useState("DIRCM10");
+  const [monthlyQuotaXaf, setMonthlyQuotaXaf] = useState("3500000");
+  const [overridePercent, setOverridePercent] = useState("2.5");
 
   // Champs Campus
   const [universityName, setUniversityName] = useState("Université de Douala");
@@ -31,9 +39,14 @@ export function AdminContractGenerator() {
       const payload = {
         contractType,
         countryCode,
+        directorName,
+        phone,
+        email,
+        promoCode: contractType === "director_mandate" ? directorPromoCode : promoCode,
+        monthlyQuotaXaf,
+        overridePercent,
         universityName,
         representativeName,
-        promoCode,
         discountPercent,
         commissionPercent,
         companyName,
@@ -57,9 +70,12 @@ export function AdminContractGenerator() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = contractType === "campus"
-        ? `Convention_Campus_${universityName.replace(/\s+/g, "_")}.pdf`
-        : `Contrat_B2B_${companyName.replace(/\s+/g, "_")}.pdf`;
+      a.download =
+        contractType === "director_mandate"
+          ? `Mandat_Directeur_Pays_${directorName.replace(/\s+/g, "_")}.pdf`
+          : contractType === "campus"
+          ? `Convention_Campus_${universityName.replace(/\s+/g, "_")}.pdf`
+          : `Contrat_B2B_${companyName.replace(/\s+/g, "_")}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -90,9 +106,10 @@ export function AdminContractGenerator() {
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">Type de Document Juridique</label>
             <select
               value={contractType}
-              onChange={(e) => setContractType(e.target.value as "campus" | "recruiter")}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+              onChange={(e) => setContractType(e.target.value as "director_mandate" | "campus" | "recruiter")}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium"
             >
+              <option value="director_mandate">👑 Mandat Directeur Commercial Pays (Droit OHADA)</option>
               <option value="campus">🎓 Convention Cadre Campus (Partenariat Universitaire)</option>
               <option value="recruiter">🏢 Contrat Commercial B2B (CVthèque &amp; Crédits RH)</option>
             </select>
@@ -116,6 +133,78 @@ export function AdminContractGenerator() {
             </select>
           </div>
         </div>
+
+        {/* Champs Formulaire Mandat Directeur Pays */}
+        {contractType === "director_mandate" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-emerald-950/20 border border-emerald-800/40 rounded-lg">
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">Nom du Directeur Commercial</label>
+                <input
+                  type="text"
+                  value={directorName}
+                  onChange={(e) => setDirectorName(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">N° Téléphone WhatsApp / MoMo</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">Email Professionnel</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">Code Promo National</label>
+                <input
+                  type="text"
+                  value={directorPromoCode}
+                  onChange={(e) => setDirectorPromoCode(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono uppercase"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">Quota Mensuel National (FCFA)</label>
+                <input
+                  type="number"
+                  value={monthlyQuotaXaf}
+                  onChange={(e) => setMonthlyQuotaXaf(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-emerald-300 mb-1">Over-Riding Équipe % (Défaut : 2.5%)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={overridePercent}
+                  onChange={(e) => setOverridePercent(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono"
+                />
+              </div>
+            </div>
+            <div className="text-[11px] text-emerald-400/90 bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-800/40">
+              ⚖️ <strong>Droit OHADA :</strong> Ce contrat de mandat confère au mandataire la direction exclusive du développement commercial sur son pays, avec une commission directe de <strong>10%</strong> et un intéressement managérial de <strong>{overridePercent}%</strong> sur tout le CA d&apos;équipe.
+            </div>
+          </div>
+        )}
 
         {/* Champs Formulaire Campus */}
         {contractType === "campus" && (
@@ -201,7 +290,7 @@ export function AdminContractGenerator() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">N° NIU / IFU (Fiscal)</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">N° NIU (Identifiant Fiscal)</label>
               <input
                 type="text"
                 value={niu}
@@ -210,35 +299,26 @@ export function AdminContractGenerator() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-slate-400 mb-1">Montant Réglement</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">Montant Contrat / Forfait</label>
               <input
                 type="text"
                 value={totalPriceFcfa}
                 onChange={(e) => setTotalPriceFcfa(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white"
+                className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white font-mono font-bold text-emerald-400"
               />
             </div>
           </div>
         )}
 
-        <div className="flex justify-end">
+        {/* Bouton de Soumission */}
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-2.5 px-6 rounded-lg transition-all shadow-lg active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Génération du Contrat PDF en cours...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                <span>Générer &amp; Télécharger le Contrat PDF Certifié</span>
-              </>
-            )}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            <span>{loading ? "Génération PDF..." : "Générer et Télécharger le Contrat PDF"}</span>
           </button>
         </div>
       </form>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { CEMAC_COUNTRIES, type CemacCountryCode } from "@/lib/commercial-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,10 @@ export interface CommercialAgentRecord {
   phone: string;
   assigned_country: string;
   assigned_city: string;
+  role: "agent" | "country_director";
+  director_id?: string | null;
   commission_rate: number;
+  override_commission_rate?: number;
   monthly_target_xaf: number;
   total_sales_xaf: number;
   total_commissions_earned_xaf: number;
@@ -30,30 +34,74 @@ const SEED_COMMERCIALS: CommercialAgentRecord[] = [
     email: "commercial.douala@authenticv.app",
     phone: "+237 699 12 34 56",
     assigned_country: "CM",
-    assigned_city: "Douala / Littoral",
+    assigned_city: "Douala & National",
+    role: "country_director",
+    director_id: null,
+    commission_rate: 10,
+    override_commission_rate: 2.5,
+    monthly_target_xaf: 3500000,
+    total_sales_xaf: 320000,
+    total_commissions_earned_xaf: 38250,
+    total_commissions_paid_xaf: 20000,
+    promo_code: "DIRCM10",
+    status: "active",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "comm-team-1",
+    full_name: "Arnaud Bopda",
+    email: "commercial.yaounde@authenticv.app",
+    phone: "+237 677 88 99 00",
+    assigned_country: "CM",
+    assigned_city: "Yaoundé & Centre",
+    role: "agent",
+    director_id: "comm-1",
     commission_rate: 10,
     monthly_target_xaf: 500000,
-    total_sales_xaf: 320000,
-    total_commissions_earned_xaf: 32000,
-    total_commissions_paid_xaf: 20000,
-    promo_code: "CHRISTIAN10",
+    total_sales_xaf: 150000,
+    total_commissions_earned_xaf: 15000,
+    total_commissions_paid_xaf: 0,
+    promo_code: "ARNAUD10",
+    status: "active",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "comm-team-2",
+    full_name: "Marcelle Tchuente",
+    email: "commercial.bafoussam@authenticv.app",
+    phone: "+237 655 44 33 22",
+    assigned_country: "CM",
+    assigned_city: "Bafoussam / Ouest",
+    role: "agent",
+    director_id: "comm-1",
+    commission_rate: 10,
+    monthly_target_xaf: 500000,
+    total_sales_xaf: 100000,
+    total_commissions_earned_xaf: 10000,
+    total_commissions_paid_xaf: 0,
+    promo_code: "MARCELLE10",
     status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: "comm-2",
-    full_name: "Aline Mba Ondo",
-    email: "commercial.libreville@authenticv.app",
-    phone: "+241 77 88 99 00",
+    full_name: "Emmanuel Nguema",
+    email: "directeur.gabon@authenticv.app",
+    phone: "+241 77 11 22 33",
     assigned_country: "GA",
-    assigned_city: "Libreville",
+    assigned_city: "Libreville / Port-Gentil",
+    role: "country_director",
+    director_id: null,
     commission_rate: 10,
-    monthly_target_xaf: 500000,
-    total_sales_xaf: 185000,
-    total_commissions_earned_xaf: 18500,
+    override_commission_rate: 2.5,
+    monthly_target_xaf: 2500000,
+    total_sales_xaf: 450000,
+    total_commissions_earned_xaf: 45000,
     total_commissions_paid_xaf: 0,
-    promo_code: "ALINE10",
+    promo_code: "DIRGA10",
     status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -65,12 +113,15 @@ const SEED_COMMERCIALS: CommercialAgentRecord[] = [
     phone: "+242 06 12 34 56",
     assigned_country: "CG",
     assigned_city: "Brazzaville & Pointe-Noire",
+    role: "country_director",
+    director_id: null,
     commission_rate: 10,
-    monthly_target_xaf: 500000,
+    override_commission_rate: 2.5,
+    monthly_target_xaf: 2500000,
     total_sales_xaf: 95000,
     total_commissions_earned_xaf: 9500,
     total_commissions_paid_xaf: 0,
-    promo_code: "SERGE10",
+    promo_code: "DIRCG10",
     status: "active",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -96,6 +147,33 @@ export async function GET(req: Request) {
       agents = dbAgents;
     }
 
+    if (country && country !== "ALL") {
+      agents = agents.filter((a) => a.assigned_country === country);
+    }
+
+    // Build hierarchical country tree
+    const countryHubs = Object.entries(CEMAC_COUNTRIES).map(([code, meta]) => {
+      const countryAgents = agents.filter((a) => a.assigned_country === code);
+      const director = countryAgents.find((a) => a.role === "country_director") || null;
+      const subordinates = countryAgents.filter((a) => a.role !== "country_director");
+      const totalCountrySales = countryAgents.reduce((sum, a) => sum + (a.total_sales_xaf || 0), 0);
+      const aggregatedTarget =
+        (director?.monthly_target_xaf || meta.defaultDirectorQuota) +
+        subordinates.reduce((sum, a) => sum + (a.monthly_target_xaf || meta.defaultAgentQuota), 0);
+
+      return {
+        countryCode: code,
+        countryName: meta.name,
+        flag: meta.flag,
+        director,
+        agentsCount: countryAgents.length,
+        subordinates,
+        totalCountrySalesXaf: totalCountrySales,
+        aggregatedTargetXaf: aggregatedTarget,
+        progressPercent: aggregatedTarget > 0 ? Math.min(100, Math.round((totalCountrySales / aggregatedTarget) * 100)) : 0,
+      };
+    });
+
     const totalTeamSales = agents.reduce((acc, a) => acc + (a.total_sales_xaf || 0), 0);
     const totalCommissionsEarned = agents.reduce((acc, a) => acc + (a.total_commissions_earned_xaf || 0), 0);
     const totalCommissionsPaid = agents.reduce((acc, a) => acc + (a.total_commissions_paid_xaf || 0), 0);
@@ -104,12 +182,13 @@ export async function GET(req: Request) {
     return NextResponse.json({
       success: true,
       agents,
+      countryHubs,
       summary: {
         totalAgents: agents.length,
         totalTeamSalesXaf: totalTeamSales,
         totalCommissionsEarnedXaf: totalCommissionsEarned,
         totalCommissionsPaidXaf: totalCommissionsPaid,
-        pendingCommissionsXaf: pendingCommissions,
+        pendingCommissionsXaf: pendingCommissions > 0 ? pendingCommissions : 0,
       },
     });
   } catch (err) {
@@ -130,8 +209,11 @@ export async function POST(req: Request) {
       phone,
       assigned_country = "CM",
       assigned_city = "Douala",
+      role = "agent",
+      director_id,
       commission_rate = 10,
-      monthly_target_xaf = 500000,
+      override_commission_rate = 2.5,
+      monthly_target_xaf,
       promo_code,
     } = body;
 
@@ -143,7 +225,25 @@ export async function POST(req: Request) {
     }
 
     const admin = createAdminClient();
-    const generatedPromo = (promo_code || `${full_name.split(" ")[0].toUpperCase()}10`).trim();
+
+    // Smart auto-generation of promo code
+    let generatedPromo = promo_code;
+    if (!generatedPromo) {
+      if (role === "country_director") {
+        generatedPromo = `DIR${assigned_country}10`;
+      } else {
+        const firstName = full_name.split(" ")[0].toUpperCase();
+        generatedPromo = `${firstName}10`;
+      }
+    }
+    generatedPromo = generatedPromo.trim().toUpperCase();
+
+    // Default target according to role and country
+    const defaultTarget =
+      monthly_target_xaf ||
+      (role === "country_director"
+        ? CEMAC_COUNTRIES[assigned_country as CemacCountryCode]?.defaultDirectorQuota || 3500000
+        : 500000);
 
     const { data: newAgent, error } = await admin
       .from("commercial_agents")
@@ -154,8 +254,11 @@ export async function POST(req: Request) {
           phone: phone.trim(),
           assigned_country,
           assigned_city: assigned_city.trim(),
+          role,
+          director_id: director_id || null,
           commission_rate: Number(commission_rate) || 10,
-          monthly_target_xaf: Number(monthly_target_xaf) || 500000,
+          override_commission_rate: role === "country_director" ? Number(override_commission_rate) || 2.5 : 0,
+          monthly_target_xaf: Number(defaultTarget),
           promo_code: generatedPromo,
           status: "active",
           updated_at: new Date().toISOString(),
@@ -169,12 +272,12 @@ export async function POST(req: Request) {
       console.warn("[Admin Commercial Upsert Warning]:", error.message);
     }
 
-    // Also register the promo code in promo_codes table
+    // Register promo code in promo_codes table
     await admin.from("promo_codes").upsert(
       {
         code: generatedPromo,
-        discount_percent: Number(commission_rate) || 10,
-        campaign_name: `Affiliation Commerciale - ${full_name}`,
+        discount_percent: 10,
+        campaign_name: `Affiliation ${role === "country_director" ? "Directeur Pays" : "Commercial"} - ${full_name}`,
         target_plan: "all",
         is_active: true,
       },
@@ -190,8 +293,11 @@ export async function POST(req: Request) {
         phone,
         assigned_country,
         assigned_city,
+        role,
+        director_id,
         commission_rate,
-        monthly_target_xaf,
+        override_commission_rate,
+        monthly_target_xaf: defaultTarget,
         total_sales_xaf: 0,
         total_commissions_earned_xaf: 0,
         total_commissions_paid_xaf: 0,
@@ -211,13 +317,17 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { id, status, mark_paid_amount_xaf } = body;
+    const { id, status, mark_paid_amount_xaf, monthly_target_xaf, role, director_id } = body;
 
     if (!id) {
       return NextResponse.json({ error: "ID requis" }, { status: 400 });
     }
 
     const admin = createAdminClient();
+
+    const updatePayload: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
 
     if (mark_paid_amount_xaf) {
       const { data: agent } = await admin
@@ -227,19 +337,28 @@ export async function PATCH(req: Request) {
         .maybeSingle();
 
       const newPaid = (agent?.total_commissions_paid_xaf || 0) + Number(mark_paid_amount_xaf);
-
-      await admin
-        .from("commercial_agents")
-        .update({ total_commissions_paid_xaf: newPaid, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    } else if (status) {
-      await admin
-        .from("commercial_agents")
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq("id", id);
+      updatePayload.total_commissions_paid_xaf = newPaid;
     }
 
-    return NextResponse.json({ success: true, message: "Mis à jour avec succès" });
+    if (monthly_target_xaf) {
+      updatePayload.monthly_target_xaf = Number(monthly_target_xaf);
+    }
+
+    if (status) {
+      updatePayload.status = status;
+    }
+
+    if (role) {
+      updatePayload.role = role;
+    }
+
+    if (director_id !== undefined) {
+      updatePayload.director_id = director_id || null;
+    }
+
+    await admin.from("commercial_agents").update(updatePayload).eq("id", id);
+
+    return NextResponse.json({ success: true, message: "Mis à jour avec succès", updatePayload });
   } catch (err) {
     console.error("[Admin Commercials PATCH Error]:", err);
     return NextResponse.json({ error: "Erreur de mise à jour" }, { status: 500 });
