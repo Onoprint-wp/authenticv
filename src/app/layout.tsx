@@ -39,6 +39,13 @@ export const metadata: Metadata = {
     "coach cv ia",
   ],
   authors: [{ name: "AuthentiCV", url: "https://www.authenticv.app" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -49,7 +56,7 @@ export const metadata: Metadata = {
       "Créez votre CV ATS-optimisé en quelques minutes avec Alex, votre coach IA. Pas de formulaire, une vraie conversation. Gratuit, sans carte bancaire.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/images/og-authenticv.png",
         width: 1200,
         height: 630,
         alt: "AuthentiCV — Générateur de CV par IA conversationnelle",
