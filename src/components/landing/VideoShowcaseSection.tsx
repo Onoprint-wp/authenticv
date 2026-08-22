@@ -28,7 +28,7 @@ const TABS: UniverseTab[] = [
     title: "Candidats & Talents",
     badge: "POUR LES CANDIDATS",
     icon: User,
-    headline: "Alex, votre coach IA personnel pour décrocher l'entretien",
+    headline: "Alex IA — Transformez Votre Parcours en un CV 100% Compatible ATS",
     description: "Fini les candidatures sans réponse. Alex extrait vos forces réelles grâce à un dialogue guidé et génère un CV vectoriel 100% compatible ATS avec lettre de motivation sur-mesure.",
     benefits: [
       "Coaching maïeutique interactif pas-à-pas",
@@ -47,7 +47,7 @@ const TABS: UniverseTab[] = [
     title: "Universités & Campus",
     badge: "ESPACE UNIVERSITAIRE",
     icon: GraduationCap,
-    headline: "Accélérez l'insertion professionnelle de vos étudiants",
+    headline: "AuthentiCV Campus — Le Career Center IA Intégré pour Vos Diplômés",
     description: "Offrez à chaque diplômé un Career Center IA à vos couleurs. Validez leurs compétences avec un domaine académique certifié sans aucun coût d'infrastructure.",
     benefits: [
       "Activation instantanée par email académique",
@@ -66,7 +66,7 @@ const TABS: UniverseTab[] = [
     title: "Entreprises & Recruteurs",
     badge: "TALENT SOURCING RH",
     icon: Building2,
-    headline: "Sorcez les meilleurs profils vérifiés d'Afrique francophone",
+    headline: "AuthentiCV Recruteur — Sorcez les Meilleurs Profils Vérifiés de la Zone CEMAC",
     description: "Accédez directement à une CVthèque de profils structurés et pré-qualifiés à Douala, Yaoundé, Abidjan, Libreville et Brazzaville. Réduisez votre temps de sourcing de 60%.",
     benefits: [
       "Filtres précis par métropoles africaines & compétences",
@@ -86,13 +86,13 @@ export function VideoShowcaseSection() {
   const [activeTab, setActiveTab] = useState<"candidat" | "campus" | "recruteur">("candidat");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalVideoSrc, setModalVideoSrc] = useState("/videos/authenticv_master_film.mp4");
-  const [modalTitle, setModalTitle] = useState("AuthentiCV — Film de Marque Global");
+  const [modalTitle, setModalTitle] = useState("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique");
 
   const currentTab = TABS.find((t) => t.id === activeTab) || TABS[0];
 
   const handleOpenMasterFilm = () => {
     setModalVideoSrc("/videos/authenticv_master_film.mp4");
-    setModalTitle("AuthentiCV — « Du CV à l'opportunité » (Film Master 100s)");
+    setModalTitle("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Film Master 100s)");
     setIsModalOpen(true);
   };
 
