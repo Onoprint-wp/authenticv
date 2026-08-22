@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { CAMPAY_WEBHOOK_SECRET } from "@/lib/campay";
+import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -92,6 +93,13 @@ export async function POST(req: Request) {
   try {
     switch (payload.status) {
       case "SUCCESSFUL": {
+        // ── Contrôle d'Idempotence stricte ──
+        const isProcessed = await PaymentLedgerService.isTransactionProcessed(supabase, payload.reference);
+        if (isProcessed) {
+          console.log(`[CamPay Webhook] Transaction ${payload.reference} already processed (idempotent skip)`);
+          return NextResponse.json({ received: true, idempotent_skip: true });
+        }
+
         const paidAmount = Number(payload.amount || 0);
 
         // ── B2B Recruiter Purchases ──

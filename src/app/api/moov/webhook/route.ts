@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { verifyMoovWebhookSignature, checkMoovTransactionStatus } from "@/lib/moov";
+import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -85,6 +86,13 @@ export async function POST(req: Request) {
 
   try {
     if (isSuccessful) {
+      // ── Contrôle d'Idempotence stricte ──
+      const isProcessed = await PaymentLedgerService.isTransactionProcessed(supabase, transactionId);
+      if (isProcessed) {
+        console.log(`[Moov Webhook] Transaction ${transactionId} already processed (idempotent skip)`);
+        return NextResponse.json({ received: true, idempotent_skip: true });
+      }
+
       // ── B2B Recruiter Purchases ──
       if (userId.startsWith("recruiter:")) {
         const parts = userId.split(":");
