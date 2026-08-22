@@ -149,26 +149,26 @@ export function CvSwitcher({ onSwitch, onUpgradeRequired }: CvSwitcherProps) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((p) => !p)}
-        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-all bg-slate-900/50 max-w-[160px]"
+        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px] border border-border text-foreground hover:bg-muted font-medium transition-all bg-card max-w-[160px] shadow-xs"
       >
-        <FileText className="w-3.5 h-3.5 shrink-0" />
+        <FileText className="w-3.5 h-3.5 text-brand-blue shrink-0" />
         <span className="truncate">{current?.title ?? "Mes CVs"}</span>
-        <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3 h-3 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-[min(288px,calc(100vw-2rem))] bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 w.5 w-[min(288px,calc(100vw-2rem))] bg-card border border-border rounded-[14px] shadow-xl z-50 overflow-hidden">
           <div className="py-1">
             {resumeList.map((r) => (
               <div
                 key={r.id}
-                className={`flex items-center gap-2 px-3 py-2 hover:bg-slate-800 group transition-colors ${r.id === currentResumeId ? "bg-slate-800/60" : ""}`}
+                className={`flex items-center gap-2 px-3 py-2 hover:bg-muted group transition-colors ${r.id === currentResumeId ? "bg-muted/80 font-bold" : ""}`}
               >
                 {/* Icône active */}
                 {r.id === currentResumeId ? (
-                  <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <Check className="w-3.5 h-3.5 text-brand-blue shrink-0" />
                 ) : (
-                  <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 )}
 
                 {/* Titre — éditable en double-clic, sinon clic = switch */}

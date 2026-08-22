@@ -177,11 +177,11 @@ export default function BuilderPage() {
           {/* Plan badge */}
           {!plan.loading && (
             plan.plan === "pro" ? (
-              <span className="flex items-center gap-1 text-xs text-indigo-400 bg-indigo-950/60 border border-indigo-700/40 px-2 py-0.5 rounded-full font-semibold">
-                <Zap className="w-3 h-3" />Pro
+              <span className="flex items-center gap-1 text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2.5 py-0.5 rounded-full font-bold shadow-xs">
+                <Zap className="w-3 h-3 text-[#3667F0]" />Pro
               </span>
             ) : (
-              <span className="text-xs text-slate-500 hidden sm:block">
+              <span className="text-xs text-muted-foreground font-medium hidden sm:block">
                 {plan.messagesRemaining ?? 0}/{plan.messageLimit}
               </span>
             )

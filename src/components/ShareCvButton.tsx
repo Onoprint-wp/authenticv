@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Share2, Link2, X, Loader2, Check, ChevronDown } from "lucide-react";
+import { Share2, Link2, X, Loader2, Check, ChevronDown, Globe } from "lucide-react";
 
 // Icônes SVG inline pour LinkedIn et WhatsApp (pas de dépendance externe)
 const LinkedInIcon = () => (
@@ -130,61 +130,53 @@ export function ShareCvButton() {
   if (isPublic && slug) {
     return (
       <div className="relative flex items-center gap-1" ref={dropdownRef}>
-        {/* Bouton principal */}
         <button
           onClick={() => setDropdownOpen((p) => !p)}
-          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-all ${
+          className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px] border transition-all font-medium shadow-xs ${
             dropdownOpen
-              ? "border-emerald-600/60 text-emerald-300 bg-emerald-950/50"
-              : "border-emerald-700/50 text-emerald-400 bg-emerald-950/30 hover:bg-emerald-950/50"
+              ? "border-emerald-400 text-emerald-800 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-900/60"
+              : "border-emerald-300 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
           }`}
+          title="Lien public actif — cliquer pour voir les options"
         >
-          {copied
-            ? <><Check className="w-3.5 h-3.5" /><span className="hidden sm:inline">Copié !</span></>
-            : <><Link2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">
-                  Partager{viewCount > 0 ? ` · ${viewCount} vue${viewCount > 1 ? "s" : ""}` : ""}
-                </span>
-                <ChevronDown className={`w-3 h-3 hidden sm:block transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
-              </>}
+          <Share2 className="w-3.5 h-3.5" />
+          <span>Partager</span>
+          <span className="opacity-40">·</span>
+          <span className="font-semibold">{viewCount} {viewCount > 1 ? "vues" : "vue"}</span>
+          <ChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
 
-        {/* Désactiver */}
-        <button
-          onClick={handleDisable}
-          disabled={loading}
-          className="text-slate-600 hover:text-red-400 transition-colors p-1 rounded"
-          title="Désactiver le partage"
-        >
-          {loading
-            ? <Loader2 className="w-3 h-3 animate-spin" />
-            : <X className="w-3 h-3" />}
-        </button>
-
-        {/* Dropdown */}
         {dropdownOpen && (
-          <div className="absolute top-full right-0 mt-1.5 z-[100] w-56 bg-[#0F223D] border border-slate-700/80 rounded-[16px] shadow-2xl shadow-black/80 backdrop-blur-md overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 p-1">
+          <div className="absolute top-full right-0 mt-2 w-72 bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl z-[100] p-3.5 space-y-2 backdrop-blur-md">
+            <div className="flex items-center justify-between px-1 pb-2 border-b border-border">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 font-heading">
+                <Globe className="w-3.5 h-3.5" />
+                Lien public actif
+              </span>
+              <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+                {viewCount} vue{viewCount > 1 ? "s" : ""}
+              </span>
+            </div>
+
             <button
               onClick={copyToClipboard}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-[10px] transition-colors font-medium text-left"
             >
-              <Link2 className="w-4 h-4 text-[#32D3E1]" />
-              Copier le lien
+              <Link2 className="w-4 h-4 text-brand-blue" />
+              {copied ? "Lien copié !" : "Copier le lien public"}
             </button>
-
-            <div className="h-px bg-slate-800 my-1" />
 
             <button
               onClick={sendByEmail}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-[10px] transition-colors font-medium text-left"
             >
-              <Share2 className="w-4 h-4 text-[#7C5CFC]" />
+              <Share2 className="w-4 h-4 text-ai-violet" />
               Envoyer par Email
             </button>
 
             <button
               onClick={shareOnLinkedIn}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-[10px] transition-colors font-medium text-left"
             >
               <LinkedInIcon />
               Partager sur LinkedIn
@@ -192,11 +184,22 @@ export function ShareCvButton() {
 
             <button
               onClick={shareOnWhatsApp}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-foreground hover:bg-muted rounded-[10px] transition-colors font-medium text-left"
             >
               <WhatsAppIcon />
               Envoyer via WhatsApp
             </button>
+
+            <div className="pt-2 border-t border-border flex justify-end">
+              <button
+                onClick={handleDisable}
+                disabled={loading}
+                className="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-1 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors flex items-center gap-1"
+              >
+                {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+                Désactiver le lien
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -208,14 +211,13 @@ export function ShareCvButton() {
     <button
       onClick={handleEnable}
       disabled={loading}
-      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-        border border-slate-700/50 text-slate-400 hover:text-indigo-300
-        hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all disabled:opacity-50"
+      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px]
+        border border-border text-foreground hover:bg-muted font-medium transition-all bg-card shadow-xs disabled:opacity-50"
       title="Partager le CV par lien"
     >
       {loading
         ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        : <Share2 className="w-3.5 h-3.5" />}
+        : <Share2 className="w-3.5 h-3.5 text-brand-blue" />}
       <span className="hidden sm:inline">Partager</span>
     </button>
   );

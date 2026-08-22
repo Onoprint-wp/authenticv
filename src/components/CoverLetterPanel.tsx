@@ -167,17 +167,17 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
 
       {/* Historique */}
       {showHistory && (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          <div className="px-3 py-2 border-b border-slate-700/60 flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Lettres générées</span>
-            {loadingHistory && <Loader2 className="w-3 h-3 animate-spin text-slate-500" />}
+        <div className="bg-card border border-border rounded-[14px] overflow-hidden shadow-sm">
+          <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-heading">Lettres générées</span>
+            {loadingHistory && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
           </div>
           {history.length === 0 && !loadingHistory ? (
-            <p className="text-xs text-slate-600 text-center py-4">Aucune lettre sauvegardée</p>
+            <p className="text-xs text-muted-foreground text-center py-4">Aucune lettre sauvegardée</p>
           ) : (
-            <ul className="divide-y divide-slate-800">
+            <ul className="divide-y divide-border">
               {history.map((letter) => (
-                <li key={letter.id} className="flex items-center gap-2 px-3 py-2.5 hover:bg-slate-800/50 group">
+                <li key={letter.id} className="flex items-center gap-2 px-3 py-2.5 hover:bg-muted/60 group transition-colors">
                   <button
                     className="flex-1 text-left min-w-0"
                     onClick={() => {
@@ -185,15 +185,15 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
                       setShowHistory(false);
                     }}
                   >
-                    <p className="text-xs text-slate-300 truncate">
+                    <p className="text-xs text-foreground font-medium truncate">
                       {letter.job_offer.slice(0, 60)}…
                     </p>
-                    <p className="text-[10px] text-slate-600 mt-0.5">{formatDate(letter.created_at)}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(letter.created_at)}</p>
                   </button>
-                  <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-slate-400 shrink-0" />
+                  <ChevronRight className="w-3 h-3 text-muted-foreground group-hover:text-foreground shrink-0" />
                   <button
                     onClick={() => handleDeleteLetter(letter.id)}
-                    className="text-slate-700 hover:text-red-400 transition-colors shrink-0 p-1"
+                    className="text-muted-foreground hover:text-red-500 transition-colors shrink-0 p-1"
                     title="Supprimer"
                   >
                     <Trash2 className="w-3 h-3" />
@@ -206,20 +206,20 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
       )}
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-slate-400">Offre d&apos;emploi ciblée</label>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-heading">Offre d&apos;emploi ciblée</label>
         <textarea
           value={jobOffer}
           onChange={(e) => setJobOffer(e.target.value)}
           placeholder="Collez ici le texte de l'offre d'emploi (titre, missions, profil recherché…)"
           rows={7}
-          className="w-full rounded-xl bg-slate-900 border border-slate-700 px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
+          className="w-full rounded-[14px] bg-background border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#3667F0] focus:border-transparent resize-none font-sans shadow-xs transition-all"
         />
       </div>
 
       <button
         onClick={() => handleGenerate(false)}
         disabled={isGenerating || !jobOffer.trim()}
-        className="flex items-center justify-center gap-2 h-11 px-5 bg-[#3667F0] hover:bg-[#3667F0]/90 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-[12px] text-sm font-heading font-medium transition-all shadow-sm active:scale-95"
+        className="flex items-center justify-center gap-2 h-11 px-5 bg-[#3667F0] hover:bg-[#3667F0]/90 disabled:bg-muted disabled:text-muted-foreground disabled:border disabled:border-border disabled:cursor-not-allowed text-white rounded-[12px] text-sm font-heading font-medium transition-all shadow-sm active:scale-95"
       >
         {isGenerating
           ? <><Loader2 className="w-4 h-4 animate-spin" />Génération en cours…</>
