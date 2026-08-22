@@ -103,7 +103,7 @@ export function VideoShowcaseSection() {
   };
 
   return (
-    <section className="relative py-16 md:py-20 bg-slate-950 border-t border-b border-slate-900 overflow-hidden">
+    <section className="relative py-16 md:py-20 bg-[#0F223D] border-t border-b border-slate-800 overflow-hidden">
       {/* Background glow accents */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none" />
@@ -111,17 +111,17 @@ export function VideoShowcaseSection() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-cyan-400 text-xs font-semibold mb-4 tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-cyan-300 text-xs font-semibold mb-4 tracking-wider uppercase shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
             L&apos;Écosystème AuthentiCV en Action
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+          <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight mb-4">
             Un écosystème conçu pour{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
               propulser chaque opportunité
             </span>
           </h2>
-          <p className="text-slate-400 text-base md:text-lg">
+          <p className="text-slate-300 font-sans text-base md:text-lg leading-relaxed">
             Découvrez comment AuthentiCV transforme la recherche d&apos;emploi et le recrutement à travers nos trois piliers dédiés.
           </p>
 
@@ -141,7 +141,7 @@ export function VideoShowcaseSection() {
 
         {/* Interactive Tabs Selector */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md max-w-full overflow-x-auto">
+          <div className="inline-flex p-1.5 rounded-2xl bg-[#162B46] border border-slate-700/80 backdrop-blur-md max-w-full overflow-x-auto shadow-md">
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -152,7 +152,7 @@ export function VideoShowcaseSection() {
                   className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
                     isActive
                       ? "bg-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800/50"
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? "text-cyan-300" : "text-slate-400"}`} />
@@ -169,17 +169,17 @@ export function VideoShowcaseSection() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="grid lg:grid-cols-12 gap-8 items-center bg-slate-900/60 border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl backdrop-blur-sm"
+          className="grid lg:grid-cols-12 gap-8 items-center bg-[#162B46] border border-slate-700/60 rounded-3xl p-8 md:p-12 shadow-2xl backdrop-blur-sm"
         >
           {/* Left Column: Text & Features */}
           <div className="lg:col-span-6 flex flex-col items-start text-left">
-            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full mb-4">
               {currentTab.badge}
             </span>
-            <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-snug mb-4">
+            <h3 className="text-2xl md:text-3xl font-extrabold font-heading text-white leading-snug mb-4">
               {currentTab.headline}
             </h3>
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-6">
+            <p className="text-slate-300 font-sans text-sm md:text-base leading-relaxed mb-6">
               {currentTab.description}
             </p>
 
@@ -188,18 +188,18 @@ export function VideoShowcaseSection() {
               {currentTab.benefits.map((b, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-300 text-sm">{b}</span>
+                  <span className="text-slate-200 font-sans text-sm">{b}</span>
                 </div>
               ))}
             </div>
 
             {/* Stat Pill & Action Button */}
-            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-slate-800/80 w-full">
+            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-slate-700/80 w-full">
               <div>
-                <div className="text-2xl md:text-3xl font-black text-white text-cyan-400">
+                <div className="text-2xl md:text-3xl font-black font-heading text-cyan-300">
                   {currentTab.statNumber}
                 </div>
-                <div className="text-xs text-slate-500">{currentTab.statLabel}</div>
+                <div className="text-xs text-slate-300 font-sans">{currentTab.statLabel}</div>
               </div>
               <Link
                 href={currentTab.ctaLink}
