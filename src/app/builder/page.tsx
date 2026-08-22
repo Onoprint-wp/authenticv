@@ -141,27 +141,27 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
+    <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
       <Suspense fallback={null}>
         <UpgradeToastDetector onUpgraded={handleUpgraded} />
         <ReferralTracker />
       </Suspense>
 
       {/* ── Header ── */}
-      <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm z-10">
+      <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-border bg-card/95 backdrop-blur-sm z-10 shadow-xs">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-600/30">
+          <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center shadow-md">
             <FileText className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-semibold tracking-tight hidden sm:block">AuthentiCV</span>
+          <span className="text-foreground font-heading font-bold tracking-tight hidden sm:block">Authenti<span className="text-brand-blue">CV</span></span>
           {!plan.loading && plan.plan === "pro" ? (
-            <span className="hidden md:flex items-center gap-1 text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-700/50 px-2.5 py-0.5 rounded-full font-medium" title="Propulsé par Claude 3.7 Sonnet">
-              <Sparkles className="w-3 h-3 text-indigo-400" />Alex Pro ⚡ (Sonnet 4.6)
+            <span className="hidden md:flex items-center gap-1 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-700/50 px-2.5 py-0.5 rounded-full font-medium" title="Propulsé par Claude 3.7 Sonnet">
+              <Sparkles className="w-3 h-3 text-brand-blue" />Alex Pro ⚡ (Sonnet 4.6)
             </span>
           ) : (
-            <span className="hidden md:flex items-center gap-1 text-xs text-slate-400 bg-slate-900/60 border border-slate-800 px-2.5 py-0.5 rounded-full" title="Passez à Pro pour débloquer Claude Sonnet 4.6">
-              <Sparkles className="w-3 h-3 text-slate-500" />Coach IA — Alex (Haiku 4.5)
+            <span className="hidden md:flex items-center gap-1 text-xs text-muted-foreground bg-muted border border-border px-2.5 py-0.5 rounded-full font-sans" title="Passez à Pro pour débloquer Claude Sonnet 4.6">
+              <Sparkles className="w-3 h-3 text-muted-foreground" />Coach IA — Alex (Haiku 4.5)
             </span>
           )}
           <CvSwitcher onSwitch={switchResume} onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "multi-cv" })} />

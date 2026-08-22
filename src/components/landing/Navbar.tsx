@@ -17,11 +17,11 @@ function LocaleSwitcher() {
   const enPath = isEn ? pathname : `/en${pathname === "/" ? "" : pathname}`;
 
   return (
-    <div className="flex items-center gap-1 bg-slate-800/60 border border-slate-700/50 rounded-lg p-0.5 text-xs font-semibold">
+    <div className="flex items-center gap-1 bg-muted border border-border rounded-lg p-0.5 text-xs font-semibold font-sans">
       <Link
         href={frPath}
         className={`px-2 py-1 rounded-md transition-colors ${
-          !isEn ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+          !isEn ? "bg-brand-blue text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
         }`}
       >
         FR
@@ -29,7 +29,7 @@ function LocaleSwitcher() {
       <Link
         href={enPath}
         className={`px-2 py-1 rounded-md transition-colors ${
-          isEn ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+          isEn ? "bg-brand-blue text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
         }`}
       >
         EN
@@ -60,19 +60,19 @@ export function Navbar({ dict }: Props) {
           <Link href="#fonctionnalites" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.features}
           </Link>
-          <Link href="#tarifs" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+          <Link href="#tarifs" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.pricing}
           </Link>
         </nav>
 
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
-          <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors hidden sm:block">
+          <Link href="/login" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
             {dict.login}
           </Link>
           <Link
-            href="/login"
-            className="text-sm font-medium bg-white text-slate-900 hover:bg-slate-100 px-4 py-2 rounded-lg transition-colors"
+            href="/builder"
+            className="text-sm font-bold bg-brand-blue text-white hover:bg-brand-blue/90 px-4 py-2 rounded-xl transition-all shadow-md active:scale-95"
           >
             {dict.cta}
           </Link>

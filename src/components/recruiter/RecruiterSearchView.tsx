@@ -223,13 +223,13 @@ export function RecruiterSearchView({ isEn = false }: Props) {
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
         
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mb-6 border-b border-slate-800 pb-3">
+        <div className="flex items-center gap-2 mb-6 border-b border-border pb-3">
           <button
             onClick={() => setActiveTab("search")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === "search"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-brand-blue text-white shadow-md"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
             <Search className="w-3.5 h-3.5" />
@@ -240,14 +240,14 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             onClick={() => setActiveTab("unlocked")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === "unlocked"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-brand-blue text-white shadow-md"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
-            <Users className="w-3.5 h-3.5 text-emerald-400" />
+            <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>{isEn ? "My Unlocked Talents" : "Mes Talents Débloqués"}</span>
             {unlockedCount > 0 && (
-              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold border border-emerald-200 dark:border-emerald-800">
                 {unlockedCount}
               </span>
             )}
@@ -257,11 +257,11 @@ export function RecruiterSearchView({ isEn = false }: Props) {
             onClick={() => setActiveTab("invoices")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === "invoices"
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-brand-blue text-white shadow-md"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-indigo-400" />
+            <FileText className="w-3.5 h-3.5 text-brand-blue" />
             <span>{isEn ? "Billing & Fiscal Info" : "Facturation & Justificatifs Fiscaux"}</span>
           </button>
         </div>
@@ -272,24 +272,24 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         ) : (
           <>
             {/* Search Bar & Filters */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 mb-8 shadow-xl flex flex-col md:flex-row gap-4">
+        <div className="bg-card border border-border rounded-2xl p-4 md:p-6 mb-8 elevation-1 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={isEn ? "Search by role or skill (e.g. React, Accountant, Marketing)..." : "Rechercher par poste ou compétence (ex: React, Comptable, Marketing)..."}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full bg-background border border-input rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-blue transition-colors font-sans"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-slate-400" />
+            <MapPin className="w-4 h-4 text-muted-foreground" />
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-blue transition-colors font-sans"
             >
               <option value="all">{isEn ? "All cities" : "Toutes les villes"}</option>
               <option value="douala">Douala</option>
@@ -301,7 +301,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         </div>
 
         {/* Results Info */}
-        <div className="flex items-center justify-between mb-6 text-xs text-slate-400">
+        <div className="flex items-center justify-between mb-6 text-xs text-muted-foreground font-sans">
           <span>
             {isEn
               ? `${filteredProfiles.length} anonymized profile(s) found`
@@ -315,26 +315,26 @@ export function RecruiterSearchView({ isEn = false }: Props) {
           {filteredProfiles.map((profile) => (
             <div
               key={profile.id}
-              className="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 transition-all duration-200 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+              className="bg-card border border-border hover:border-brand-blue/30 rounded-2xl p-6 transition-all duration-200 elevation-1 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
             >
               <div className="space-y-3 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="font-bold text-lg text-white">{profile.jobTitle}</h3>
-                  <span className="bg-indigo-500/10 text-indigo-400 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                  <h3 className="font-bold font-heading text-lg text-card-foreground">{profile.jobTitle}</h3>
+                  <span className="bg-blue-50 dark:bg-blue-950/40 text-brand-blue text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 font-sans">
                     {profile.matchScore}% {isEn ? "AI Match" : "Match IA"}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-slate-400">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground font-sans">
                   <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
                     {profile.location}
                   </span>
                   <span>•</span>
                   <span>{isEn ? `${profile.experienceYears} years experience` : `${profile.experienceYears} ans d'expérience`}</span>
                 </div>
 
-                <p className="text-sm text-slate-300 leading-relaxed">
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
                   {profile.summary}
                 </p>
 
@@ -342,7 +342,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                   {profile.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-slate-950 text-slate-300 text-xs px-2.5 py-1 rounded-md border border-slate-800"
+                      className="bg-muted text-muted-foreground font-sans text-xs px-2.5 py-1 rounded-md border border-border"
                     >
                       {skill}
                     </span>
@@ -351,10 +351,10 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               </div>
 
               {/* Unlock / Contact Box */}
-              <div className="lg:w-64 flex-shrink-0 bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="lg:w-64 flex-shrink-0 bg-muted/40 border border-border rounded-xl p-4 flex flex-col items-center justify-center text-center">
                 {profile.isUnlocked && profile.contact ? (
                   <div className="w-full space-y-2 text-left animate-in fade-in">
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold mb-2">
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-2">
                       <Unlock className="w-3.5 h-3.5" />
                       <span>{isEn ? "Contact Details Unlocked" : "Coordonnées Débloquées"}</span>
                     </div>
@@ -367,16 +367,16 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                           className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500/50 flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-bold text-xs flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-brand-blue font-bold text-xs flex-shrink-0">
                           {profile.contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                       )}
                       <div className="overflow-hidden">
-                        <div className="text-sm font-bold text-white truncate">{profile.contact.name}</div>
-                        <div className="text-xs text-slate-300">{profile.contact.phone}</div>
+                        <div className="text-sm font-bold font-heading text-foreground truncate">{profile.contact.name}</div>
+                        <div className="text-xs text-muted-foreground font-sans">{profile.contact.phone}</div>
                       </div>
                     </div>
-                    <div className="text-xs text-indigo-400 truncate pt-1">{profile.contact.email}</div>
+                    <div className="text-xs text-brand-blue truncate pt-1">{profile.contact.email}</div>
                   </div>
                 ) : (
                   <div className="space-y-3 w-full">
