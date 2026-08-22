@@ -61,7 +61,7 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <main className="min-h-screen bg-slate-950">
+      <main className="min-h-screen bg-[#0F223D] text-slate-100 font-sans antialiased">
         <Navbar dict={fr.navbar} />
         <HeroSection dict={fr.hero} />
         <HowItWorks dict={fr.howItWorks} />
