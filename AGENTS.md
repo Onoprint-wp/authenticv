@@ -61,6 +61,7 @@ Ne jamais forcer son commit (`git add -f`).
 ### Fichiers clés à lire avant toute modification
 | Zone | Fichier |
 |---|---|
+| Design System | `DESIGN.md` + `.agents/rules/design-system.md` |
 | Coach IA | `src/app/api/chat/route.ts` |
 | Sync auto-save | `src/hooks/useSyncCv.ts` |
 | État global CV | `src/store/useCvStore.ts` |

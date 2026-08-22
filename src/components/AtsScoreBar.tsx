@@ -34,10 +34,10 @@ export function AtsScoreBar() {
 
   const colorClass =
     score >= 70
-      ? "text-emerald-400 bg-emerald-950/40 border-emerald-800/50"
+      ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800"
       : score >= 40
-        ? "text-amber-400 bg-amber-950/40 border-amber-800/50"
-        : "text-red-400 bg-red-950/40 border-red-800/50";
+        ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800"
+        : "text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800";
 
   const barColor =
     score >= 70 ? "bg-emerald-500" : score >= 40 ? "bg-amber-500" : "bg-red-500";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Montserrat, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CookieBanner } from "@/components/CookieBanner";
@@ -9,9 +9,16 @@ import { PostHogProvider } from "@/components/PostHogProvider";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -78,8 +85,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="h-full bg-slate-950">
+    <html lang="fr" className={`${montserrat.variable} ${inter.variable} h-full antialiased`}>
+      <body className="h-full bg-background text-foreground">
         {GTM_ID && (
           <Script
             id="gtm-script"
