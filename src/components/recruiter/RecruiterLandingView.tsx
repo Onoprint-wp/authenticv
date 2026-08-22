@@ -51,42 +51,42 @@ export function RecruiterLandingView({ isEn = false }: Props) {
 
         {/* Benefits Grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-20">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+          <div className="bg-card border border-border rounded-2xl p-6 elevation-1">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-white font-bold text-lg mb-2">
+            <h3 className="text-card-foreground font-bold font-heading text-lg mb-2">
               {isEn ? "100% ATS-Formatted Profiles" : "Profils 100 % Formatés ATS"}
             </h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground font-sans text-sm leading-relaxed">
               {isEn
                 ? "No more unreadable Word or scanned CVs. Every candidate is coached by AI Alex to present clear, quantified achievements."
                 : "Fini les CVs illisibles en Word ou scannés. Tous les candidats sont accompagnés par l'IA Alex pour présenter des compétences claires et chiffrées."}
             </p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4">
+          <div className="bg-card border border-border rounded-2xl p-6 elevation-1">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-brand-blue mb-4">
               <Search className="w-6 h-6" />
             </div>
-            <h3 className="text-white font-bold text-lg mb-2">
+            <h3 className="text-card-foreground font-bold font-heading text-lg mb-2">
               {isEn ? "Skill-Based Search" : "Recherche par Compétences"}
             </h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground font-sans text-sm leading-relaxed">
               {isEn
                 ? "Filter instantly by job title, city, years of experience, and mastered tools without initial bias thanks to anonymized search."
                 : "Filtrez instantanément par métier, ville, années d'expérience et outils maîtrisés sans biais initial grâce à la recherche anonymisée."}
             </p>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
+          <div className="bg-card border border-border rounded-2xl p-6 elevation-1">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h3 className="text-white font-bold text-lg mb-2">
+            <h3 className="text-card-foreground font-bold font-heading text-lg mb-2">
               {isEn ? "Realistic Pay-Per-Unlock" : "Pay-Per-Unlock Réaliste"}
             </h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground font-sans text-sm leading-relaxed">
               {isEn
                 ? "Browse candidate summaries and skills for free. Pay only to unlock full contact info (Phone, Email, WhatsApp) for candidates you actually want to interview."
                 : "Consultez les profils gratuitement. Débloquez uniquement les coordonnées (Tel, Email, WhatsApp) des candidats que vous souhaitez vraiment contacter."}
@@ -95,35 +95,35 @@ export function RecruiterLandingView({ isEn = false }: Props) {
         </div>
 
         {/* Pricing Cards */}
-        <div className="bg-gradient-to-br from-slate-900 to-indigo-950/60 border border-indigo-900/50 rounded-3xl p-8 text-center max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-2">
+        <div className="bg-card border border-border rounded-3xl p-8 text-center max-w-3xl mx-auto elevation-2">
+          <h2 className="text-2xl font-bold font-heading text-card-foreground mb-2">
             {isEn ? "Recruiter & Corporate Pricing" : "Tarifs Recruteurs & Entreprises"}
           </h2>
-          <p className="text-slate-400 text-sm mb-6">
+          <p className="text-muted-foreground font-sans text-sm mb-6">
             {isEn ? "Payment by bank transfer, corporate card, or Mobile Money" : "Paiement par virement bancaire, carte ou Mobile Money Entreprise"}
           </p>
           
           <div className="grid sm:grid-cols-2 gap-4 text-left mb-8">
-            <div className="bg-slate-950/60 border border-slate-800 p-5 rounded-xl">
-              <div className="text-amber-400 font-bold text-sm">
+            <div className="bg-muted/40 border border-border p-5 rounded-xl">
+              <div className="text-amber-600 dark:text-amber-400 font-bold text-sm font-heading">
                 {isEn ? "Single Contact Unlock" : "Déblocage à l'unité"}
               </div>
-              <div className="text-2xl font-bold text-white my-1">
-                5 000 FCFA <span className="text-xs text-slate-400">{isEn ? "/contact" : "/contact"}</span>
+              <div className="text-2xl font-bold font-heading text-foreground my-1">
+                5 000 FCFA <span className="text-xs text-muted-foreground font-sans">{isEn ? "/contact" : "/contact"}</span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground font-sans">
                 {isEn ? "Ideal for SMEs and one-off hiring needs." : "Idéal pour les PME et recrutements ponctuels."}
               </p>
             </div>
 
-            <div className="bg-slate-950/60 border border-indigo-800/80 p-5 rounded-xl">
-              <div className="text-indigo-400 font-bold text-sm">
+            <div className="bg-muted/40 border border-brand-blue/30 p-5 rounded-xl">
+              <div className="text-brand-blue font-bold text-sm font-heading">
                 {isEn ? "Monthly HR Subscription" : "Abonnement Mensuel RH"}
               </div>
-              <div className="text-2xl font-bold text-white my-1">
-                75 000 FCFA <span className="text-xs text-slate-400">{isEn ? "/month" : "/mois"}</span>
+              <div className="text-2xl font-bold font-heading text-foreground my-1">
+                75 000 FCFA <span className="text-xs text-muted-foreground font-sans">{isEn ? "/month" : "/mois"}</span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground font-sans">
                 {isEn ? "Unlimited search access + 20 contact unlocks / month included." : "Accès illimité à la recherche + 20 déblocages de contact / mois."}
               </p>
             </div>
@@ -131,7 +131,7 @@ export function RecruiterLandingView({ isEn = false }: Props) {
 
           <Link
             href={searchUrl}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg cursor-pointer"
+            className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-md cursor-pointer"
           >
             {isEn ? "Access Talent Search" : "Accéder à la Recherche Talents"}
           </Link>
