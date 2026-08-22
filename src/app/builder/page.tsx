@@ -248,22 +248,22 @@ export default function BuilderPage() {
         {/* ── Desktop / Tablet split (md+) ── */}
         <div className="hidden md:flex h-full">
           {/* Chat */}
-          <div className="w-2/5 lg:w-1/3 min-w-[280px] max-w-[420px] border-r border-slate-800 flex flex-col overflow-hidden">
-            <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
-              <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-indigo-400" />
+          <div className="w-2/5 lg:w-1/3 min-w-[280px] max-w-[420px] border-r border-border flex flex-col overflow-hidden">
+            <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between">
+              <p className="text-xs font-semibold font-heading text-card-foreground flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-brand-blue" />
                 Coach IA — Alex
               </p>
               <button
                 onClick={() => setChatMode(chatMode === "coach" ? "interview" : "coach")}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md border transition-colors ${
+                className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
                   chatMode === "interview"
-                    ? "bg-violet-900/40 border-violet-700/50 text-violet-300"
-                    : "border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600"
+                    ? "bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 font-bold"
+                    : "border-border text-muted-foreground hover:text-foreground font-sans"
                 }`}
                 title={chatMode === "interview" ? "Repasser en mode Coach CV" : "Simuler un entretien"}
               >
-                <GraduationCap className="w-3 h-3" />
+                <GraduationCap className="w-3.5 h-3.5" />
                 <span className="hidden lg:inline">{chatMode === "interview" ? "Entretien" : "Entretien"}</span>
               </button>
             </div>
@@ -273,10 +273,10 @@ export default function BuilderPage() {
           </div>
 
           {/* Preview / Editor */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-slate-800">
+          <div className="flex-1 flex flex-col overflow-hidden bg-background">
             {/* Toolbar */}
-            <div className="px-4 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 bg-slate-950/50 p-1 rounded-md border border-slate-800">
+            <div className="px-4 py-2 bg-card border-b border-border flex items-center justify-between gap-2 shadow-xs">
+              <div className="flex items-center gap-1.5 bg-muted/60 p-1 rounded-xl border border-border">
                 {(["preview-web", "preview-pdf", "edit", "letter"] as const).map((mode) => (
                   <button
                     key={mode}
@@ -287,12 +287,14 @@ export default function BuilderPage() {
                       }
                       setViewMode(mode);
                     }}
-                    className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors flex items-center gap-1 ${
-                      viewMode === mode ? "bg-slate-800 text-slate-200 shadow-sm" : "text-slate-500 hover:text-slate-300"
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 ${
+                      viewMode === mode
+                        ? "bg-brand-blue text-white shadow-xs"
+                        : "text-muted-foreground hover:text-foreground font-sans"
                     }`}
                   >
                     {mode === "preview-web" ? "Aperçu Web"
-                      : mode === "preview-pdf" ? <><span>Aperçu PDF</span>{plan.plan !== "pro" && <span className="text-[10px] bg-slate-800 text-indigo-400 px-1 rounded border border-indigo-900">Gratuit</span>}</>
+                      : mode === "preview-pdf" ? <><span>Aperçu PDF</span>{plan.plan !== "pro" && <span className="text-[10px] bg-muted text-brand-blue px-1.5 py-0.5 rounded border border-border font-bold">Gratuit</span>}</>
                       : mode === "edit" ? "Édition"
                       : "Lettre"}
                   </button>
@@ -302,9 +304,9 @@ export default function BuilderPage() {
                 <AtsScoreBar />
                 <button
                   onClick={handleOpenJobMatch}
-                  className="sm:hidden flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-                    border border-slate-700/50 text-slate-400 hover:text-violet-300
-                    hover:bg-violet-950/40 hover:border-violet-800/50 transition-all"
+                  className="sm:hidden flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl
+                    border border-border text-muted-foreground hover:text-foreground
+                    hover:bg-muted transition-all"
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                 </button>
@@ -312,14 +314,14 @@ export default function BuilderPage() {
                   <button
                     data-design-panel-trigger
                     onClick={() => setIsDesignPanelOpen((p) => !p)}
-                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border transition-all ${
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl border transition-all ${
                       isDesignPanelOpen
-                        ? "bg-indigo-950/60 border-indigo-700/50 text-indigo-300"
-                        : "border-slate-700/50 text-slate-400 hover:text-indigo-300 hover:bg-indigo-950/40 hover:border-indigo-800/50"
+                        ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-700/50 text-brand-blue font-bold"
+                        : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
-                    <Palette className="w-3.5 h-3.5" />
-                    <span className="hidden lg:inline">Personnaliser</span>
+                    <Palette className="w-3.5 h-3.5 text-brand-blue" />
+                    <span className="hidden lg:inline font-sans">Personnaliser</span>
                   </button>
                   {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
@@ -327,7 +329,7 @@ export default function BuilderPage() {
                   <button
                     onClick={handleDownloadPdf}
                     disabled={isPdfDownloading || plan.loading}
-                    className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all shadow-sm shadow-indigo-600/20 active:scale-95"
+                    className="flex items-center gap-1.5 text-xs bg-brand-blue hover:bg-brand-blue/90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-3.5 py-1.5 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                     <span className="hidden lg:inline">
@@ -338,7 +340,7 @@ export default function BuilderPage() {
                     onClick={handlePrintPdf}
                     disabled={plan.loading}
                     title="Imprimer le CV"
-                    className="flex items-center justify-center text-xs border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-40 p-1.5 rounded-md transition-all active:scale-95"
+                    className="flex items-center justify-center text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 p-2 rounded-xl transition-all active:scale-95"
                   >
                     <Printer className="w-3.5 h-3.5" />
                   </button>
