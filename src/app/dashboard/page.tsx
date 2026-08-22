@@ -134,65 +134,76 @@ export default async function DashboardPage() {
   const benchmark = benchmarkRaw;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-[#FAFAFC] dark:bg-[#081426] text-[#111827] dark:text-[#F8FAFC]">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
+      <header className="border-b border-[#D1D5DB] dark:border-slate-800 bg-white/90 dark:bg-[#0F223D]/90 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
             href="/builder"
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-[#3667F0] hover:underline transition-colors font-sans"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour au builder
+            Retour au Studio CV
           </Link>
+          <div className="flex items-center gap-2">
+            <span className="font-heading font-bold text-base text-[#0F223D] dark:text-white">Authenti<span className="text-[#3667F0]">CV</span></span>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-10 flex flex-col gap-8">
+      <main className="max-w-4xl mx-auto px-4 py-10 flex flex-col gap-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tableau de bord</h1>
-          <p className="text-sm text-slate-500 mt-1">Suivez la progression de votre CV et de vos candidatures.</p>
+          <h1 className="text-3xl font-heading font-bold text-[#0F223D] dark:text-white">Tableau de bord</h1>
+          <p className="text-sm font-sans text-[#6B7280] dark:text-[#AAB8CB] mt-1">Suivez la progression de votre CV, votre score ATS et vos candidatures.</p>
         </div>
 
         {/* Stats rapides */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <TrendingUp className="w-3.5 h-3.5" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-5 flex flex-col gap-2 elevation-1 hover:elevation-2 transition-all">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280] dark:text-[#AAB8CB] font-sans">
+              <TrendingUp className="w-4 h-4 text-[#3667F0]" />
               Score ATS
             </div>
-            <p className={`text-3xl font-bold ${getScoreColor(data.currentScore)}`}>
-              {data.currentScore > 0 ? `${data.currentScore}` : "—"}
-              {data.currentScore > 0 && <span className="text-sm font-normal text-slate-500">/100</span>}
-            </p>
+            <div>
+              <p className={`text-3xl font-heading font-bold ${getScoreColor(data.currentScore)}`}>
+                {data.currentScore > 0 ? `${data.currentScore}%` : "—"}
+              </p>
+              {data.currentScore > 0 && (
+                <span className="text-xs font-semibold text-[#25C78A] bg-[#25C78A]/10 px-2 py-0.5 rounded-full inline-block mt-1">
+                  {data.currentScore >= 80 ? "Excellent match" : data.currentScore >= 70 ? "Bon match" : "À optimiser"}
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <Eye className="w-3.5 h-3.5" />
+          <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-5 flex flex-col gap-2 elevation-1 hover:elevation-2 transition-all">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280] dark:text-[#AAB8CB] font-sans">
+              <Eye className="w-4 h-4 text-[#32D3E1]" />
               Vues du CV
             </div>
-            <p className="text-3xl font-bold text-slate-200">
+            <p className="text-3xl font-heading font-bold text-[#111827] dark:text-white">
               {data.totalViews}
             </p>
+            <span className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">Consultations recruteurs</span>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <FileText className="w-3.5 h-3.5" />
+          <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-5 flex flex-col gap-2 elevation-1 hover:elevation-2 transition-all">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#6B7280] dark:text-[#AAB8CB] font-sans">
+              <FileText className="w-4 h-4 text-[#7C5CFC]" />
               Lettres générées
             </div>
-            <p className="text-3xl font-bold text-slate-200">
+            <p className="text-3xl font-heading font-bold text-[#111827] dark:text-white">
               {data.lettersGenerated}
             </p>
+            <span className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">Assistées par Alex IA</span>
           </div>
         </div>
 
         {/* Graphe ATS */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-slate-300">Évolution du score ATS</h2>
+        <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-6 flex flex-col gap-4 elevation-1">
+          <h2 className="text-lg font-heading font-semibold text-[#0F223D] dark:text-white">Évolution du score ATS</h2>
           {data.atsHistory.length < 2 ? (
-            <p className="text-xs text-slate-600 text-center py-8">
+            <p className="text-xs font-sans text-[#6B7280] dark:text-slate-400 text-center py-8">
               Mettez à jour votre CV pour voir l&apos;évolution de votre score ici.
             </p>
           ) : (
@@ -202,39 +213,39 @@ export default async function DashboardPage() {
 
         {/* Benchmark sectoriel */}
         {benchmark.available && benchmark.percentile !== undefined && (
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+          <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-6 flex flex-col gap-3 elevation-1">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-sm font-semibold text-slate-300">
+              <Users className="w-4 h-4 text-[#3667F0]" />
+              <h2 className="text-lg font-heading font-semibold text-[#0F223D] dark:text-white">
                 Benchmark — {SECTOR_LABELS[benchmark.sector ?? "autre"]}
               </h2>
-              <span className="text-xs text-slate-600">({benchmark.totalInSector} profils)</span>
+              <span className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">({benchmark.totalInSector} profils)</span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex-1 bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div className="flex-1 bg-neutral-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
                 <div
-                  className="h-full bg-indigo-500 rounded-full transition-all"
+                  className="h-full bg-[#3667F0] rounded-full transition-all"
                   style={{ width: `${benchmark.percentile}%` }}
                 />
               </div>
-              <span className="text-sm font-semibold text-indigo-300 shrink-0">
+              <span className="text-sm font-semibold text-[#3667F0] dark:text-[#5D82FF] shrink-0 font-sans">
                 Top {100 - benchmark.percentile}%
               </span>
             </div>
-            <div className="flex gap-4 text-xs text-slate-500">
-              <span>Médiane : <strong className="text-slate-400">{benchmark.medianScore}/100</strong></span>
-              <span>Top 25% : <strong className="text-slate-400">{benchmark.p75Score}/100</strong></span>
-              <span>Votre score : <strong className="text-indigo-400">{benchmark.userScore}/100</strong></span>
+            <div className="flex gap-4 text-xs text-[#6B7280] dark:text-slate-400 font-sans">
+              <span>Médiane : <strong className="text-[#374151] dark:text-slate-200">{benchmark.medianScore}/100</strong></span>
+              <span>Top 25% : <strong className="text-[#374151] dark:text-slate-200">{benchmark.p75Score}/100</strong></span>
+              <span>Votre score : <strong className="text-[#3667F0] dark:text-[#5D82FF] font-bold">{benchmark.userScore}/100</strong></span>
             </div>
           </div>
         )}
 
         {/* Prochaine action */}
-        <div className="bg-indigo-950/40 border border-indigo-800/40 rounded-xl p-4 flex items-start gap-3">
-          <span className="text-indigo-400 text-lg mt-0.5">💡</span>
+        <div className="bg-[#3667F0]/5 dark:bg-[#3667F0]/15 border border-[#3667F0]/30 rounded-[16px] p-5 flex items-start gap-3">
+          <span className="text-[#3667F0] text-xl mt-0.5">💡</span>
           <div>
-            <p className="text-xs font-semibold text-indigo-300 mb-1">Prochaine action recommandée</p>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-xs font-semibold text-[#3667F0] dark:text-[#5D82FF] mb-1 font-sans">Prochaine action recommandée</p>
+            <p className="text-sm text-[#374151] dark:text-slate-200 leading-relaxed font-sans">
               {getNextAction(data.currentScore, data.lettersGenerated)}
             </p>
           </div>

@@ -45,25 +45,25 @@ const CAMPUS_BENEFITS = [
 
 export default function CampusPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-brand-blue selection:text-white">
+    <div className="min-h-screen bg-[#FAFAFC] dark:bg-[#081426] text-[#111827] dark:text-[#F8FAFC] flex flex-col selection:bg-[#3667F0] selection:text-white">
       {/* Header */}
-      <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-30 px-6 py-4 shadow-xs">
+      <header className="border-b border-[#D1D5DB] dark:border-slate-800 bg-white/90 dark:bg-[#0F223D]/90 backdrop-blur sticky top-0 z-30 px-6 py-4 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-xs text-[#6B7280] dark:text-slate-400 hover:text-[#111827] transition-colors font-sans"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Accueil</span>
             </Link>
-            <span className="text-border">|</span>
+            <span className="text-[#D1D5DB] dark:text-slate-700">|</span>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 flex items-center justify-center">
-                <GraduationCap className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+              <div className="w-8 h-8 rounded-[10px] bg-[#32D3E1]/10 border border-[#32D3E1]/30 flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 text-[#32D3E1]" />
               </div>
-              <span className="font-bold font-heading text-foreground text-sm sm:text-base">
-                Authenti<span className="text-brand-blue">CV</span> <span className="text-cyan-600 dark:text-cyan-400">Campus</span>
+              <span className="font-bold font-heading text-[#0F223D] dark:text-white text-sm sm:text-base">
+                Authenti<span className="text-[#3667F0]">CV</span> <span className="text-[#32D3E1]">Campus</span>
               </span>
             </div>
           </div>
@@ -71,13 +71,13 @@ export default function CampusPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg transition-colors font-sans"
+              className="text-xs font-semibold text-[#374151] dark:text-slate-300 hover:text-[#111827] px-3 py-1.5 rounded-[10px] transition-colors font-sans"
             >
               Connexion
             </Link>
             <Link
               href="/builder"
-              className="flex items-center gap-1.5 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md active:scale-95"
+              className="flex items-center gap-1.5 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs px-4 py-2 rounded-[12px] transition-all shadow-sm active:scale-95 font-sans"
             >
               <span>Créer mon CV</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -89,19 +89,19 @@ export default function CampusPage() {
       {/* Hero Section */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-12 space-y-16">
         <section className="text-center max-w-3xl mx-auto space-y-6 pt-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 text-xs font-semibold">
-            <GraduationCap className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#32D3E1]/10 border border-[#32D3E1]/30 text-[#008ba3] dark:text-[#32D3E1] text-xs font-semibold font-sans">
+            <GraduationCap className="w-4 h-4 text-[#32D3E1]" />
             <span>Programme Partenaire Académique · Zone CEMAC</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black font-heading text-foreground tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-[#0F223D] dark:text-white tracking-tight leading-tight">
             Propulsez l&apos;insertion professionnelle de{" "}
-            <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#3667F0] via-[#32D3E1] to-[#7C5CFC] bg-clip-text text-transparent">
               vos étudiants &amp; diplômés
             </span>
           </h1>
 
-          <p className="text-muted-foreground font-sans text-sm sm:text-base leading-relaxed">
+          <p className="text-[#6B7280] dark:text-[#AAB8CB] font-sans text-sm sm:text-base leading-relaxed">
             Équipez vos promotions de la première plateforme IA de rédaction de CV &amp; Lettres de motivation conçue spécifiquement pour le marché de l&apos;emploi en Afrique francophone.
           </p>
 
@@ -110,17 +110,17 @@ export default function CampusPage() {
               href="https://wa.me/237699123456?text=Bonjour%2C%20je%20souhaite%20mettre%20en%20place%20un%20partenariat%20Campus%20AuthentiCV%20pour%20notre%20%C3%A9tablissement."
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 px-6 rounded-xl transition-all shadow-md active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#25C78A] hover:bg-[#25C78A]/90 text-white font-semibold text-xs py-3 px-6 rounded-[12px] transition-all shadow-sm active:scale-95 font-sans"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Contacter l&apos;Équipe Partenariats (WhatsApp)</span>
             </a>
 
             <Link
-              href="/tarifs"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-card hover:bg-muted text-card-foreground font-semibold text-xs py-3 px-6 rounded-xl border border-border transition-all shadow-xs"
+              href="/pricing"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-[#0F223D] text-[#0F223D] dark:text-slate-100 hover:bg-[#F3F4F6] font-semibold text-xs py-3 px-6 rounded-[12px] border border-[#D1D5DB] dark:border-slate-700 transition-all font-sans shadow-xs"
             >
-              <FileText className="w-4 h-4 text-brand-blue" />
+              <FileText className="w-4 h-4 text-[#3667F0]" />
               <span>Voir la Grille Tarifaire Étudiante</span>
             </Link>
           </div>
@@ -129,10 +129,10 @@ export default function CampusPage() {
         {/* Benefits Grid */}
         <section className="space-y-8">
           <div className="text-center space-y-2">
-            <h2 className="text-xl sm:text-2xl font-bold font-heading text-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold font-heading text-[#0F223D] dark:text-white">
               Pourquoi les universités et écoles choisissent AuthentiCV ?
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground font-sans">
+            <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#AAB8CB] font-sans">
               Une solution clé en main pour maximiser le taux de recrutement des nouveaux diplômés.
             </p>
           </div>
@@ -143,13 +143,13 @@ export default function CampusPage() {
               return (
                 <div
                   key={idx}
-                  className="bg-card border border-border hover:border-brand-blue/40 rounded-2xl p-6 transition-all space-y-3 elevation-1"
+                  className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 hover:border-[#3667F0]/30 rounded-[16px] p-6 transition-all space-y-3 elevation-1 hover:elevation-2"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-brand-blue">
+                  <div className="w-10 h-10 rounded-[10px] bg-[#3667F0]/10 border border-[#3667F0]/30 flex items-center justify-center text-[#3667F0]">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="text-base font-bold font-heading text-card-foreground">{b.title}</h3>
-                  <p className="text-xs text-muted-foreground font-sans leading-relaxed">{b.desc}</p>
+                  <h3 className="text-base font-bold font-heading text-[#0F223D] dark:text-white">{b.title}</h3>
+                  <p className="text-xs text-[#6B7280] dark:text-slate-300 font-sans leading-relaxed">{b.desc}</p>
                 </div>
               );
             })}
@@ -157,18 +157,18 @@ export default function CampusPage() {
         </section>
 
         {/* Partner Universities Section */}
-        <section className="bg-card border border-border rounded-3xl p-8 space-y-6 elevation-2">
+        <section className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-8 space-y-6 elevation-1">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold font-heading text-card-foreground flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-brand-blue" />
+              <h2 className="text-lg font-bold font-heading text-[#0F223D] dark:text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#3667F0]" />
                 <span>Codes Promo &amp; Conventions Actives</span>
               </h2>
-              <p className="text-xs text-muted-foreground font-sans mt-1">
+              <p className="text-xs text-[#6B7280] dark:text-slate-400 font-sans mt-1">
                 Exemples d&apos;établissements bénéficiant de tarifs préférentiels en zone CEMAC.
               </p>
             </div>
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-[#25C78A] bg-[#25C78A]/10 border border-[#25C78A]/30 px-3 py-1 rounded-full font-sans">
               Jusqu&apos;à -50% pour les étudiants
             </span>
           </div>
@@ -177,14 +177,14 @@ export default function CampusPage() {
             {PARTNER_UNIVERSITIES.map((uni, idx) => (
               <div
                 key={idx}
-                className="bg-muted/40 border border-border rounded-xl p-4 flex items-center justify-between"
+                className="bg-[#FAFAFC] dark:bg-slate-900/60 border border-[#D1D5DB] dark:border-slate-800 rounded-[12px] p-4 flex items-center justify-between"
               >
                 <div>
-                  <div className="text-xs font-bold font-heading text-foreground">{uni.name}</div>
-                  <div className="text-[11px] text-muted-foreground font-sans mt-0.5">{uni.country}</div>
+                  <div className="text-xs font-bold font-heading text-[#0F223D] dark:text-white">{uni.name}</div>
+                  <div className="text-[11px] text-[#6B7280] dark:text-slate-400 font-sans mt-0.5">{uni.country}</div>
                 </div>
                 <div className="text-right">
-                  <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                  <span className="font-sans text-xs font-semibold text-[#32D3E1] dark:text-[#32D3E1] bg-[#32D3E1]/10 px-2.5 py-1 rounded-full border border-[#32D3E1]/30">
                     -{uni.discount}
                   </span>
                 </div>
@@ -194,17 +194,17 @@ export default function CampusPage() {
         </section>
 
         {/* CTA Footer */}
-        <section className="text-center bg-card border border-border rounded-2xl p-8 space-y-4 elevation-1">
-          <h3 className="text-lg font-bold font-heading text-card-foreground">
+        <section className="text-center bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-8 space-y-4 elevation-1">
+          <h3 className="text-lg font-bold font-heading text-[#0F223D] dark:text-white">
             Vous êtes responsable de formation, doyen ou président de BDE ?
           </h3>
-          <p className="text-xs text-muted-foreground font-sans max-w-xl mx-auto">
+          <p className="text-xs text-[#6B7280] dark:text-slate-300 font-sans max-w-xl mx-auto">
             Nous générons une convention cadre certifiée OHADA en moins de 24h avec un code promo exclusif pour votre établissement.
           </p>
           <div className="pt-2">
             <a
               href="mailto:campus@authenticv.app?subject=Demande%20de%20Partenariat%20Campus%20AuthentiCV"
-              className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-md transition-all"
+              className="inline-flex items-center gap-2 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs py-2.5 px-6 rounded-[12px] shadow-sm transition-all font-sans"
             >
               <span>Écrire à campus@authenticv.app</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -214,7 +214,7 @@ export default function CampusPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground font-sans">
+      <footer className="border-t border-[#D1D5DB] dark:border-slate-800 py-6 text-center text-xs text-[#6B7280] dark:text-slate-400 font-sans">
         AuthentiCV Campus · Accélérateur d&apos;insertion professionnelle EdTech · Zone CEMAC
       </footer>
     </div>

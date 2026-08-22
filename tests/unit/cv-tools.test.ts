@@ -30,13 +30,16 @@ describe("AI CV Tools & State Mutators", () => {
     const tools = createCvTools(applyUpdate);
 
     // Exécuter l'outil addExperience
-    await tools.addExperience.execute({
-      company: "AuthentiCV",
-      position: "Product Manager",
-      startDate: "2024-01",
-      description: "Lancement de la plateforme",
-      current: true,
-    }, { toolCallId: "test-1", messages: [] });
+    await tools.addExperience.execute!(
+      {
+        company: "AuthentiCV",
+        position: "Product Manager",
+        startDate: "2024-01",
+        description: "Lancement de la plateforme",
+        current: true,
+      },
+      { toolCallId: "test-1", messages: [] }
+    );
 
     expect(state.experiences).toHaveLength(1);
     expect(state.experiences[0].company).toBe("AuthentiCV");
@@ -54,9 +57,12 @@ describe("AI CV Tools & State Mutators", () => {
 
     const tools = createCvTools(applyUpdate);
 
-    await tools.setSkills.execute({
-      skills: ["React", "TypeScript", "Tailwind CSS"],
-    }, { toolCallId: "test-2", messages: [] });
+    await tools.setSkills.execute!(
+      {
+        skills: ["React", "TypeScript", "Tailwind CSS"],
+      },
+      { toolCallId: "test-2", messages: [] }
+    );
 
     expect(state.skills).toEqual(["React", "TypeScript", "Tailwind CSS"]);
   });
@@ -94,7 +100,7 @@ describe("AI CV Tools & State Mutators", () => {
 
     const tools = createCvTools(applyUpdate);
 
-    await tools.removeExperience.execute({ id: expId }, { toolCallId: "test-3", messages: [] });
+    await tools.removeExperience.execute!({ id: expId }, { toolCallId: "test-3", messages: [] });
 
     expect(state.experiences).toHaveLength(1);
     expect(state.experiences[0].id).toBe("keep-exp-id");

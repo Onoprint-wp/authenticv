@@ -3,22 +3,22 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 select-none",
+  "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 select-none font-sans",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-[#3667F0] text-white hover:bg-[#3667F0]/90",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-[#D1D5DB] bg-[#F3F4F6] text-[#0F223D] hover:bg-[#E5E7EB]",
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground border-border",
-        ats: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400",
-        premium: "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-400",
-        campus: "border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-400",
-        recruiter: "border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100",
-        primary: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-400",
+        outline: "text-[#374151] border-[#D1D5DB] dark:text-slate-200 dark:border-slate-700",
+        ats: "border-[#25C78A]/40 bg-[#25C78A]/10 text-[#1e9d6d] dark:border-[#25C78A]/50 dark:bg-[#25C78A]/20 dark:text-[#25C78A]",
+        premium: "border-[#7C5CFC]/40 bg-[#7C5CFC]/10 text-[#7C5CFC] dark:border-[#7C5CFC]/50 dark:bg-[#7C5CFC]/20 dark:text-[#967BFF]",
+        campus: "border-[#32D3E1]/40 bg-[#32D3E1]/10 text-[#008ba3] dark:border-[#32D3E1]/50 dark:bg-[#32D3E1]/20 dark:text-[#32D3E1]",
+        recruiter: "border-[#3667F0]/40 bg-[#3667F0]/10 text-[#3667F0] dark:border-[#3667F0]/50 dark:bg-[#3667F0]/20 dark:text-[#5D82FF]",
+        primary: "border-[#3667F0]/40 bg-[#3667F0]/10 text-[#3667F0] dark:border-[#3667F0]/50 dark:bg-[#3667F0]/20 dark:text-[#5D82FF]",
       },
     },
     defaultVariants: {

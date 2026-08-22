@@ -130,7 +130,7 @@ export const ChatPanel = forwardRef<
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950">
+    <div className="flex flex-col h-full bg-white dark:bg-[#0F223D]">
       {/* Liste des messages */}
       <ChatMessageList
         messages={messages}

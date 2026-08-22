@@ -34,20 +34,16 @@ export function ChatMessageList({
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
           <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${
+            className={`w-14 h-14 rounded-[16px] flex items-center justify-center border transition-all ${
               chatMode === "interview"
-                ? "bg-violet-600/20 border-violet-500/30"
-                : "bg-indigo-600/20 border-indigo-500/30"
+                ? "bg-[#7C5CFC]/15 border-[#7C5CFC]/30 text-[#7C5CFC]"
+                : "gradient-ai text-white border-transparent shadow-sm"
             }`}
           >
-            <Bot
-              className={`w-7 h-7 ${
-                chatMode === "interview" ? "text-violet-400" : "text-indigo-400"
-              }`}
-            />
+            <Bot className="w-7 h-7 text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold mb-1">
+            <p className="text-[#0F223D] dark:text-white font-heading font-bold text-lg mb-1">
               {chatMode === "interview"
                 ? coachLanguage === "en"
                   ? "Interview prep with Alex 🎓"
@@ -56,7 +52,7 @@ export function ChatMessageList({
                 ? "Hi! I'm Alex 👋"
                 : "Bonjour ! Je suis Alex 👋"}
             </p>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-[#6B7280] dark:text-[#AAB8CB] text-sm leading-relaxed font-sans max-w-sm">
               {chatMode === "interview"
                 ? coachLanguage === "en"
                   ? "I'll simulate a real job interview based on your CV. Answer naturally — I'll give feedback after each response."
@@ -68,9 +64,7 @@ export function ChatMessageList({
           </div>
           {isHydrated && (
             <p
-              className={`text-xs animate-pulse ${
-                chatMode === "interview" ? "text-violet-400" : "text-indigo-400"
-              }`}
+              className="text-xs font-semibold text-[#7C5CFC] dark:text-[#967BFF] animate-pulse font-sans"
             >
               {chatMode === "interview"
                 ? coachLanguage === "en"
@@ -117,25 +111,25 @@ export function ChatMessageList({
             className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}
           >
             <div
-              className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${
+              className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-sans ${
                 isUser
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-700 text-indigo-400"
+                  ? "bg-[#3667F0] text-white"
+                  : "gradient-ai text-white shadow-xs"
               }`}
             >
               {isUser ? (
-                <User className="w-3.5 h-3.5" />
+                <User className="w-4 h-4" />
               ) : (
-                <Bot className="w-3.5 h-3.5" />
+                <Bot className="w-4 h-4 text-white" />
               )}
             </div>
 
             <div
               data-testid="chat-message"
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[85%] rounded-[16px] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap font-sans ${
                 isUser
-                  ? "bg-indigo-600 text-white rounded-tr-sm"
-                  : "bg-slate-800 text-slate-200 rounded-tl-sm"
+                  ? "bg-[#3667F0] text-white rounded-tr-xs"
+                  : "bg-[#F3F4F6] text-[#111827] border border-[#D1D5DB] dark:bg-[#162B46] dark:border-slate-700 dark:text-slate-100 rounded-tl-xs"
               }`}
             >
               {textContent}
@@ -146,13 +140,13 @@ export function ChatMessageList({
 
       {isLoading && (
         <div className="flex gap-3">
-          <div className="w-7 h-7 rounded-full bg-slate-700 text-indigo-400 flex items-center justify-center flex-shrink-0">
-            <Bot className="w-3.5 h-3.5" />
+          <div className="w-8 h-8 rounded-full gradient-ai text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+            <Bot className="w-4 h-4 text-white" />
           </div>
-          <div className="bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center">
-            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0ms]" />
-            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:150ms]" />
-            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:300ms]" />
+          <div className="bg-[#F3F4F6] dark:bg-[#162B46] border border-[#D1D5DB] dark:border-slate-700 rounded-[16px] rounded-tl-xs px-4 py-3 flex gap-1.5 items-center">
+            <span className="w-2 h-2 bg-[#7C5CFC] rounded-full animate-bounce [animation-delay:0ms]" />
+            <span className="w-2 h-2 bg-[#7C5CFC] rounded-full animate-bounce [animation-delay:150ms]" />
+            <span className="w-2 h-2 bg-[#7C5CFC] rounded-full animate-bounce [animation-delay:300ms]" />
           </div>
         </div>
       )}

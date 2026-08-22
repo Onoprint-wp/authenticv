@@ -79,14 +79,15 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data.profiles && Array.isArray(data.profiles) && data.profiles.length > 0) {
-            const liveProfiles: CandidateProfile[] = data.profiles;
-            const liveIds = new Set(liveProfiles.map((p) => p.id));
-            const remainingMocks = MOCK_TALENTS.filter((m) => !liveIds.has(m.id));
-            setProfiles([...liveProfiles, ...remainingMocks]);
+            setProfiles(data.profiles);
+            return;
           }
         }
       } catch (err) {
         console.error("Failed to load live talents:", err);
+      }
+      if (isMounted) {
+        setProfiles(MOCK_TALENTS);
       }
     }
 
@@ -204,13 +205,13 @@ export function RecruiterSearchView({ isEn = false }: Props) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
-              {isEn ? "Available credits: " : "Crédits disponibles : "}<span className="text-amber-400 font-bold">{isEn ? `${creditsBalance} Credits` : `${creditsBalance} Crédits`}</span>
+            <div className="text-xs text-[#374151] dark:text-[#AAB8CB] bg-[#F3F4F6] dark:bg-slate-800 px-3.5 py-1.5 rounded-full border border-[#D1D5DB] dark:border-slate-700 font-sans">
+              {isEn ? "Available credits: " : "Crédits disponibles : "}<span className="text-[#3667F0] dark:text-[#5D82FF] font-bold">{isEn ? `${creditsBalance} Credits` : `${creditsBalance} Crédits`}</span>
             </div>
 
             <button
               onClick={() => setIsBuyModalOpen(true)}
-              className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs px-3.5 py-1.5 rounded-full transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs px-4 py-2 rounded-[12px] transition-all shadow-sm active:scale-95 cursor-pointer font-sans"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>{isEn ? "Buy Credits" : "Acheter des Crédits"}</span>
@@ -223,13 +224,13 @@ export function RecruiterSearchView({ isEn = false }: Props) {
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
         
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mb-6 border-b border-border pb-3">
+        <div className="flex items-center gap-2 mb-6 border-b border-[#D1D5DB] dark:border-slate-800 pb-3">
           <button
             onClick={() => setActiveTab("search")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-[12px] text-xs font-semibold transition-all font-sans ${
               activeTab === "search"
-                ? "bg-brand-blue text-white shadow-md"
-                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+                ? "bg-[#3667F0] text-white shadow-sm"
+                : "bg-white dark:bg-[#0F223D] text-[#374151] dark:text-slate-200 hover:text-[#111827] border border-[#D1D5DB] dark:border-slate-700"
             }`}
           >
             <Search className="w-3.5 h-3.5" />
@@ -238,16 +239,16 @@ export function RecruiterSearchView({ isEn = false }: Props) {
 
           <button
             onClick={() => setActiveTab("unlocked")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-[12px] text-xs font-semibold transition-all font-sans ${
               activeTab === "unlocked"
-                ? "bg-brand-blue text-white shadow-md"
-                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+                ? "bg-[#3667F0] text-white shadow-sm"
+                : "bg-white dark:bg-[#0F223D] text-[#374151] dark:text-slate-200 hover:text-[#111827] border border-[#D1D5DB] dark:border-slate-700"
             }`}
           >
-            <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <Users className="w-3.5 h-3.5 text-[#25C78A]" />
             <span>{isEn ? "My Unlocked Talents" : "Mes Talents Débloqués"}</span>
             {unlockedCount > 0 && (
-              <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full font-bold border border-emerald-200 dark:border-emerald-800">
+              <span className="bg-[#25C78A]/10 text-[#1e9d6d] dark:text-[#25C78A] text-[10px] px-2 py-0.5 rounded-full font-bold border border-[#25C78A]/30">
                 {unlockedCount}
               </span>
             )}
@@ -255,13 +256,13 @@ export function RecruiterSearchView({ isEn = false }: Props) {
 
           <button
             onClick={() => setActiveTab("invoices")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-[12px] text-xs font-semibold transition-all font-sans ${
               activeTab === "invoices"
-                ? "bg-brand-blue text-white shadow-md"
-                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+                ? "bg-[#3667F0] text-white shadow-sm"
+                : "bg-white dark:bg-[#0F223D] text-[#374151] dark:text-slate-200 hover:text-[#111827] border border-[#D1D5DB] dark:border-slate-700"
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-brand-blue" />
+            <FileText className="w-3.5 h-3.5 text-[#3667F0]" />
             <span>{isEn ? "Billing & Fiscal Info" : "Facturation & Justificatifs Fiscaux"}</span>
           </button>
         </div>
@@ -272,42 +273,44 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         ) : (
           <>
             {/* Search Bar & Filters */}
-        <div className="bg-card border border-border rounded-2xl p-4 md:p-6 mb-8 elevation-1 flex flex-col md:flex-row gap-4">
+        <div className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 rounded-[16px] p-4 md:p-6 mb-8 elevation-1 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="w-5 h-5 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={isEn ? "Search by role or skill (e.g. React, Accountant, Marketing)..." : "Rechercher par poste ou compétence (ex: React, Comptable, Marketing)..."}
-              className="w-full bg-background border border-input rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brand-blue transition-colors font-sans"
+              className="w-full bg-[#FAFAFC] dark:bg-slate-900 border border-[#D1D5DB] dark:border-slate-700 rounded-[10px] pl-11 pr-4 py-3 text-sm text-[#111827] dark:text-slate-100 placeholder:text-[#6B7280] focus:outline-none focus:border-[#3667F0] focus:ring-3 focus:ring-[#3667F0]/15 transition-all font-sans"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-muted-foreground" />
+            <MapPin className="w-4 h-4 text-[#6B7280]" />
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-brand-blue transition-colors font-sans"
+              className="bg-[#FAFAFC] dark:bg-slate-900 border border-[#D1D5DB] dark:border-slate-700 rounded-[10px] px-4 py-3 text-sm text-[#111827] dark:text-slate-100 focus:outline-none focus:border-[#3667F0] focus:ring-3 focus:ring-[#3667F0]/15 transition-all font-sans"
             >
               <option value="all">{isEn ? "All cities" : "Toutes les villes"}</option>
-              <option value="douala">Douala</option>
-              <option value="yaoundé">Yaoundé</option>
-              <option value="libreville">Libreville</option>
-              <option value="brazzaville">Brazzaville</option>
+              <option value="douala">{isEn ? "Douala" : "Douala"}</option>
+              <option value="yaoundé">{isEn ? "Yaoundé" : "Yaoundé"}</option>
+              <option value="libreville">{isEn ? "Libreville" : "Libreville"}</option>
+              <option value="brazzaville">{isEn ? "Brazzaville" : "Brazzaville"}</option>
+              <option value="n'djamena">{isEn ? "N'Djamena" : "N'Djamena"}</option>
+              <option value="bangui">{isEn ? "Bangui" : "Bangui"}</option>
             </select>
           </div>
         </div>
 
         {/* Results Info */}
-        <div className="flex items-center justify-between mb-6 text-xs text-muted-foreground font-sans">
+        <div className="flex items-center justify-between mb-6 text-xs text-[#6B7280] dark:text-slate-400 font-sans">
           <span>
             {isEn
               ? `${filteredProfiles.length} anonymized profile(s) found`
               : `${filteredProfiles.length} profil(s) anonymisé(s) trouvé(s)`}
           </span>
-          <span>{isEn ? "Structured data & verified by Alex AI" : "Données structurées & vérifiées par Alex IA"}</span>
+          <span>{isEn ? "Structured data & verified by Alex IA" : "Données structurées & vérifiées par Alex IA"}</span>
         </div>
 
         {/* Profile List */}
@@ -315,26 +318,26 @@ export function RecruiterSearchView({ isEn = false }: Props) {
           {filteredProfiles.map((profile) => (
             <div
               key={profile.id}
-              className="bg-card border border-border hover:border-brand-blue/30 rounded-2xl p-6 transition-all duration-200 elevation-1 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+              className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 hover:border-[#3667F0]/40 rounded-[16px] p-6 transition-all duration-200 elevation-1 hover:elevation-2 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
             >
               <div className="space-y-3 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="font-bold font-heading text-lg text-card-foreground">{profile.jobTitle}</h3>
-                  <span className="bg-blue-50 dark:bg-blue-950/40 text-brand-blue text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 font-sans">
-                    {profile.matchScore}% {isEn ? "AI Match" : "Match IA"}
+                  <h3 className="font-bold font-heading text-lg text-[#0F223D] dark:text-white">{profile.jobTitle}</h3>
+                  <span className="bg-[#3667F0]/10 text-[#3667F0] dark:text-[#5D82FF] text-xs font-semibold px-2.5 py-0.5 rounded-full border border-[#3667F0]/30 font-sans">
+                    {profile.matchScore}% Match IA
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-muted-foreground font-sans">
+                <div className="flex items-center gap-4 text-xs text-[#6B7280] dark:text-slate-400 font-sans">
                   <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                    <MapPin className="w-3.5 h-3.5 text-[#6B7280]" />
                     {profile.location}
                   </span>
                   <span>•</span>
                   <span>{isEn ? `${profile.experienceYears} years experience` : `${profile.experienceYears} ans d'expérience`}</span>
                 </div>
 
-                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+                <p className="text-sm text-[#374151] dark:text-slate-300 font-sans leading-relaxed">
                   {profile.summary}
                 </p>
 
@@ -342,7 +345,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                   {profile.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-muted text-muted-foreground font-sans text-xs px-2.5 py-1 rounded-md border border-border"
+                      className="bg-[#F3F4F6] dark:bg-slate-800 text-[#374151] dark:text-slate-200 font-sans text-xs px-2.5 py-1 rounded-[6px] border border-[#D1D5DB] dark:border-slate-700"
                     >
                       {skill}
                     </span>
@@ -351,10 +354,10 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               </div>
 
               {/* Unlock / Contact Box */}
-              <div className="lg:w-64 flex-shrink-0 bg-muted/40 border border-border rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="lg:w-64 flex-shrink-0 bg-[#FAFAFC] dark:bg-slate-900/60 border border-[#D1D5DB] dark:border-slate-800 rounded-[12px] p-4 flex flex-col items-center justify-center text-center">
                 {profile.isUnlocked && profile.contact ? (
                   <div className="w-full space-y-2 text-left animate-in fade-in">
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-2">
+                    <div className="flex items-center gap-1.5 text-xs text-[#25C78A] font-semibold mb-2 font-sans">
                       <Unlock className="w-3.5 h-3.5" />
                       <span>{isEn ? "Contact Details Unlocked" : "Coordonnées Débloquées"}</span>
                     </div>
@@ -364,37 +367,37 @@ export function RecruiterSearchView({ isEn = false }: Props) {
                         <img
                           src={profile.contact.photoUrl}
                           alt={profile.contact.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500/50 flex-shrink-0"
+                          className="w-10 h-10 rounded-full object-cover border-2 border-[#25C78A] flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-brand-blue font-bold text-xs flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-[#3667F0]/10 border border-[#3667F0]/30 flex items-center justify-center text-[#3667F0] font-bold text-xs flex-shrink-0 font-heading">
                           {profile.contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                       )}
                       <div className="overflow-hidden">
-                        <div className="text-sm font-bold font-heading text-foreground truncate">{profile.contact.name}</div>
-                        <div className="text-xs text-muted-foreground font-sans">{profile.contact.phone}</div>
+                        <div className="text-sm font-bold font-heading text-[#0F223D] dark:text-white truncate">{profile.contact.name}</div>
+                        <div className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">{profile.contact.phone}</div>
                       </div>
                     </div>
-                    <div className="text-xs text-brand-blue truncate pt-1">{profile.contact.email}</div>
+                    <div className="text-xs text-[#3667F0] dark:text-[#5D82FF] truncate pt-1 font-semibold">{profile.contact.email}</div>
                   </div>
                 ) : (
                   <div className="space-y-3 w-full">
-                    <div className="flex items-center justify-center gap-1.5 text-xs text-amber-400 font-medium">
+                    <div className="flex items-center justify-center gap-1.5 text-xs text-[#6B7280] dark:text-slate-400 font-medium font-sans">
                       <Lock className="w-3.5 h-3.5" />
                       <span>{isEn ? "Contact info hidden" : "Coordonnées masquées"}</span>
                     </div>
                     <button
                       onClick={() => handleUnlock(profile.id)}
                       disabled={unlockingId === profile.id}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs py-2.5 px-4 rounded-[12px] transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 font-sans"
                     >
                       {unlockingId === profile.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <span>
                           {creditsBalance > 0
-                            ? (isEn ? "Débloquer (1 Crédit)" : "Débloquer (1 Crédit)")
+                            ? (isEn ? "Débloquer (1 Crédit)" : "Débloquer le profil (1 Crédit)")
                             : (isEn ? "Acheter des Crédits (5 000 FCFA)" : "Débloquer (5 000 FCFA)")}
                         </span>
                       )}
