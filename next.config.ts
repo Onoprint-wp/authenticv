@@ -28,6 +28,27 @@ const nextConfig: NextConfig = {
         destination: "/tarifs",
         permanent: true,
       },
+      // Redirect /recruteurs & /recruteur → /recruiter
+      {
+        source: "/recruteurs",
+        destination: "/recruiter",
+        permanent: true,
+      },
+      {
+        source: "/recruteur",
+        destination: "/recruiter",
+        permanent: true,
+      },
+      {
+        source: "/recruteurs/:path*",
+        destination: "/recruiter/:path*",
+        permanent: true,
+      },
+      {
+        source: "/recruteur/:path*",
+        destination: "/recruiter/:path*",
+        permanent: true,
+      },
     ];
   },
 };

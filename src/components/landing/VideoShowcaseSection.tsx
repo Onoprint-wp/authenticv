@@ -76,7 +76,7 @@ const TABS: UniverseTab[] = [
     videoSrc: "/videos/authenticv_spot_recruteur.mp4",
     posterSrc: "/images/recruiter_hr.jpg",
     ctaText: "Accéder à la CVthèque",
-    ctaLink: "/recruteurs",
+    ctaLink: "/recruiter",
     statNumber: "3×",
     statLabel: "Plus rapide pour recruter les bons profils",
   },
