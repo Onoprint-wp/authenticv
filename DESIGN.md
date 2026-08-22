@@ -1,7 +1,7 @@
 # AuthentiCV — Design System v1.0
 
 > **ACV Continuous** · [authenticv.app](https://authenticv.app)  
-> Source de vérité Design & Tokens UI/UX pour l'écosystème AuthentiCV.
+> Source de vérité Design & Tokens UI/UX pour l'écosystème AuthentiCV (Focus Version Light Mode & Multi-Espaces).
 
 ---
 
@@ -34,7 +34,7 @@ Le monogramme **ACV** demeure l’actif distinctif principal. Les sous-produits 
 
 ---
 
-## 2. Color System & Tokens
+## 2. Color System & Tokens (Spécification Version Light Mode)
 
 ### Brand Colors
 
@@ -52,146 +52,50 @@ Le monogramme **ACV** demeure l’actif distinctif principal. Les sous-produits 
 background: linear-gradient(135deg, #3667F0 0%, #32D3E1 100%);
 ```
 
-**Règles d'utilisation :**
-* Monogramme ACV principal.
-* Éléments majeurs de marque & onboarding.
-* Badges ou cartes Premium.
-* **⚠️ Restriction :** Ne PAS appliquer le dégradé sur tous les boutons UI standards.
+### Palette Neutres (Rendu Light Mode)
 
-### Neutral Colors
-
-| Token Name | HEX | Usage UI |
+| Token Name | HEX | Rendu dans la Version Light |
 | :--- | :--- | :--- |
-| `neutral-900` | `#111827` | Texte principal en Mode Clair |
+| `neutral-900` | `#111827` | Texte principal en Light Mode (Contraste AAA) |
 | `neutral-700` | `#374151` | Texte secondaire, sous-titres |
 | `neutral-500` | `#6B7280` | Placeholders, métadonnées, onglets inactifs |
-| `neutral-300` | `#D1D5DB` | Bordures de composants, diviseurs |
+| `neutral-300` | `#D1D5DB` | Bordures de cartes et composants |
 | `neutral-100` | `#F3F4F6` | Fonds de cartes secondaires, hover states |
-| `neutral-50` | `#FAFAFC` | Arrière-plan principal de l'application (Light Mode) |
-| `white` | `#FFFFFF` | Cartes, modals, aperçu du document CV |
+| `neutral-50` | `#FAFAFC` | **Arrière-plan global (Canvas) en Light Mode** |
+| `white` | `#FFFFFF` | **Surface de cartes & conteneurs principaux en Light Mode** |
 
 ---
 
-## 3. Typographie
+## 3. Spécifications Visuelles par Espace applicatif (Version Light Mode)
 
-### Règle d'or
-* **Montserrat** = Personnalité de marque & structure (Titre & Headings)
-* **Inter** = Efficacité produit, lisibilité & composants UI (Body, Controls, Captions)
+### 👑 1. Administrateur Central (`/admin`)
+* **Arrière-plan :** `#FAFAFC` avec conteneurs blancs `#FFFFFF` et bordure `1px solid #D1D5DB`.
+* **Titres & Onglets :** Titres en **Montserrat Bold** (`2 450 000 FCFA`), 7 onglets opérationnels en **Inter** avec soulignement Brand Blue (`#3667F0`).
+* **Indicateurs Financiers :** Badges de croissance en `success-green` (`#25C78A`) (`+18.5%`).
 
-### Échelle Typographique
+### 👨‍🎓 2. Candidat B2C Studio Builder (`/builder`)
+* **Coach Alex IA :** Fenêtre d'assistance avec en-tête `ai-violet` (`#7C5CFC`) et bouton `Demander à Alex`.
+* **Score ATS :** Jauge circulaire verte à **94%** (`#25C78A`).
+* **CV Preview Sheet :** Feuille de travail CV maintenue sur fond blanc pur (`#FFFFFF`) avec ombrage `elevation-2` et fenêtre d'upgrade des Pass MoMo (1k / 5k / 18k FCFA).
 
-| Style | Police | Taille / Line Height | Tracking |
-| :--- | :--- | :--- | :--- |
-| **Heading 1** | Montserrat Bold | 32 px / 40 px | -0.5% |
-| **Heading 2** | Montserrat SemiBold | 24 px / 32 px | -0.25% |
-| **Sous-titre** | Montserrat Medium | 18 px / 28 px | 0% |
-| **Body** | Inter Regular | 16 px / 24 px | 0% |
-| **Small** | Inter Regular | 14 px / 20 px | 0% |
-| **Caption** | Inter Regular | 12 px / 16 px | 0% |
-| **Button** | Inter SemiBold | 14 px / 20 px | +0.25% |
+### 🏢 3. Recruteur B2B Moteur de Recherche (`/recruiter/search`)
+* **Filtres Villes CEMAC :** Filtres latéraux (Douala, Yaoundé, Libreville, Brazzaville, N'Djamena).
+* **Cartes Candidats :** Badges d'adéquation IA (96%, 92%, 87%), badges `ATS Compatible` et boutons `Débloquer le profil` en Brand Blue (`#3667F0`).
 
----
-
-## 4. Composants UI & Boutons
-
-### Types de Boutons
-
-1. **Primary Button**
-   * Background: `#3667F0` (Hover: `#2855D9`)
-   * Text: `#FFFFFF` | Height: 44–48 px | Radius: 10–12 px | Padding: 16px horizontal
-2. **Secondary Button**
-   * Background: `#FFFFFF` ou `#FAFAFC` | Border: `1px solid #D1D5DB` | Text: `#0F223D`
-3. **Outline Button**
-   * Border: `1px solid #3667F0` | Text: `#3667F0`
-4. **Ghost Button**
-   * Border: `none` | Background: `transparent` | Text: `#374151`
-5. **AI Button (✦ Demander à Alex)**
-   * Background: `linear-gradient(135deg, #3667F0 0%, #7C5CFC 100%)` | Text: `#FFFFFF`
-   * **⚠️ Restriction :** Réservé exclusivement aux fonctionnalités d'assistance IA.
-
-### Formulaires & Contrôles
-
-* **Input Text** : Hauteur 44–48px, Rayon 10px, Bordure `#D1D5DB`.
-  * *Focus state* : Border `#3667F0`, Ring `rgba(54,103,240, 0.15)`.
-* **Checkbox** : Coché = Fond `#3667F0` avec coche blanche.
-* **Toggle Switch** : Desactivé = `#D1D5DB`, Activé = `#3667F0`.
-* **Tabs** : Onglet actif = Texte `#3667F0` + soulignement `#3667F0` (2px). Onglet inactif = `#6B7280`.
-
-### Iconographie
-
-* **Style :** Linear / Outline avec épaisseur régulière (1.75px – 2px).
-* **Consistance :** Ne jamais mélanger le style Outline avec des icônes remplies (*filled*) ou des émojis au sein d'une même interface.
+### 💼 4. Délégué Commercial Hub (`/commercial`)
+* **Commissions FCFA :** Suivi en direct (10% agent = `3 450 000 FCFA`, 2.5% override = `487 500 FCFA`).
+* **Widget d'Affiliation :** Lien personnel et code promo `DIRCM10`.
+* **Réseau & Ventes :** Arborescence d'équipe et graphiques de performance en dégradé bleu/cyan.
 
 ---
 
-## 5. Composants Métier Produit
+## 4. Typographie (Montserrat & Inter)
 
-### Alex AI Coach Widget
-* **Rôle :** Assistance IA contextuelle.
-* **Structure :** En-tête avec statut `● En ligne`, avatar d'Alex, bulle de message explicite et bouton d'action direct.
-
-### Job Match Widget (Score 0-100)
-* **Principe d'explicabilité :** Un score ne doit **jamais** être affiché seul.
-* **Composants :** Grand chiffre (ex: `86/100`), mention qualitative (`Très bon match`), barre de progression Brand Blue, puis ventilation détaillée (Compétences, Expérience, Mots-clés).
-
-### Analyse ATS Widget
-* **Couleur dominante :** `success-green` (`#25C78A`) lorsque le résultat est optimal (> 80%).
-* **Structure :** Jauge circulaire %, statut (`Excellent`), et liste à puces des validations de compatibilité ATS.
-
-### CV Preview Card
-* **Règle d'or :** L'aperçu du document CV reste **toujours sur fond blanc (`#FFFFFF`)**, y compris en Dark Mode, pour refléter fidèlement le document exportable.
+* **Montserrat** = Personnalité de marque & structure (Headings H1, H2, H3)
+* **Inter** = Efficacité produit, lisibilité & composants UI (Body, Formulaires, Boutons)
 
 ---
 
-## 6. Layout, Spacing & Shadows
+## 5. Isolation Immuable de la Feuille CV (`.cv-preview-sheet`)
 
-### Grille
-* **Desktop (≥ 1024px)** : 12 colonnes, max-width 1200px–1280px, gouttière 24px.
-* **Tablette (768px - 1023px)** : 8 colonnes.
-* **Mobile (< 768px)** : 4 colonnes.
-
-### Échelle d'espacement (Base 8px)
-`4px` · `8px` · `12px` · `16px` · `24px` · `32px` · `40px` · `48px` · `56px` · `64px` · `72px` · `80px` · `96px` · `128px`
-
-### Border Radius
-* `4 px` : Micro-contrôles, badges compacts
-* `8 px` : Contrôles compacts
-* `12 px` : Inputs, boutons standards (recommandé)
-* `16 px` : Cartes et widgets
-* `24 px` : Modals et sections Hero
-
-### Élévation & Ombres
-```css
-/* Elevation 1 - Contrôles légers */
-box-shadow: 0 1px 2px rgba(15, 34, 61, 0.06);
-
-/* Elevation 2 - Cartes & Dropdowns */
-box-shadow: 0 4px 12px rgba(15, 34, 61, 0.08);
-
-/* Elevation 3 - Modals & Floating UI */
-box-shadow: 0 12px 24px rgba(15, 34, 61, 0.12);
-```
-
----
-
-## 7. Configuration Thèmes Light & Dark
-
-| Élement | Light Mode | Dark Mode |
-| :--- | :--- | :--- |
-| **Arrière-plan global** | `#FAFAFC` (`neutral-50`) | `#081426` (Navy très sombre) |
-| **Surface de carte** | `#FFFFFF` | `#0F223D` (Primary Navy) |
-| **Surface élevée** | `#F3F4F6` | `#162B46` |
-| **Texte principal** | `#111827` (`neutral-900`) | `#F8FAFC` |
-| **Texte secondaire** | `#374151` (`neutral-700`) | `#AAB8CB` |
-| **Accent Bleu** | `#3667F0` | `#5D82FF` (Bleu ajusté pour contraste sombre) |
-| **Aperçu du CV** | `#FFFFFF` | `#FFFFFF` *(Invariable)* |
-
----
-
-## 8. Motion & Micro-interactions
-
-* **Logo ACV Continuous** : Tracé animé séquentiel (A → C → V) en `500ms – 800ms`.
-* **Barre de Match / Gauges** : Animation progressive de 0 à la valeur cible (`600ms`).
-* **Alex IA** : Apparition douce ou légère pulsation du voyant d'activité.
-* **Valideur ATS** : Animation de checkmark en `200ms – 300ms`.
-* **Philosophie** : Mouvements subtils et continus sans rebonds excessifs.
+> **Règle d'or :** L'aperçu du document CV reste **toujours sur fond blanc (`#FFFFFF`) avec texte sombre (`#111827`)**, y compris en Dark Mode, pour refléter fidèlement le document PDF exportable.
