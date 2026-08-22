@@ -219,11 +219,11 @@ export function CoverLetterPanel({ onUpgradeRequired }: Props) {
       <button
         onClick={() => handleGenerate(false)}
         disabled={isGenerating || !jobOffer.trim()}
-        className="flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-all active:scale-95"
+        className="flex items-center justify-center gap-2 h-11 px-5 bg-[#3667F0] hover:bg-[#3667F0]/90 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-[12px] text-sm font-heading font-medium transition-all shadow-sm active:scale-95"
       >
         {isGenerating
           ? <><Loader2 className="w-4 h-4 animate-spin" />Génération en cours…</>
-          : <><Sparkles className="w-4 h-4" />Générer la lettre</>}
+          : <><Sparkles className="w-4 h-4 text-white" />Générer la lettre</>}
       </button>
 
       {/* Avertissement de compatibilité */}

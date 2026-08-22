@@ -62,12 +62,12 @@ export default async function AccountPage() {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
       {/* Header */}
-      <header className="h-14 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
+      <header className="h-14 flex-shrink-0 flex items-center justify-between px-6 border-b border-slate-800 bg-[#0F223D]/95 backdrop-blur-sm">
         <Link href="/builder" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-600/30 group-hover:bg-indigo-500 transition-colors">
+          <div className="w-8 h-8 bg-[#3667F0] rounded-lg flex items-center justify-center shadow-md shadow-[#3667F0]/30 group-hover:bg-[#3667F0]/90 transition-colors">
             <FileText className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-semibold tracking-tight">AuthentiCV</span>
+          <span className="text-white font-heading font-bold tracking-tight">Authenti<span className="text-[#32D3E1]">CV</span></span>
         </Link>
         <Link
           href="/builder"
@@ -83,20 +83,20 @@ export default async function AccountPage() {
         <div className="w-full max-w-2xl space-y-6">
           {/* Page title */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-500/30">
-              <UserCircle className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 bg-[#3667F0]/20 rounded-xl flex items-center justify-center border border-[#3667F0]/30">
+              <UserCircle className="w-5 h-5 text-[#3667F0]" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Mon compte</h1>
-              <p className="text-sm text-slate-500">Gérez votre profil et votre abonnement</p>
+              <h1 className="text-xl font-bold text-white font-heading">Mon compte</h1>
+              <p className="text-sm text-slate-400 font-sans">Gérez votre profil et votre abonnement</p>
             </div>
           </div>
 
           {/* ── Profile Card ── */}
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <section className="bg-[#0F223D]/90 border border-slate-800 rounded-[16px] overflow-hidden shadow-md">
             <div className="px-6 py-4 border-b border-slate-800 flex items-center gap-2">
-              <Shield className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-sm font-semibold text-white">Informations personnelles</h2>
+              <Shield className="w-4 h-4 text-[#3667F0]" />
+              <h2 className="text-sm font-semibold text-white font-heading">Informations personnelles</h2>
             </div>
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-3">

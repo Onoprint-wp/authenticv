@@ -163,28 +163,28 @@ export function ShareCvButton() {
 
         {/* Dropdown */}
         {dropdownOpen && (
-          <div className="absolute top-full right-0 mt-1.5 z-50 w-52 bg-slate-900 border border-slate-700/60 rounded-xl shadow-2xl shadow-black/40 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="absolute top-full right-0 mt-1.5 z-[100] w-56 bg-[#0F223D] border border-slate-700/80 rounded-[16px] shadow-2xl shadow-black/80 backdrop-blur-md overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 p-1">
             <button
               onClick={copyToClipboard}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
             >
-              <Link2 className="w-4 h-4 text-slate-400" />
+              <Link2 className="w-4 h-4 text-[#32D3E1]" />
               Copier le lien
             </button>
 
-            <div className="h-px bg-slate-800" />
+            <div className="h-px bg-slate-800 my-1" />
 
             <button
               onClick={sendByEmail}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-indigo-300 hover:bg-slate-800 transition-colors"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
             >
-              <Share2 className="w-4 h-4 text-indigo-400" />
+              <Share2 className="w-4 h-4 text-[#7C5CFC]" />
               Envoyer par Email
             </button>
 
             <button
               onClick={shareOnLinkedIn}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#0A66C2] hover:bg-slate-800 transition-colors"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
             >
               <LinkedInIcon />
               Partager sur LinkedIn
@@ -192,7 +192,7 @@ export function ShareCvButton() {
 
             <button
               onClick={shareOnWhatsApp}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#25D366] hover:bg-slate-800 transition-colors"
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs text-white hover:bg-slate-800/80 rounded-[10px] transition-colors font-medium"
             >
               <WhatsAppIcon />
               Envoyer via WhatsApp
