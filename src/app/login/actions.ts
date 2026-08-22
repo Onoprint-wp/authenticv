@@ -41,29 +41,40 @@ export async function login(formData: FormData) {
   // Auto-routage intelligent si aucune destination explicite
   if (!destination && data?.user) {
     try {
-      const admin = createAdminClient();
+      const adminEmails = [
+        "onoprint25@gmail.com",
+        "authenticv.playwright.test@gmail.com",
+        process.env.ADMIN_EMAIL,
+      ].filter(Boolean);
 
-      // 1. Vérifier si l'utilisateur est un Agent Commercial
-      const { data: agent } = await admin
-        .from("commercial_agents")
-        .select("id, status")
-        .or(`user_id.eq.${data.user.id},email.eq.${data.user.email}`)
-        .maybeSingle();
-
-      if (agent && agent.status === "active") {
-        destination = "/commercial";
+      // 0. Priorité Absolue Administrateur Central
+      if (adminEmails.includes(data.user.email ?? "")) {
+        destination = "/admin";
       } else {
-        // 2. Vérifier si l'utilisateur est un Recruteur B2B
-        const { data: company } = await admin
-          .from("companies")
-          .select("id")
-          .eq("user_id", data.user.id)
+        const admin = createAdminClient();
+
+        // 1. Vérifier si l'utilisateur est un Agent Commercial
+        const { data: agent } = await admin
+          .from("commercial_agents")
+          .select("id, status")
+          .or(`user_id.eq.${data.user.id},email.eq.${data.user.email}`)
           .maybeSingle();
 
-        if (company) {
-          destination = "/recruiter/search";
+        if (agent && agent.status === "active") {
+          destination = "/commercial";
         } else {
-          destination = "/builder";
+          // 2. Vérifier si l'utilisateur est un Recruteur B2B
+          const { data: company } = await admin
+            .from("companies")
+            .select("id")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+
+          if (company) {
+            destination = "/recruiter/search";
+          } else {
+            destination = "/builder";
+          }
         }
       }
     } catch {
