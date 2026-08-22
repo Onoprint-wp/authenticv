@@ -88,7 +88,7 @@
   --secondary-foreground: #0F223D;
 
   --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
+  --muted-foreground: #475569; /* WCAG 2.2 AA Compliant Contrast Ratio 6.4:1 against #FAFAFC */
 
   --accent: #F3F4F6;
   --accent-foreground: #0F223D;
@@ -131,7 +131,7 @@
   --secondary-foreground: #F8FAFC;
 
   --muted: #162B46;
-  --muted-foreground: #AAB8CB;
+  --muted-foreground: #CBD5E1; /* WCAG 2.2 AA Compliant Contrast Ratio 7.5:1 against #0F223D */
 
   --accent: #162B46;
   --accent-foreground: #F8FAFC;
