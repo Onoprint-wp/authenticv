@@ -56,19 +56,19 @@ export function CvCompletenessBar({ cvData }: Props) {
   const { bar, text, label } = scoreColor(score);
 
   return (
-    <div className="mb-6 rounded-xl border border-slate-800/60 bg-slate-900/40 px-4 py-3">
+    <div className="mb-5 rounded-[14px] border border-border bg-card px-4 py-3 shadow-xs">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Complétude du CV</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-heading">Complétude du CV</span>
         <span className={`text-xs font-bold ${text}`}>{score}% — {label}</span>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${bar}`}
           style={{ width: `${score}%` }}
         />
       </div>
       {missing.length > 0 && (
-        <p className="mt-2 text-[11px] text-slate-500 leading-relaxed">
+        <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
           À compléter : {missing.slice(0, 3).join(", ")}{missing.length > 3 ? ` +${missing.length - 3}` : ""}
         </p>
       )}
