@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { CAMPAY_WEBHOOK_SECRET } from "@/lib/campay";
 import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
+import { AdminAlertService } from "@/services/admin-alert.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -209,6 +210,19 @@ export async function POST(req: Request) {
             console.log(`[CamPay Webhook] User ${userId} → active (${planName}) via ${payload.operator}`);
           }
         }
+
+        // ── Notification Admin (fire-and-forget) ──
+        AdminAlertService.notifyPayment({
+          event: "SUCCESSFUL",
+          provider: "campay",
+          amount: paidAmount,
+          operator: payload.operator,
+          userId,
+          userPhone: payload.endpoint,
+          reference: payload.reference,
+          isB2B: userId.startsWith("recruiter:"),
+        });
+
         break;
       }
 
@@ -233,6 +247,19 @@ export async function POST(req: Request) {
             { onConflict: "user_id" },
           );
         }
+
+        // ── Notification Admin FAILED (fire-and-forget) ──
+        AdminAlertService.notifyPayment({
+          event: "FAILED",
+          provider: "campay",
+          amount: Number(payload.amount || 0),
+          operator: payload.operator,
+          userId,
+          userPhone: payload.endpoint,
+          reference: payload.reference,
+          reason: payload.reason,
+        });
+
         break;
       }
 

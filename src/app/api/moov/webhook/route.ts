@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { verifyMoovWebhookSignature, checkMoovTransactionStatus } from "@/lib/moov";
 import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
+import { AdminAlertService } from "@/services/admin-alert.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -195,8 +196,30 @@ export async function POST(req: Request) {
           }
         }
       }
+
+      // ── Notification Admin SUCCESSFUL (fire-and-forget) ──
+      AdminAlertService.notifyPayment({
+        event: "SUCCESSFUL",
+        provider: "moov",
+        amount: paidAmount,
+        operator: "MOOV_MONEY",
+        userId,
+        reference: transactionId,
+        isB2B: userId.startsWith("recruiter:"),
+      });
     } else {
       console.warn(`[Moov Webhook] Payment unsuccessful for user ${userId}: status=${status}`);
+
+      // ── Notification Admin FAILED (fire-and-forget) ──
+      AdminAlertService.notifyPayment({
+        event: "FAILED",
+        provider: "moov",
+        amount: paidAmount,
+        operator: "MOOV_MONEY",
+        userId,
+        reference: transactionId,
+        reason: `status=${status}`,
+      });
     }
   } catch (err) {
     console.error("[Moov Webhook] Unhandled webhook error:", err);

@@ -75,6 +75,25 @@ export function ShareCvButton() {
     setDropdownOpen(false);
   };
 
+  const sendByEmail = async () => {
+    setDropdownOpen(false);
+    try {
+      const res = await fetch("/api/resumes/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareUrl }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || "CV envoyé par email avec succès !");
+      } else {
+        alert(data.error || "Erreur lors de l'envoi.");
+      }
+    } catch {
+      alert("Erreur réseau lors de l'envoi de l'email.");
+    }
+  };
+
   const handleEnable = async () => {
     setLoading(true);
     try {
@@ -110,7 +129,7 @@ export function ShareCvButton() {
   // ── Actif — bouton principal + dropdown ──────────────────────────────────────
   if (isPublic && slug) {
     return (
-      <div className="relative hidden sm:flex items-center gap-1" ref={dropdownRef}>
+      <div className="relative flex items-center gap-1" ref={dropdownRef}>
         {/* Bouton principal */}
         <button
           onClick={() => setDropdownOpen((p) => !p)}
@@ -121,12 +140,12 @@ export function ShareCvButton() {
           }`}
         >
           {copied
-            ? <><Check className="w-3.5 h-3.5" /><span className="hidden lg:inline">Copié !</span></>
+            ? <><Check className="w-3.5 h-3.5" /><span className="hidden sm:inline">Copié !</span></>
             : <><Link2 className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">
+                <span className="hidden sm:inline">
                   Partager{viewCount > 0 ? ` · ${viewCount} vue${viewCount > 1 ? "s" : ""}` : ""}
                 </span>
-                <ChevronDown className={`w-3 h-3 hidden lg:block transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3 h-3 hidden sm:block transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </>}
         </button>
 
@@ -156,6 +175,14 @@ export function ShareCvButton() {
             <div className="h-px bg-slate-800" />
 
             <button
+              onClick={sendByEmail}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-indigo-300 hover:bg-slate-800 transition-colors"
+            >
+              <Share2 className="w-4 h-4 text-indigo-400" />
+              Envoyer par Email
+            </button>
+
+            <button
               onClick={shareOnLinkedIn}
               className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#0A66C2] hover:bg-slate-800 transition-colors"
             >
@@ -181,7 +208,7 @@ export function ShareCvButton() {
     <button
       onClick={handleEnable}
       disabled={loading}
-      className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
+      className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
         border border-slate-700/50 text-slate-400 hover:text-indigo-300
         hover:bg-indigo-950/40 hover:border-indigo-800/50 transition-all disabled:opacity-50"
       title="Partager le CV par lien"
@@ -189,7 +216,7 @@ export function ShareCvButton() {
       {loading
         ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
         : <Share2 className="w-3.5 h-3.5" />}
-      <span className="hidden lg:inline">Partager</span>
+      <span className="hidden sm:inline">Partager</span>
     </button>
   );
 }
