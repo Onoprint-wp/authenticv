@@ -1,86 +1,32 @@
 import { create } from "zustand";
-import { type DesignSettings, DEFAULT_DESIGN_SETTINGS } from "@/lib/themes";
+import {
+  type PersonalInfo,
+  type Experience,
+  type Education,
+  type Language,
+  type Certification,
+  type Project,
+  type CvData,
+  type DesignSettings,
+  type CvDataSnapshot,
+  type SyncStatus,
+  type ResumeListItem,
+  DEFAULT_CV_DATA,
+} from "@/lib/schemas/cv.schema";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export interface PersonalInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string;
-  title: string;
-  photoUrl: string;
-}
-
-export interface Experience {
-  id: string;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  description: string;
-}
-
-export interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
-  endDate: string;
-}
-
-export interface Language {
-  id: string;
-  name: string;
-  level: string; // e.g. "Natif", "B1", etc.
-}
-
-export interface Certification {
-  id: string;
-  name: string;
-  issuer: string;
-  date: string;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  link?: string;
-}
-
-export type SyncStatus = "idle" | "saving" | "saved" | "error";
-
-export interface CvDataSnapshot {
-  cvData: CvData;
-  savedAt: string; // ISO 8601
-}
-
-export interface CvData {
-  documentTitle: string;
-  personalInfo: PersonalInfo;
-  summary: string;
-  experiences: Experience[];
-  education: Education[];
-  skills: string[];
-  languages: Language[];
-  certifications: Certification[];
-  projects: Project[];
-  designSettings: DesignSettings;
-}
-
-export type { DesignSettings };
-
-export interface ResumeListItem {
-  id: string;
-  title: string;
-  updatedAt: string;
-  isDefault: boolean;
-}
+export type {
+  PersonalInfo,
+  Experience,
+  Education,
+  Language,
+  Certification,
+  Project,
+  CvData,
+  DesignSettings,
+  CvDataSnapshot,
+  SyncStatus,
+  ResumeListItem,
+};
 
 interface CvStore {
   cvData: CvData;
@@ -136,34 +82,10 @@ interface CvStore {
   updateDesignSettings: (settings: Partial<DesignSettings>) => void;
 }
 
-// ─── Default empty CV ────────────────────────────────────────────────────────
-
-const defaultCvData: CvData = {
-  documentTitle: "Untitled CV",
-  personalInfo: {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    location: "",
-    linkedin: "",
-    title: "",
-    photoUrl: "",
-  },
-  summary: "",
-  experiences: [],
-  education: [],
-  skills: [],
-  languages: [],
-  certifications: [],
-  projects: [],
-  designSettings: DEFAULT_DESIGN_SETTINGS,
-};
-
 // ─── Store ───────────────────────────────────────────────────────────────────
 
 export const useCvStore = create<CvStore>((set) => ({
-  cvData: defaultCvData,
+  cvData: DEFAULT_CV_DATA,
   isHydrated: false,
   syncStatus: "idle",
   history: [],
@@ -186,10 +108,10 @@ export const useCvStore = create<CvStore>((set) => ({
   setCoverLetterText: (text) => set({ coverLetterText: text }),
   setCvData: (data) => set({
     cvData: {
-      ...defaultCvData,
+      ...DEFAULT_CV_DATA,
       ...data,
-      personalInfo: { ...defaultCvData.personalInfo, ...(data.personalInfo || {}) },
-      designSettings: { ...DEFAULT_DESIGN_SETTINGS, ...(data.designSettings || {}) },
+      personalInfo: { ...DEFAULT_CV_DATA.personalInfo, ...(data.personalInfo || {}) },
+      designSettings: { ...DEFAULT_CV_DATA.designSettings, ...(data.designSettings || {}) },
       experiences: data.experiences || [],
       education: data.education || [],
       skills: data.skills || [],
@@ -381,7 +303,7 @@ export const useCvStore = create<CvStore>((set) => ({
       },
     })),
 
-  clearCv: () => set({ cvData: defaultCvData }),
+  clearCv: () => set({ cvData: DEFAULT_CV_DATA }),
 
   updateDesignSettings: (settings) =>
     set((state) => ({

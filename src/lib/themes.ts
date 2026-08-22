@@ -15,7 +15,7 @@ export interface DesignSettings {
   fontFamily: "sans" | "serif";
   layout: "classic" | "modern" | "minimal";
   spacing: "compact" | "normal" | "spacious";
-  recruiterVisible?: boolean;
+  recruiterVisible: boolean;
 }
 
 export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
