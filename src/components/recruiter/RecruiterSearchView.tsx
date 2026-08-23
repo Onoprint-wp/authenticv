@@ -203,9 +203,9 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               <Image
                 src="/images/logo/logo-recruiter.png"
                 alt="AuthentiCV Recruteur"
-                width={170}
-                height={40}
-                className="h-9 w-auto object-contain"
+                width={190}
+                height={45}
+                className="h-10 md:h-11 w-auto object-contain"
                 priority
               />
               <span className="text-xs font-semibold text-brand-blue bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-full hidden md:inline-block">

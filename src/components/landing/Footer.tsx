@@ -16,9 +16,9 @@ export function Footer({ dict }: Props) {
             <Image
               src="/images/logo/logo-fond-bleu-renforce.png"
               alt="AuthentiCV Logo Footer"
-              width={160}
-              height={40}
-              className="h-9 w-auto object-contain"
+              width={220}
+              height={50}
+              className="h-11 md:h-12 w-auto object-contain"
             />
           </Link>
           <p className="text-slate-300 text-sm max-w-sm mb-6 font-sans">{dict.tagline}</p>

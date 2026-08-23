@@ -62,9 +62,9 @@ export default function CampusPage() {
             <Image
               src="/images/logo/logo-campus.png"
               alt="AuthentiCV Campus"
-              width={170}
-              height={40}
-              className="h-9 w-auto object-contain"
+              width={190}
+              height={45}
+              className="h-10 md:h-11 w-auto object-contain"
               priority
             />
           </div>

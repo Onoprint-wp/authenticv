@@ -156,9 +156,9 @@ export default function BuilderPage() {
             <NextImage
               src="/images/logo/logo-alex-ai-coach.png"
               alt="AuthentiCV Alex AI Coach"
-              width={160}
-              height={38}
-              className="h-8 w-auto object-contain"
+              width={180}
+              height={40}
+              className="h-9 w-auto object-contain"
               priority
             />
           </Link>

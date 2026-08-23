@@ -63,9 +63,9 @@ export function Navbar({ dict }: Props) {
           <Image
             src="/images/logo/logo-landing-page.png"
             alt="AuthentiCV Logo"
-            width={160}
+            width={200}
             height={40}
-            className="h-9 w-auto object-contain"
+            className="h-10 md:h-11 w-auto object-contain"
             priority
           />
         </Link>
