@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, FileText } from "lucide-react";
 import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
 import { RecruiterInvoicesView } from "./RecruiterInvoicesView";
@@ -198,10 +199,19 @@ export function RecruiterSearchView({ isEn = false }: Props) {
               <ArrowLeft className="w-4 h-4" />
               <span>{isEn ? "Back" : "Retour"}</span>
             </Link>
-            <h1 className="font-bold text-foreground text-lg flex items-center gap-2 font-heading">
-              <Briefcase className="w-5 h-5 text-brand-blue" />
-              <span>{isEn ? "CEMAC Talent Search Engine" : "Moteur de Recherche Talents CEMAC"}</span>
-            </h1>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/images/logo/logo-recruiter.png"
+                alt="AuthentiCV Recruteur"
+                width={170}
+                height={40}
+                className="h-9 w-auto object-contain"
+                priority
+              />
+              <span className="text-xs font-semibold text-brand-blue bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-full hidden md:inline-block">
+                {isEn ? "CEMAC Talent Sourcing" : "Sourcing Talents CEMAC"}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">

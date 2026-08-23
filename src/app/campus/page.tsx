@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap, Sparkles,
   ShieldCheck, ArrowRight, ArrowLeft, MessageCircle, FileText, Award, Users, BookOpen
@@ -58,14 +59,14 @@ export default function CampusPage() {
               <span>Accueil</span>
             </Link>
             <span className="text-[#D1D5DB] dark:text-slate-700">|</span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-[10px] bg-[#32D3E1]/10 border border-[#32D3E1]/30 flex items-center justify-center">
-                <GraduationCap className="w-4 h-4 text-[#32D3E1]" />
-              </div>
-              <span className="font-bold font-heading text-[#0F223D] dark:text-white text-sm sm:text-base">
-                Authenti<span className="text-[#3667F0]">CV</span> <span className="text-[#32D3E1]">Campus</span>
-              </span>
-            </div>
+            <Image
+              src="/images/logo/logo-campus.png"
+              alt="AuthentiCV Campus"
+              width={170}
+              height={40}
+              className="h-9 w-auto object-contain"
+              priority
+            />
           </div>
 
           <div className="flex items-center gap-3">

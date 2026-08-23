@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import type { LandingDict } from "@/lib/i18n/landing";
 
@@ -13,27 +13,40 @@ interface Props {
 function LocaleSwitcher() {
   const pathname = usePathname();
   const isEn = pathname.startsWith("/en");
-  const frPath = isEn ? (pathname.replace(/^\/en/, "") || "/") : pathname;
-  const enPath = isEn ? pathname : `/en${pathname === "/" ? "" : pathname}`;
+
+  const toggleLocale = (newLocale: "fr" | "en") => {
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments[0] === "en" || segments[0] === "fr") {
+      segments.shift();
+    }
+    const newPath = newLocale === "fr" 
+      ? `/${segments.join("/")}` 
+      : `/en${segments.length ? `/${segments.join("/")}` : ""}`;
+    window.location.href = newPath || "/";
+  };
 
   return (
-    <div className="flex items-center gap-1 bg-muted border border-border rounded-lg p-0.5 text-xs font-semibold font-sans">
-      <Link
-        href={frPath}
-        className={`px-2 py-1 rounded-md transition-colors ${
-          !isEn ? "bg-brand-blue text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+    <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border border-border">
+      <button
+        onClick={() => toggleLocale("fr")}
+        className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
+          !isEn 
+            ? "bg-background text-foreground shadow-xs" 
+            : "text-muted-foreground hover:text-foreground"
         }`}
       >
         FR
-      </Link>
-      <Link
-        href={enPath}
-        className={`px-2 py-1 rounded-md transition-colors ${
-          isEn ? "bg-brand-blue text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+      </button>
+      <button
+        onClick={() => toggleLocale("en")}
+        className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
+          isEn 
+            ? "bg-background text-foreground shadow-xs" 
+            : "text-muted-foreground hover:text-foreground"
         }`}
       >
         EN
-      </Link>
+      </button>
     </div>
   );
 }
@@ -47,10 +60,14 @@ export function Navbar({ dict }: Props) {
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center shadow-md group-hover:opacity-90 transition-opacity">
-            <FileText className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-xl font-bold font-heading text-foreground tracking-tight">Authenti<span className="text-brand-blue">CV</span></span>
+          <Image
+            src="/images/logo/logo-landing-page.png"
+            alt="AuthentiCV Logo"
+            width={160}
+            height={40}
+            className="h-9 w-auto object-contain"
+            priority
+          />
         </Link>
 
         <nav className="hidden md:flex gap-8">

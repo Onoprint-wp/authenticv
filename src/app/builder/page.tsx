@@ -3,6 +3,7 @@
 import { Suspense, useRef, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import NextImage from "next/image";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { usePlan } from "@/hooks/usePlan";
@@ -151,10 +152,16 @@ export default function BuilderPage() {
       <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-border bg-card/95 backdrop-blur-sm z-10 shadow-xs">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center shadow-md">
-            <FileText className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-foreground font-heading font-bold tracking-tight hidden sm:block">Authenti<span className="text-brand-blue">CV</span></span>
+          <Link href="/">
+            <NextImage
+              src="/images/logo/logo-alex-ai-coach.png"
+              alt="AuthentiCV Alex AI Coach"
+              width={160}
+              height={38}
+              className="h-8 w-auto object-contain"
+              priority
+            />
+          </Link>
           {!plan.loading && plan.plan === "pro" ? (
             <span className="hidden md:flex items-center gap-1 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-700/50 px-2.5 py-0.5 rounded-full font-medium" title="Propulsé par Claude 3.7 Sonnet">
               <Sparkles className="w-3 h-3 text-brand-blue" />Alex Pro ⚡ (Sonnet 4.6)

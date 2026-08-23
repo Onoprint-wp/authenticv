@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FileText } from "lucide-react";
 import type { LandingDict } from "@/lib/i18n/landing";
 
@@ -12,10 +13,13 @@ export function Footer({ dict }: Props) {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-2">
           <Link href="/" className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center shadow-sm">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold font-heading text-white tracking-tight">Authenti<span className="text-[#32D3E1]">CV</span></span>
+            <Image
+              src="/images/logo/logo-fond-bleu-renforce.png"
+              alt="AuthentiCV Logo Footer"
+              width={160}
+              height={40}
+              className="h-9 w-auto object-contain"
+            />
           </Link>
           <p className="text-slate-300 text-sm max-w-sm mb-6 font-sans">{dict.tagline}</p>
           <p className="text-slate-400 text-sm font-sans">
