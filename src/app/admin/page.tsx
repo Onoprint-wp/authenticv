@@ -24,14 +24,15 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  // Admin emails whitelist
+  // Admin emails whitelist (normalized to lowercase)
   const ADMIN_EMAILS = [
     "onoprint25@gmail.com",
     "authenticv.playwright.test@gmail.com",
-    process.env.ADMIN_EMAIL,
-  ].filter(Boolean);
+    process.env.ADMIN_EMAIL?.toLowerCase().trim(),
+  ].filter(Boolean) as string[];
 
-  const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+  const userEmail = (user.email ?? "").toLowerCase().trim();
+  const isAdmin = ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase().trim() === userEmail);
   if (!isAdmin && process.env.NODE_ENV === "production") {
     redirect("/dashboard");
   }
