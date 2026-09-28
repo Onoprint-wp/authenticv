@@ -73,7 +73,7 @@ export async function GET() {
     let totalFeesOperator = 0;
     let totalCostAi = 0;
 
-    let countryBreakdown: Record<string, number> = {
+    const countryBreakdown: Record<string, number> = {
       CM: 0,
       GA: 0,
       CG: 0,

@@ -116,7 +116,6 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
           <div style={{ display: "flex", alignItems: "center", gap: "40px", flex: 1 }}>
             {/* Avatar photo ou initiales */}
             {photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={photoUrl}
                 alt={name}

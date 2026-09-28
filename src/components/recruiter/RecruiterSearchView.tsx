@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, MapPin, Briefcase, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, FileText } from "lucide-react";
+import { Search, MapPin, Lock, Unlock, ArrowLeft, Loader2, PlusCircle, Users, FileText } from "lucide-react";
 import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
 import { RecruiterInvoicesView } from "./RecruiterInvoicesView";
 

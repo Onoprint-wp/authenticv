@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FileText } from "lucide-react";
 import type { LandingDict } from "@/lib/i18n/landing";
 
 interface Props {

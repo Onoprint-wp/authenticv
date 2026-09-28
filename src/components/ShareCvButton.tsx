@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Share2, Link2, X, Loader2, Check, ChevronDown, Globe } from "lucide-react";
+import { Share2, Link2, X, Loader2, ChevronDown, Globe } from "lucide-react";
 
 // Icônes SVG inline pour LinkedIn et WhatsApp (pas de dépendance externe)
 const LinkedInIcon = () => (

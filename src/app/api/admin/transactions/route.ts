@@ -54,10 +54,17 @@ export async function GET(req: Request) {
 
     const { data: dbTransactions, count } = await query;
 
-    const txList = dbTransactions || [];
-    const totalVol = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.amount_xaf || 0) : 0), 0);
-    const totalFees = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.fees_operator || 0) : 0), 0);
-    const totalAi = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.cost_ai_estimated || 0) : 0), 0);
+    interface TransactionItem {
+      status?: string;
+      amount_xaf?: number | string | null;
+      fees_operator?: number | string | null;
+      cost_ai_estimated?: number | string | null;
+    }
+
+    const txList = (dbTransactions || []) as unknown as TransactionItem[];
+    const totalVol = txList.reduce((acc: number, t: TransactionItem) => acc + (t.status === "successful" ? Number(t.amount_xaf || 0) : 0), 0);
+    const totalFees = txList.reduce((acc: number, t: TransactionItem) => acc + (t.status === "successful" ? Number(t.fees_operator || 0) : 0), 0);
+    const totalAi = txList.reduce((acc: number, t: TransactionItem) => acc + (t.status === "successful" ? Number(t.cost_ai_estimated || 0) : 0), 0);
 
     return NextResponse.json({
       success: true,
