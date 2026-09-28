@@ -52,6 +52,9 @@ function LocaleSwitcher() {
 }
 
 export function Navbar({ dict }: Props) {
+  const pathname = usePathname();
+  const isEn = pathname.startsWith("/en");
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -71,13 +74,13 @@ export function Navbar({ dict }: Props) {
         </Link>
 
         <nav className="hidden md:flex gap-8">
-          <Link href="#comment-ca-marche" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
+          <Link href={isEn ? "/en#comment-ca-marche" : "/#comment-ca-marche"} className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.howItWorks}
           </Link>
-          <Link href="#fonctionnalites" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
+          <Link href={isEn ? "/en#fonctionnalites" : "/#fonctionnalites"} className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.features}
           </Link>
-          <Link href="#tarifs" className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
+          <Link href={isEn ? "/en#tarifs" : "/#tarifs"} className="text-sm font-medium font-sans text-muted-foreground hover:text-foreground transition-colors">
             {dict.pricing}
           </Link>
         </nav>

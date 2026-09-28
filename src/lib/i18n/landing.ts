@@ -206,7 +206,7 @@ export const fr: LandingDict = {
       {
         question: "Que se passe-t-il si j'atteins les 20 messages gratuits ?",
         answer:
-          "Le compteur se réinitialise chaque mois. Si vous avez besoin de plus de messages avant la fin du mois, vous pouvez passer au plan Pro pour des messages illimités. Votre CV reste accessible et sauvegardé même après la limite.",
+          "Le plan gratuit vous permet de discuter avec Alex et de prévisualiser votre CV en direct. Vous pouvez débloquer votre export PDF HD sans filigrane + lettre de motivation pour seulement 1 000 FCFA à l'acte par Mobile Money (MTN / Orange), ou passer au Pass Mensuel Pro pour un usage illimité.",
       },
       {
         question: "Puis-je résilier mon abonnement Pro à tout moment ?",
