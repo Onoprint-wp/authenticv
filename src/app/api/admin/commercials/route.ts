@@ -27,107 +27,6 @@ export interface CommercialAgentRecord {
   updated_at: string;
 }
 
-const SEED_COMMERCIALS: CommercialAgentRecord[] = [
-  {
-    id: "comm-1",
-    full_name: "Christian Bekono",
-    email: "commercial.douala@authenticv.app",
-    phone: "+237 699 12 34 56",
-    assigned_country: "CM",
-    assigned_city: "Douala & National",
-    role: "country_director",
-    director_id: null,
-    commission_rate: 10,
-    override_commission_rate: 2.5,
-    monthly_target_xaf: 3500000,
-    total_sales_xaf: 320000,
-    total_commissions_earned_xaf: 38250,
-    total_commissions_paid_xaf: 20000,
-    promo_code: "DIRCM10",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "comm-team-1",
-    full_name: "Arnaud Bopda",
-    email: "commercial.yaounde@authenticv.app",
-    phone: "+237 677 88 99 00",
-    assigned_country: "CM",
-    assigned_city: "Yaoundé & Centre",
-    role: "agent",
-    director_id: "comm-1",
-    commission_rate: 10,
-    monthly_target_xaf: 500000,
-    total_sales_xaf: 150000,
-    total_commissions_earned_xaf: 15000,
-    total_commissions_paid_xaf: 0,
-    promo_code: "ARNAUD10",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "comm-team-2",
-    full_name: "Marcelle Tchuente",
-    email: "commercial.bafoussam@authenticv.app",
-    phone: "+237 655 44 33 22",
-    assigned_country: "CM",
-    assigned_city: "Bafoussam / Ouest",
-    role: "agent",
-    director_id: "comm-1",
-    commission_rate: 10,
-    monthly_target_xaf: 500000,
-    total_sales_xaf: 100000,
-    total_commissions_earned_xaf: 10000,
-    total_commissions_paid_xaf: 0,
-    promo_code: "MARCELLE10",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "comm-2",
-    full_name: "Emmanuel Nguema",
-    email: "directeur.gabon@authenticv.app",
-    phone: "+241 77 11 22 33",
-    assigned_country: "GA",
-    assigned_city: "Libreville / Port-Gentil",
-    role: "country_director",
-    director_id: null,
-    commission_rate: 10,
-    override_commission_rate: 2.5,
-    monthly_target_xaf: 2500000,
-    total_sales_xaf: 450000,
-    total_commissions_earned_xaf: 45000,
-    total_commissions_paid_xaf: 0,
-    promo_code: "DIRGA10",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "comm-3",
-    full_name: "Serge Ngoma",
-    email: "commercial.brazzaville@authenticv.app",
-    phone: "+242 06 12 34 56",
-    assigned_country: "CG",
-    assigned_city: "Brazzaville & Pointe-Noire",
-    role: "country_director",
-    director_id: null,
-    commission_rate: 10,
-    override_commission_rate: 2.5,
-    monthly_target_xaf: 2500000,
-    total_sales_xaf: 95000,
-    total_commissions_earned_xaf: 9500,
-    total_commissions_paid_xaf: 0,
-    promo_code: "DIRCG10",
-    status: "active",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -142,8 +41,8 @@ export async function GET(req: Request) {
 
     const { data: dbAgents, error } = await query;
 
-    let agents: CommercialAgentRecord[] = SEED_COMMERCIALS;
-    if (!error && dbAgents && dbAgents.length > 0) {
+    let agents: CommercialAgentRecord[] = [];
+    if (!error && dbAgents && Array.isArray(dbAgents)) {
       agents = dbAgents;
     }
 

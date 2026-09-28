@@ -5,61 +5,6 @@ import { createAdminClient } from "@/utils/supabase/admin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SEED_PROMOS = [
-  {
-    id: "promo-01",
-    code: "CAMPUS20",
-    discount_percent: 20,
-    target_plan: "all",
-    max_uses: 500,
-    current_uses: 84,
-    total_revenue_generated_xaf: 336000,
-    campaign_name: "Partenariats Étudiants CEMAC",
-    is_active: true,
-    expires_at: "2026-12-31T23:59:59Z",
-    created_at: new Date(Date.now() - 30 * 86400000).toISOString(),
-  },
-  {
-    id: "promo-02",
-    code: "BOOST20",
-    discount_percent: 20,
-    target_plan: "single",
-    max_uses: 200,
-    current_uses: 45,
-    total_revenue_generated_xaf: 36000,
-    campaign_name: "Relance WhatsApp Paniers Abandonnés",
-    is_active: true,
-    expires_at: "2026-12-31T23:59:59Z",
-    created_at: new Date(Date.now() - 15 * 86400000).toISOString(),
-  },
-  {
-    id: "promo-03",
-    code: "STUDENT50",
-    discount_percent: 50,
-    target_plan: "monthly",
-    max_uses: 100,
-    current_uses: 32,
-    total_revenue_generated_xaf: 80000,
-    campaign_name: "Offre Rentrée Universitaire",
-    is_active: true,
-    expires_at: "2026-10-31T23:59:59Z",
-    created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
-  },
-  {
-    id: "promo-04",
-    code: "RECRUITER10",
-    discount_percent: 10,
-    target_plan: "recruiter",
-    max_uses: 50,
-    current_uses: 6,
-    total_revenue_generated_xaf: 270000,
-    campaign_name: "Promotion Salon Emploi Douala",
-    is_active: true,
-    expires_at: "2026-09-30T23:59:59Z",
-    created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
-  },
-];
-
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -77,29 +22,15 @@ export async function GET() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error || !promos || promos.length === 0) {
-      const totalRevenue = SEED_PROMOS.reduce((acc, p) => acc + p.total_revenue_generated_xaf, 0);
-      const totalUses = SEED_PROMOS.reduce((acc, p) => acc + p.current_uses, 0);
-
-      return NextResponse.json({
-        success: true,
-        promos: SEED_PROMOS,
-        summary: {
-          totalCodes: SEED_PROMOS.length,
-          totalUses,
-          totalRevenueGeneratedXaf: totalRevenue,
-        },
-      });
-    }
-
-    const totalRevenue = promos.reduce((acc, p) => acc + (p.total_revenue_generated_xaf || 0), 0);
-    const totalUses = promos.reduce((acc, p) => acc + (p.current_uses || 0), 0);
+    const promoList = (error || !promos) ? [] : promos;
+    const totalRevenue = promoList.reduce((acc, p) => acc + (p.total_revenue_generated_xaf || 0), 0);
+    const totalUses = promoList.reduce((acc, p) => acc + (p.current_uses || 0), 0);
 
     return NextResponse.json({
       success: true,
-      promos,
+      promos: promoList,
       summary: {
-        totalCodes: promos.length,
+        totalCodes: promoList.length,
         totalUses,
         totalRevenueGeneratedXaf: totalRevenue,
       },

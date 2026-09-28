@@ -108,7 +108,7 @@ export function CommercialDashboardView() {
     fetchDashboard();
   }, []);
 
-  const promoCode = data?.metrics.promoCode || (data?.isDirector ? "DIRCM10" : "CHRISTIAN10");
+  const promoCode = data?.metrics.promoCode || "";
   const isDirector = data?.isDirector || data?.agent?.role === "country_director";
 
   const handleCopy = (text: string, type: string) => {
@@ -191,7 +191,7 @@ export function CommercialDashboardView() {
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             <div className="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
-              <span className="text-slate-400 font-medium">{data?.agent.full_name || "Christian Bekono"}</span>
+              <span className="text-slate-400 font-medium">{data?.agent.full_name || "Commercial AuthentiCV"}</span>
               <span className="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-800/40">
                 {COUNTRY_FLAGS[data?.agent.assigned_country || "CM"] || "🇨🇲"} · {data?.agent.assigned_city || "Douala"}
               </span>
@@ -389,7 +389,7 @@ export function CommercialDashboardView() {
               }`}
             >
               <Users className="w-3.5 h-3.5" />
-              <span>👑 Mon Équipe Commerciale ({data?.teamMembers?.length || 2} Délégués)</span>
+              <span>👑 Mon Équipe Commerciale ({data?.teamMembers?.length || 0} Délégués)</span>
             </button>
           )}
 
@@ -428,7 +428,7 @@ export function CommercialDashboardView() {
 
               <button
                 onClick={() => {
-                  setLeadToReassign("Demande Démo DRH — TotalEnergies");
+                  setLeadToReassign("Demande Démo DRH");
                   setReassignModalOpen(true);
                 }}
                 className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"

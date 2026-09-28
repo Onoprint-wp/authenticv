@@ -9,22 +9,7 @@ export const dynamic = "force-dynamic";
 const STATIC_PROMO_CODES: Record<string, { discountPercent: number; name: string; requiredDomain?: string }> = {
   CAMPUS20: { discountPercent: 20, name: "Partenariat Campus CEMAC (-20%)" },
   STUDENT50: { discountPercent: 50, name: "Tarif Étudiant Spécial (-50%)" },
-  UY1: { discountPercent: 30, name: "Université de Yaoundé I (-30%)", requiredDomain: "univ-yaounde1.cm" },
-  UDLA: { discountPercent: 30, name: "Université de Douala (-30%)", requiredDomain: "univ-douala.cm" },
-  UBUEA: { discountPercent: 30, name: "University of Buea (-30%)", requiredDomain: "ubuea.cm" },
-  UDSH: { discountPercent: 30, name: "Université de Dschang (-30%)", requiredDomain: "univ-dschang.org" },
   AUTHVIP: { discountPercent: 25, name: "Code Partenaire VIP (-25%)" },
-  CHRISTIAN10: { discountPercent: 10, name: "Affiliation Commerciale Christian Bekono (-10%)" },
-  DIRCM10: { discountPercent: 10, name: "Direction Commerciale Cameroun (-10%)" },
-  DIRGA10: { discountPercent: 10, name: "Direction Commerciale Gabon (-10%)" },
-  DIRCG10: { discountPercent: 10, name: "Direction Commerciale Congo (-10%)" },
-  DIRTD10: { discountPercent: 10, name: "Direction Commerciale Tchad (-10%)" },
-  DIRCF10: { discountPercent: 10, name: "Direction Commerciale RCA (-10%)" },
-  DIRGQ10: { discountPercent: 10, name: "Direction Commerciale Guinée Équatoriale (-10%)" },
-  ARNAUD10: { discountPercent: 10, name: "Affiliation Arnaud Bopda (-10%)" },
-  MARCELLE10: { discountPercent: 10, name: "Affiliation Marcelle Tchuente (-10%)" },
-  ALINE10: { discountPercent: 10, name: "Affiliation Commerciale Aline Mba (-10%)" },
-  SERGE10: { discountPercent: 10, name: "Affiliation Commerciale Serge Ngoma (-10%)" },
 };
 
 /**
@@ -46,7 +31,7 @@ export async function POST(req: Request) {
     let partnerName = "";
     let requiredDomain: string | undefined;
 
-    // 1. Check static promo codes
+    // 1. Check static system promo codes
     if (promoCode && STATIC_PROMO_CODES[promoCode]) {
       discountPercent = STATIC_PROMO_CODES[promoCode].discountPercent;
       partnerName = STATIC_PROMO_CODES[promoCode].name;
@@ -74,7 +59,23 @@ export async function POST(req: Request) {
       }
     }
 
-    // 3. Check campus_partners table by email domain or promo code in DB
+    // 3. Check commercial_agents table for active sales reps promo codes
+    if (!discountPercent && promoCode) {
+      const supabase = await createClient();
+      const { data: dbAgent } = await supabase
+        .from("commercial_agents")
+        .select("full_name, promo_code")
+        .eq("promo_code", promoCode)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (dbAgent) {
+        discountPercent = 10;
+        partnerName = `Affiliation Commerciale ${dbAgent.full_name} (-10%)`;
+      }
+    }
+
+    // 4. Check campus_partners table by email domain or promo code in DB
     if (!discountPercent && (email || promoCode)) {
       const supabase = await createClient();
       const userDomain = email ? email.split("@")[1] : "";

@@ -24,39 +24,6 @@ interface CandidateProfile {
   };
 }
 
-const MOCK_TALENTS: CandidateProfile[] = [
-  {
-    id: "tal-1",
-    jobTitle: "Développeur Full Stack Senior (React / Node.js)",
-    location: "Douala, Cameroun",
-    summary: "Ingénieur logiciel avec 5 ans d'expérience dans la conception d'applications web scalables et le paiement Mobile Money.",
-    skills: ["React", "TypeScript", "Node.js", "PostgreSQL", "Docker", "Tailwind CSS"],
-    experienceYears: 5,
-    matchScore: 96,
-    isUnlocked: false,
-  },
-  {
-    id: "tal-2",
-    jobTitle: "Comptable & Gestionnaire Financier",
-    location: "Yaoundé, Cameroun",
-    summary: "Spécialiste en audit financier, gestion de trésorerie et fiscalité OHADA avec maîtrise complète de SAP et Sage Saari.",
-    skills: ["Sage Saari", "SAP", "Fiscalité OHADA", "Audit Financier", "Excel Avancé"],
-    experienceYears: 4,
-    matchScore: 92,
-    isUnlocked: false,
-  },
-  {
-    id: "tal-3",
-    jobTitle: "Responsable Marketing Digital & Growth",
-    location: "Libreville, Gabon",
-    summary: "Expert en acquisition de trafic, gestion de campagnes Meta/Google Ads et stratégie de contenu en Afrique centrale.",
-    skills: ["Meta Ads", "Google Ads", "SEO", "Copywriting", "Analytics", "CRM"],
-    experienceYears: 3,
-    matchScore: 88,
-    isUnlocked: false,
-  },
-];
-
 interface Props {
   isEn?: boolean;
 }
@@ -65,30 +32,34 @@ export function RecruiterSearchView({ isEn = false }: Props) {
   const [activeTab, setActiveTab] = useState<"search" | "unlocked" | "invoices">("search");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("all");
-  const [profiles, setProfiles] = useState<CandidateProfile[]>(MOCK_TALENTS);
+  const [profiles, setProfiles] = useState<CandidateProfile[]>([]);
+  const [loadingTalents, setLoadingTalents] = useState(true);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
-  const [creditsBalance, setCreditsBalance] = useState<number>(5);
+  const [creditsBalance, setCreditsBalance] = useState<number>(0);
 
   const backUrl = isEn ? "/en/recruiter" : "/recruiter";
 
   useEffect(() => {
     let isMounted = true;
     async function loadTalents() {
+      setLoadingTalents(true);
       try {
         const res = await fetch(`/api/recruiter/talents?query=${encodeURIComponent(searchTerm)}&location=${encodeURIComponent(selectedLocation)}`);
         if (res.ok) {
           const data = await res.json();
-          if (isMounted && data.profiles && Array.isArray(data.profiles) && data.profiles.length > 0) {
+          if (isMounted && data.profiles && Array.isArray(data.profiles)) {
             setProfiles(data.profiles);
             return;
           }
         }
       } catch (err) {
         console.error("Failed to load live talents:", err);
+      } finally {
+        if (isMounted) setLoadingTalents(false);
       }
       if (isMounted) {
-        setProfiles(MOCK_TALENTS);
+        setProfiles([]);
       }
     }
 
@@ -324,100 +295,119 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         </div>
 
         {/* Profile List */}
-        <div className="space-y-4">
-          {filteredProfiles.map((profile) => (
-            <div
-              key={profile.id}
-              className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 hover:border-[#3667F0]/40 rounded-[16px] p-6 transition-all duration-200 elevation-1 hover:elevation-2 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
-            >
-              <div className="space-y-3 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="font-bold font-heading text-lg text-[#0F223D] dark:text-white">{profile.jobTitle}</h3>
-                  <span className="bg-[#3667F0]/10 text-[#3667F0] dark:text-[#5D82FF] text-xs font-semibold px-2.5 py-0.5 rounded-full border border-[#3667F0]/30 font-sans">
-                    {profile.matchScore}% Match IA
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 text-xs text-[#6B7280] dark:text-slate-400 font-sans">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#6B7280]" />
-                    {profile.location}
-                  </span>
-                  <span>•</span>
-                  <span>{isEn ? `${profile.experienceYears} years experience` : `${profile.experienceYears} ans d'expérience`}</span>
-                </div>
-
-                <p className="text-sm text-[#374151] dark:text-slate-300 font-sans leading-relaxed">
-                  {profile.summary}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {profile.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="bg-[#F3F4F6] dark:bg-slate-800 text-[#374151] dark:text-slate-200 font-sans text-xs px-2.5 py-1 rounded-[6px] border border-[#D1D5DB] dark:border-slate-700"
-                    >
-                      {skill}
+        {loadingTalents ? (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <Loader2 className="w-8 h-8 animate-spin text-[#3667F0] mb-3" />
+            <p className="text-sm font-medium">{isEn ? "Searching candidate profiles..." : "Recherche des profils de candidats..."}</p>
+          </div>
+        ) : filteredProfiles.length === 0 ? (
+          <div className="bg-white dark:bg-[#0F223D] border border-dashed border-[#D1D5DB] dark:border-slate-800 rounded-[16px] p-12 text-center">
+            <Users className="w-12 h-12 text-[#9CA3AF] mx-auto mb-3 opacity-50" />
+            <h3 className="font-heading font-bold text-base text-[#111827] dark:text-white mb-1">
+              {isEn ? "No candidate profiles found" : "Aucun profil de candidat trouvé"}
+            </h3>
+            <p className="text-xs text-[#6B7280] dark:text-slate-400 max-w-md mx-auto">
+              {isEn
+                ? "No CVs match your current search criteria or no public profiles are currently published in the CVtheque."
+                : "Aucun CV ne correspond à vos critères de recherche ou aucun profil public n'est actuellement publié dans la CVthèque."}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredProfiles.map((profile) => (
+              <div
+                key={profile.id}
+                className="bg-white dark:bg-[#0F223D] border border-[#E5E7EB] dark:border-slate-800 hover:border-[#3667F0]/40 rounded-[16px] p-6 transition-all duration-200 elevation-1 hover:elevation-2 flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+              >
+                <div className="space-y-3 flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="font-bold font-heading text-lg text-[#0F223D] dark:text-white">{profile.jobTitle}</h3>
+                    <span className="bg-[#3667F0]/10 text-[#3667F0] dark:text-[#5D82FF] text-xs font-semibold px-2.5 py-0.5 rounded-full border border-[#3667F0]/30 font-sans">
+                      {profile.matchScore}% Match IA
                     </span>
-                  ))}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-[#6B7280] dark:text-slate-400 font-sans">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#6B7280]" />
+                      {profile.location}
+                    </span>
+                    <span>•</span>
+                    <span>{isEn ? `${profile.experienceYears} years experience` : `${profile.experienceYears} ans d'expérience`}</span>
+                  </div>
+
+                  <p className="text-sm text-[#374151] dark:text-slate-300 font-sans leading-relaxed">
+                    {profile.summary}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {profile.skills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="bg-[#F3F4F6] dark:bg-slate-800 text-[#374151] dark:text-slate-200 font-sans text-xs px-2.5 py-1 rounded-[6px] border border-[#D1D5DB] dark:border-slate-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Unlock / Contact Box */}
+                <div className="lg:w-64 flex-shrink-0 bg-[#FAFAFC] dark:bg-slate-900/60 border border-[#D1D5DB] dark:border-slate-800 rounded-[12px] p-4 flex flex-col items-center justify-center text-center">
+                  {profile.isUnlocked && profile.contact ? (
+                    <div className="w-full space-y-2 text-left animate-in fade-in">
+                      <div className="flex items-center gap-1.5 text-xs text-[#25C78A] font-semibold mb-2 font-sans">
+                        <Unlock className="w-3.5 h-3.5" />
+                        <span>{isEn ? "Contact Details Unlocked" : "Coordonnées Débloquées"}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {profile.contact.photoUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={profile.contact.photoUrl}
+                            alt={profile.contact.name}
+                            className="w-10 h-10 rounded-full object-cover border-2 border-[#25C78A] flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#3667F0]/10 border border-[#3667F0]/30 flex items-center justify-center text-[#3667F0] font-bold text-xs flex-shrink-0 font-heading">
+                            {profile.contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          </div>
+                        )}
+                        <div className="overflow-hidden">
+                          <div className="text-sm font-bold font-heading text-[#0F223D] dark:text-white truncate">{profile.contact.name}</div>
+                          <div className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">{profile.contact.phone}</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-[#3667F0] dark:text-[#5D82FF] truncate pt-1 font-semibold">{profile.contact.email}</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 w-full">
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-[#6B7280] dark:text-slate-400 font-medium font-sans">
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>{isEn ? "Contact info hidden" : "Coordonnées masquées"}</span>
+                      </div>
+                      <button
+                        onClick={() => handleUnlock(profile.id)}
+                        disabled={unlockingId === profile.id}
+                        className="w-full flex items-center justify-center gap-2 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs py-2.5 px-4 rounded-[12px] transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 font-sans"
+                      >
+                        {unlockingId === profile.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <span>
+                            {creditsBalance > 0
+                              ? (isEn ? "Débloquer (1 Crédit)" : "Débloquer le profil (1 Crédit)")
+                              : (isEn ? "Acheter des Crédits (5 000 FCFA)" : "Débloquer (5 000 FCFA)")}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Unlock / Contact Box */}
-              <div className="lg:w-64 flex-shrink-0 bg-[#FAFAFC] dark:bg-slate-900/60 border border-[#D1D5DB] dark:border-slate-800 rounded-[12px] p-4 flex flex-col items-center justify-center text-center">
-                {profile.isUnlocked && profile.contact ? (
-                  <div className="w-full space-y-2 text-left animate-in fade-in">
-                    <div className="flex items-center gap-1.5 text-xs text-[#25C78A] font-semibold mb-2 font-sans">
-                      <Unlock className="w-3.5 h-3.5" />
-                      <span>{isEn ? "Contact Details Unlocked" : "Coordonnées Débloquées"}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {profile.contact.photoUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={profile.contact.photoUrl}
-                          alt={profile.contact.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-[#25C78A] flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#3667F0]/10 border border-[#3667F0]/30 flex items-center justify-center text-[#3667F0] font-bold text-xs flex-shrink-0 font-heading">
-                          {profile.contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </div>
-                      )}
-                      <div className="overflow-hidden">
-                        <div className="text-sm font-bold font-heading text-[#0F223D] dark:text-white truncate">{profile.contact.name}</div>
-                        <div className="text-xs text-[#6B7280] dark:text-slate-400 font-sans">{profile.contact.phone}</div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-[#3667F0] dark:text-[#5D82FF] truncate pt-1 font-semibold">{profile.contact.email}</div>
-                  </div>
-                ) : (
-                  <div className="space-y-3 w-full">
-                    <div className="flex items-center justify-center gap-1.5 text-xs text-[#6B7280] dark:text-slate-400 font-medium font-sans">
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>{isEn ? "Contact info hidden" : "Coordonnées masquées"}</span>
-                    </div>
-                    <button
-                      onClick={() => handleUnlock(profile.id)}
-                      disabled={unlockingId === profile.id}
-                      className="w-full flex items-center justify-center gap-2 bg-[#3667F0] hover:bg-[#3667F0]/90 text-white font-semibold text-xs py-2.5 px-4 rounded-[12px] transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 font-sans"
-                    >
-                      {unlockingId === profile.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <span>
-                          {creditsBalance > 0
-                            ? (isEn ? "Débloquer (1 Crédit)" : "Débloquer le profil (1 Crédit)")
-                            : (isEn ? "Acheter des Crédits (5 000 FCFA)" : "Débloquer (5 000 FCFA)")}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         </>
         )}
 

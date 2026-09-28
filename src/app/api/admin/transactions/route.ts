@@ -52,78 +52,21 @@ export async function GET(req: Request) {
 
     query = query.range(offset, offset + limit - 1);
 
-    const { data: transactions, count, error } = await query;
+    const { data: dbTransactions, count } = await query;
 
-    // Fallback if transactions table has no rows or is initializing
-    if (error || !transactions || transactions.length === 0) {
-      // Build sample synthesized data from existing user_subscriptions
-      const { data: subs } = await admin
-        .from("user_subscriptions")
-        .select("user_id, plan_name, status, single_credits, campay_reference, campay_operator, campay_phone, created_at, updated_at")
-        .order("created_at", { ascending: false })
-        .limit(20);
-
-      const synthesized = (subs || []).map((s, idx) => {
-        const isPro = s.plan_name === "pro" || s.plan_name === "pro_annual";
-        const amount = s.plan_name === "pro_annual" ? 18000 : isPro ? 5000 : 1000;
-        const operatorName = s.campay_operator || (idx % 2 === 0 ? "MTN" : "ORANGE");
-        const fees = Math.round(amount * 0.03);
-        const costAi = isPro ? 120 : 35;
-
-        return {
-          id: `syn-${s.user_id}-${idx}`,
-          user_id: s.user_id,
-          reference_id: s.campay_reference || `CP-CM-${10000 + idx}`,
-          amount_xaf: amount,
-          currency: "XAF",
-          country_code: "CM",
-          operator: operatorName.toUpperCase(),
-          payment_type: isPro ? (s.plan_name === "pro_annual" ? "b2c_annual" : "b2c_monthly") : "b2c_single",
-          status: s.status === "active" || (s.single_credits && s.single_credits > 0) ? "successful" : "pending",
-          phone_number: s.campay_phone || `+237 6${(70000000 + idx * 1111111).toString().slice(0, 8)}`,
-          customer_email: `user.${idx + 1}@authenticv.app`,
-          customer_name: `Client AuthentiCV #${idx + 1}`,
-          fees_operator: fees,
-          cost_ai_estimated: costAi,
-          created_at: s.updated_at || s.created_at || new Date().toISOString(),
-        };
-      });
-
-      const totalVol = synthesized.reduce((acc, t) => acc + (t.status === "successful" ? t.amount_xaf : 0), 0);
-      const totalFees = synthesized.reduce((acc, t) => acc + (t.status === "successful" ? t.fees_operator : 0), 0);
-      const totalAi = synthesized.reduce((acc, t) => acc + (t.status === "successful" ? t.cost_ai_estimated : 0), 0);
-
-      return NextResponse.json({
-        success: true,
-        transactions: synthesized,
-        pagination: {
-          total: synthesized.length,
-          page: 1,
-          limit: 20,
-          pages: 1,
-        },
-        summary: {
-          totalVolumeXaf: totalVol,
-          totalFeesXaf: totalFees,
-          totalCostAiXaf: totalAi,
-          netMarginXaf: totalVol - totalFees - totalAi,
-        },
-      });
-    }
-
-    // Compute totals for summary
-    const totalVol = (transactions || []).reduce((acc, t) => acc + (t.status === "successful" ? Number(t.amount_xaf) : 0), 0);
-    const totalFees = (transactions || []).reduce((acc, t) => acc + (t.status === "successful" ? Number(t.fees_operator) : 0), 0);
-    const totalAi = (transactions || []).reduce((acc, t) => acc + (t.status === "successful" ? Number(t.cost_ai_estimated) : 0), 0);
+    const txList = dbTransactions || [];
+    const totalVol = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.amount_xaf || 0) : 0), 0);
+    const totalFees = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.fees_operator || 0) : 0), 0);
+    const totalAi = txList.reduce((acc: number, t: Record<string, any>) => acc + (t.status === "successful" ? Number(t.cost_ai_estimated || 0) : 0), 0);
 
     return NextResponse.json({
       success: true,
-      transactions,
+      transactions: txList,
       pagination: {
-        total: count ?? transactions.length,
+        total: count ?? txList.length,
         page,
         limit,
-        pages: Math.ceil((count ?? transactions.length) / limit),
+        pages: Math.ceil((count ?? txList.length) / limit) || 1,
       },
       summary: {
         totalVolumeXaf: totalVol,

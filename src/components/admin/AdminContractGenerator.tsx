@@ -10,24 +10,24 @@ export function AdminContractGenerator() {
   const [loading, setLoading] = useState(false);
 
   // Champs Directeur Pays
-  const [directorName, setDirectorName] = useState("Christian Bekono");
-  const [phone, setPhone] = useState("+237 699 12 34 56");
-  const [email, setEmail] = useState("commercial.douala@authenticv.app");
-  const [directorPromoCode, setDirectorPromoCode] = useState("DIRCM10");
+  const [directorName, setDirectorName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [directorPromoCode, setDirectorPromoCode] = useState("");
   const [monthlyQuotaXaf, setMonthlyQuotaXaf] = useState("3500000");
   const [overridePercent, setOverridePercent] = useState("2.5");
 
   // Champs Campus
-  const [universityName, setUniversityName] = useState("Université de Douala");
-  const [representativeName, setRepresentativeName] = useState("Le Recteur / Directeur Général");
-  const [promoCode, setPromoCode] = useState("UDLA20");
+  const [universityName, setUniversityName] = useState("");
+  const [representativeName, setRepresentativeName] = useState("");
+  const [promoCode, setPromoCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState("20");
   const [commissionPercent, setCommissionPercent] = useState("0");
 
   // Champs Recruteur B2B
-  const [companyName, setCompanyName] = useState("MTN Cameroun S.A.");
-  const [rccm, setRccm] = useState("RC/DLA/2026/B/1234");
-  const [niu, setNiu] = useState("M0123456789A");
+  const [companyName, setCompanyName] = useState("");
+  const [rccm, setRccm] = useState("");
+  const [niu, setNiu] = useState("");
   const [creditsPurchased] = useState("10");
   const [totalPriceFcfa, setTotalPriceFcfa] = useState("50 000 FCFA");
 

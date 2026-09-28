@@ -68,45 +68,56 @@ export async function GET() {
     });
     estimatedRevenueXaf += b2bRevenue;
 
-    // 5. Query Transactions table for actual fees if available
-    let totalFeesOperator = Math.round(estimatedRevenueXaf * 0.03); // ~3% telecom fees
-    let totalCostAi = Math.round(activeProSubs * 250 + (totalResumes ?? 0) * 40); // Claude Sonnet/Haiku cost
+    // 5. Query Transactions table for actual revenue and fees
+    let totalRevenueXaf = 0;
+    let totalFeesOperator = 0;
+    let totalCostAi = 0;
+
+    let countryBreakdown: Record<string, number> = {
+      CM: 0,
+      GA: 0,
+      CG: 0,
+      TD: 0,
+      CF: 0,
+      GQ: 0,
+    };
 
     const { data: realTx } = await admin
       .from("transactions")
-      .select("amount_xaf, fees_operator, cost_ai_estimated, country_code, status");
-
-    let countryBreakdown = {
-      CM: Math.round(estimatedRevenueXaf * 0.65), // Cameroun (Hub 65%)
-      GA: Math.round(estimatedRevenueXaf * 0.15), // Gabon (15%)
-      CG: Math.round(estimatedRevenueXaf * 0.10), // Congo (10%)
-      TD: Math.round(estimatedRevenueXaf * 0.05), // Tchad (5%)
-      CF: Math.round(estimatedRevenueXaf * 0.03), // RCA (3%)
-      GQ: Math.round(estimatedRevenueXaf * 0.02), // Guinée Équatoriale (2%)
-    };
+      .select("amount_xaf, fees_operator, cost_ai_estimated, country_code, status, payment_type");
 
     if (realTx && realTx.length > 0) {
       const successfulTxs = realTx.filter((t) => t.status === "successful");
-      if (successfulTxs.length > 0) {
-        totalFeesOperator = successfulTxs.reduce((acc, t) => acc + (t.fees_operator || 0), 0);
-        totalCostAi = successfulTxs.reduce((acc, t) => acc + (t.cost_ai_estimated || 0), 0);
+      successfulTxs.forEach((t) => {
+        const amt = Number(t.amount_xaf || 0);
+        totalRevenueXaf += amt;
+        totalFeesOperator += Number(t.fees_operator || 0);
+        totalCostAi += Number(t.cost_ai_estimated || 0);
 
-        // Dynamically compute from transactions
-        const dynamicBreakdown: Record<string, number> = { CM: 0, GA: 0, CG: 0, TD: 0, CF: 0, GQ: 0 };
-        successfulTxs.forEach((t) => {
-          const code = (t.country_code || "CM").toUpperCase();
-          if (dynamicBreakdown[code] !== undefined) {
-            dynamicBreakdown[code] += Number(t.amount_xaf || 0);
-          } else {
-            dynamicBreakdown.CM += Number(t.amount_xaf || 0);
-          }
-        });
-        countryBreakdown = dynamicBreakdown as typeof countryBreakdown;
+        const code = (t.country_code || "CM").toUpperCase();
+        if (code in countryBreakdown) {
+          countryBreakdown[code] += amt;
+        } else {
+          countryBreakdown.CM += amt;
+        }
+
+        const pType = t.payment_type || "";
+        if (pType.includes("single")) b2cSingleRevenue += amt;
+        else if (pType.includes("monthly") && !pType.includes("b2b")) b2cMonthlyRevenue += amt;
+        else if (pType.includes("annual")) b2cAnnualRevenue += amt;
+        else if (pType.includes("b2b") || pType.includes("pack") || pType.includes("recruiter")) b2bRevenue += amt;
+      });
+    } else {
+      totalRevenueXaf = estimatedRevenueXaf;
+      totalFeesOperator = Math.round(estimatedRevenueXaf * 0.03);
+      totalCostAi = Math.round(activeProSubs * 250 + (totalResumes ?? 0) * 40);
+      if (totalRevenueXaf > 0) {
+        countryBreakdown.CM = totalRevenueXaf;
       }
     }
 
-    const netMarginXaf = Math.max(0, estimatedRevenueXaf - totalFeesOperator - totalCostAi);
-    const netMarginPercent = estimatedRevenueXaf > 0 ? Math.round((netMarginXaf / estimatedRevenueXaf) * 100) : 92;
+    const netMarginXaf = Math.max(0, totalRevenueXaf - totalFeesOperator - totalCostAi);
+    const netMarginPercent = totalRevenueXaf > 0 ? Math.round((netMarginXaf / totalRevenueXaf) * 100) : 0;
 
     // 6. Unlocked contacts
     const { count: totalUnlockedContacts } = await admin

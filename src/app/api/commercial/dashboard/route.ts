@@ -44,23 +44,23 @@ export async function GET() {
       agent = dbAgent;
     }
 
-    // Default fallback agent / Country Director for presentation / demo if not logged in or initial setup
+    // Default agent structure if not found in commercial_agents table
     if (!agent) {
       agent = {
-        id: "comm-1",
-        full_name: user?.user_metadata?.full_name || "Christian Bekono",
-        email: user?.email || "commercial.douala@authenticv.app",
-        phone: "+237 699 12 34 56",
+        id: user?.id || "guest",
+        full_name: user?.user_metadata?.full_name || "Délégué Commercial",
+        email: user?.email || "",
+        phone: "",
         assigned_country: "CM",
-        assigned_city: "Douala / Littoral",
-        role: "country_director",
+        assigned_city: "Douala",
+        role: "agent" as const,
         commission_rate: 10,
-        override_commission_rate: 2.5,
-        monthly_target_xaf: 3500000,
-        total_sales_xaf: 320000,
-        total_commissions_earned_xaf: 32000,
-        total_commissions_paid_xaf: 20000,
-        promo_code: "DIRCM10",
+        override_commission_rate: 0,
+        monthly_target_xaf: 500000,
+        total_sales_xaf: 0,
+        total_commissions_earned_xaf: 0,
+        total_commissions_paid_xaf: 0,
+        promo_code: "",
         status: "active",
       };
     }
@@ -116,35 +116,6 @@ export async function GET() {
             status: m.status || "active",
           };
         });
-      } else {
-        // Mock team members for demonstration
-        teamMembers = [
-          {
-            id: "comm-team-1",
-            full_name: "Arnaud Bopda",
-            email: "commercial.yaounde@authenticv.app",
-            phone: "+237 677 88 99 00",
-            assigned_city: "Yaoundé & Centre",
-            total_sales_xaf: 150000,
-            monthly_target_xaf: 500000,
-            targetProgressPercent: 30,
-            promo_code: "ARNAUD10",
-            status: "active",
-          },
-          {
-            id: "comm-team-2",
-            full_name: "Marcelle Tchuente",
-            email: "commercial.bafoussam@authenticv.app",
-            phone: "+237 655 44 33 22",
-            assigned_city: "Bafoussam / Ouest",
-            total_sales_xaf: 100000,
-            monthly_target_xaf: 500000,
-            targetProgressPercent: 20,
-            promo_code: "MARCELLE10",
-            status: "active",
-          },
-        ];
-        countryTeamSalesXaf += 250000;
       }
 
       // Calculate automated 2.5% override on team sales
@@ -165,30 +136,30 @@ export async function GET() {
             ((isDirector ? countryTeamSalesXaf : agent.total_sales_xaf || 0) / agent.monthly_target_xaf) * 100
           )
         )
-      : 64;
+      : 0;
 
     const gamification = calculateGamificationStatus(
       isDirector ? countryTeamSalesXaf : agent.total_sales_xaf || 0,
       agent.monthly_target_xaf || 500000
     );
 
-    const referralLinks = generateReferralLinks(agent.promo_code || "DIRCM10");
+    const referralLinks = generateReferralLinks(agent.promo_code || "");
 
     return NextResponse.json({
       success: true,
       agent,
       isDirector,
       metrics: {
-        totalSalesXaf: agent.total_sales_xaf || 320000,
+        totalSalesXaf: agent.total_sales_xaf || 0,
         countryTeamSalesXaf,
         monthlyTargetXaf: agent.monthly_target_xaf || (isDirector ? 3500000 : 500000),
         targetProgressPercent,
-        totalCommissionsEarnedXaf: (agent.total_commissions_earned_xaf || 32000) + countryDirectorOverrideXaf,
-        directCommissionsEarnedXaf: agent.total_commissions_earned_xaf || 32000,
+        totalCommissionsEarnedXaf: (agent.total_commissions_earned_xaf || 0) + countryDirectorOverrideXaf,
+        directCommissionsEarnedXaf: agent.total_commissions_earned_xaf || 0,
         directorOverrideEarnedXaf: countryDirectorOverrideXaf,
-        totalCommissionsPaidXaf: agent.total_commissions_paid_xaf || 20000,
-        pendingCommissionXaf: pendingCommission > 0 ? pendingCommission : 12000,
-        promoCode: agent.promo_code || (isDirector ? "DIRCM10" : "CHRISTIAN10"),
+        totalCommissionsPaidXaf: agent.total_commissions_paid_xaf || 0,
+        pendingCommissionXaf: pendingCommission > 0 ? pendingCommission : 0,
+        promoCode: agent.promo_code || "",
       },
       gamification,
       referralLinks,
