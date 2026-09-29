@@ -6,6 +6,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PostHogProvider } from "@/components/PostHogProvider";
+import { MetaPixel } from "@/components/MetaPixel";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "";
 
@@ -119,6 +120,7 @@ export default function RootLayout({
             />
           </noscript>
         )}
+        <MetaPixel />
         <PostHogProvider>
           {children}
         </PostHogProvider>

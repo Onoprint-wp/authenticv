@@ -14,8 +14,8 @@ interface VideoModalProps {
 export function VideoModal({
   isOpen,
   onClose,
-  videoSrc = "/videos/authenticv_master_film.mp4",
-  title = "AuthentiCV — Du CV à l'opportunité (Film de Marque)",
+  videoSrc = "/videos/spot_authenticv_grand-format_v1.mp4",
+  title = "AuthentiCV — Du CV à l'opportunité (Spot Officiel)",
 }: VideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -78,6 +79,12 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
 
   const handleUpgrade = async () => {
     setLoading(true);
+    trackEvent("checkout_started", {
+      plan: selectedTier,
+      value: getCalculatedPrice(selectedTier),
+      currency: "XAF",
+      country: selectedCountry,
+    });
     try {
       // Direct Gabon and Tchad to Moov Africa checkout API, Cameroun to CamPay
       const checkoutEndpoint = (selectedCountry === "GA" || selectedCountry === "TD" || selectedCountry === "CG")

@@ -106,10 +106,10 @@ export function HeroSection({ dict }: Props) {
           >
             <div className="relative rounded-3xl bg-slate-900 border-2 border-cyan-500/30 shadow-[0_0_60px_rgba(37,99,235,0.3)] overflow-hidden group">
               {/* Video Teaser Background with auto-loop */}
-              <div className="relative aspect-[4/3] w-full bg-slate-950 overflow-hidden">
+              <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
                 <video
-                  src="/videos/authenticv_spot_candidat.mp4"
-                  poster="/images/candidate_jeanmarc.jpg"
+                  src="/videos/spot_authenticv_grand-format_v1.mp4"
+                  poster="/images/poster_hero_grand_format.jpg"
                   muted
                   autoPlay
                   loop
@@ -118,7 +118,7 @@ export function HeroSection({ dict }: Props) {
                 />
 
                 {/* Subtle dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent pointer-events-none" />
 
                 {/* Central Cinematic Play Button Trigger */}
                 <button
@@ -126,8 +126,8 @@ export function HeroSection({ dict }: Props) {
                   className="absolute inset-0 flex flex-col items-center justify-center gap-3 cursor-pointer z-10"
                   aria-label="Lancer la vidéo complète"
                 >
-                  <div className="w-18 h-18 rounded-full bg-blue-600/90 text-white flex items-center justify-center border-2 border-cyan-400/80 shadow-[0_0_50px_rgba(34,211,238,0.7)] group-hover:scale-115 group-hover:bg-blue-500 transition-all">
-                    <Play className="w-8 h-8 fill-white translate-x-0.5" />
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-blue-600/90 text-white flex items-center justify-center border-2 border-cyan-400/80 shadow-[0_0_50px_rgba(34,211,238,0.7)] group-hover:scale-115 group-hover:bg-blue-500 transition-all">
+                    <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-white translate-x-0.5" />
                   </div>
                   <span className="bg-slate-950/80 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-cyan-300 border border-cyan-500/30 shadow-lg">
                     Cliquez pour voir la démo avec son
@@ -141,7 +141,7 @@ export function HeroSection({ dict }: Props) {
                   className="absolute top-4 right-4 bg-slate-950/90 backdrop-blur-md border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-xl flex items-center gap-2 pointer-events-none"
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-bold text-emerald-400">ATS MATCH SCORE 87%</span>
+                  <span className="text-xs font-bold text-emerald-400">ATS MATCH SCORE 92%</span>
                 </motion.div>
 
                 {/* Top Left Badge: Alex IA */}
@@ -158,12 +158,12 @@ export function HeroSection({ dict }: Props) {
                     <MessageSquareText className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Jean-Marc K. • Cadre Commercial</div>
-                    <div className="text-[11px] text-slate-400">CV généré en 8 minutes via Mobile Money</div>
+                    <div className="text-xs font-bold text-white">Aïssatou M. • Responsable Marketing</div>
+                    <div className="text-[11px] text-slate-400">CV généré en 5 minutes via Mobile Money</div>
                   </div>
                 </div>
                 <div className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-                  Prêt pour l&apos;embauche
+                  Prête pour l&apos;embauche
                 </div>
               </div>
             </div>
@@ -175,8 +175,8 @@ export function HeroSection({ dict }: Props) {
       <VideoModal
         isOpen={isVideoModalOpen}
         onClose={() => setIsVideoModalOpen(false)}
-        videoSrc="/videos/authenticv_master_film.mp4"
-        title="AuthentiCV — « Du CV à l'opportunité » (Film Master de Marque)"
+        videoSrc="/videos/spot_authenticv_grand-format_v1.mp4"
+        title="AuthentiCV — « Du CV à l'opportunité » (Spot Officiel Grand Format)"
       />
     </section>
   );

@@ -36,10 +36,10 @@ const TABS: UniverseTab[] = [
       "Paiement sans carte via MTN MoMo & Orange Money (FCFA)",
     ],
     videoSrc: "/videos/authenticv_spot_candidat.mp4",
-    posterSrc: "/images/candidate_jeanmarc.jpg",
+    posterSrc: "/images/poster_hero_grand_format.jpg",
     ctaText: "Créer mon CV avec Alex",
     ctaLink: "/builder",
-    statNumber: "87%",
+    statNumber: "92%",
     statLabel: "Taux moyen de passage des filtres ATS",
   },
   {
@@ -85,14 +85,14 @@ const TABS: UniverseTab[] = [
 export function VideoShowcaseSection() {
   const [activeTab, setActiveTab] = useState<"candidat" | "campus" | "recruteur">("candidat");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalVideoSrc, setModalVideoSrc] = useState("/videos/authenticv_master_film.mp4");
-  const [modalTitle, setModalTitle] = useState("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique");
+  const [modalVideoSrc, setModalVideoSrc] = useState("/videos/spot_authenticv_grand-format_v1.mp4");
+  const [modalTitle, setModalTitle] = useState("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)");
 
   const currentTab = TABS.find((t) => t.id === activeTab) || TABS[0];
 
   const handleOpenMasterFilm = () => {
-    setModalVideoSrc("/videos/authenticv_master_film.mp4");
-    setModalTitle("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Film Master 100s)");
+    setModalVideoSrc("/videos/spot_authenticv_grand-format_v1.mp4");
+    setModalTitle("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)");
     setIsModalOpen(true);
   };
 

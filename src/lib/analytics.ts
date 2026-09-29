@@ -5,6 +5,7 @@ import { posthog } from "@/lib/posthog";
 declare global {
   interface Window {
     dataLayer?: Record<string, unknown>[];
+    fbq?: (action: string, eventName: string, params?: Record<string, unknown>) => void;
   }
 }
 
@@ -36,7 +37,7 @@ interface EventPayload {
 }
 
 /**
- * Universal tracking function sending events to both PostHog and GTM / GA4 (dataLayer)
+ * Universal tracking function sending events to PostHog, GTM / GA4 (dataLayer) and Meta Pixel (fbq)
  */
 export function trackEvent(eventName: AnalyticsEvent, payload: EventPayload = {}) {
   try {
@@ -53,6 +54,47 @@ export function trackEvent(eventName: AnalyticsEvent, payload: EventPayload = {}
         timestamp: new Date().toISOString(),
         ...payload,
       });
+    }
+
+    // 3. Meta Pixel (Facebook Ads)
+    if (typeof window !== "undefined" && window.fbq) {
+      switch (eventName) {
+        case "page_view":
+          window.fbq("track", "PageView");
+          break;
+        case "signup_started":
+          window.fbq("track", "Lead", { source: payload.source || "auth" });
+          break;
+        case "signup_completed":
+          window.fbq("track", "CompleteRegistration", { plan: payload.plan || "free" });
+          break;
+        case "cv_generated":
+        case "pdf_exported":
+          window.fbq("track", "ViewContent", {
+            content_name: "CV_Etudiant",
+            content_category: "Resume",
+          });
+          break;
+        case "checkout_started":
+          window.fbq("track", "InitiateCheckout", {
+            value: payload.value || 1000,
+            currency: payload.currency || "XAF",
+            content_name: payload.plan || "single_cv",
+          });
+          break;
+        case "single_credit_purchased":
+        case "payment_momo_completed":
+        case "subscribed_pro":
+          window.fbq("track", "Purchase", {
+            value: payload.value || 1000,
+            currency: payload.currency || "XAF",
+            content_name: payload.plan || "CV_Pro",
+          });
+          break;
+        default:
+          window.fbq("trackCustom", eventName, payload);
+          break;
+      }
     }
   } catch (err) {
     console.warn("[Analytics] Track error:", err);
@@ -82,7 +124,17 @@ export function trackConversion(params: {
     tier: params.tier,
   });
 
-  // Also push standard GA4 purchase event for Google Ads / Enhanced conversions
+  // 1. Meta Pixel Direct Purchase Event
+  if (typeof window !== "undefined" && window.fbq) {
+    window.fbq("track", "Purchase", {
+      value: params.value,
+      currency: params.currency,
+      content_name: `AuthentiCV_${params.tier}`,
+      transaction_id: params.transactionId,
+    });
+  }
+
+  // 2. Google Tag Manager / GA4 Enhanced Ecommerce Purchase Event
   if (typeof window !== "undefined" && window.dataLayer) {
     window.dataLayer.push({
       event: "purchase",
