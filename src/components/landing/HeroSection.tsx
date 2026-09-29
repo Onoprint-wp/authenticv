@@ -66,7 +66,7 @@ export function HeroSection({ dict }: Props) {
                 <div className="w-7 h-7 rounded-full bg-cyan-400/20 border border-cyan-400/50 flex items-center justify-center group-hover:scale-110 group-hover:bg-cyan-400 group-hover:text-slate-950 transition-all text-cyan-300">
                   <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
                 </div>
-                <span>Voir le film (1 min 40)</span>
+                <span>{dict.cta2 || "Comment ça marche"}</span>
               </button>
             </div>
 

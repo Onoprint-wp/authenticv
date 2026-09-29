@@ -88,7 +88,7 @@ export const fr: LandingDict = {
     description:
       "Alex, votre coach IA, vous guide question par question pour extraire vos meilleures expériences et construire un CV ATS-optimisé qui vous ressemble — pas un copié-collé de ChatGPT.",
     cta1: "Créer mon CV gratuitement",
-    cta2: "Voir comment ça marche",
+    cta2: "Comment ça marche",
     benefit1: "CV optimisé ATS",
     benefit2: "20 messages offerts",
     benefit3: "Sans carte bancaire",
