@@ -1,20 +1,19 @@
 "use client";
 
 import Script from "next/script";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, Suspense } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1393602539516255";
 
 function MetaPixelTracker() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.fbq) {
       window.fbq("track", "PageView");
     }
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   return null;
 }
@@ -42,9 +41,7 @@ export function MetaPixel() {
           `,
         }}
       />
-      <Suspense fallback={null}>
-        <MetaPixelTracker />
-      </Suspense>
+      <MetaPixelTracker />
       <noscript>
         <img
           height="1"
