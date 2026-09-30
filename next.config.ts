@@ -49,6 +49,107 @@ const nextConfig: NextConfig = {
         destination: "/recruiter/:path*",
         permanent: true,
       },
+      // Campus, Student & Internship ad landing page aliases (Facebook Ads & SEO safety net)
+      {
+        source: "/programme-campus",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/campus-programme",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/programmecampus",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/offre-campus",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/offres-campus",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/cv-stage",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cv-stages",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cvstage",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/stage",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/stages",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/etudiant",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/etudiants",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cvetudiant",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/campus-stage",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cv/etudiant",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cv/stage",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cv/stages",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/cv/campus",
+        destination: "/campus",
+        permanent: true,
+      },
+      {
+        source: "/promo-campus",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
+      {
+        source: "/tarifs-campus",
+        destination: "/cv-etudiant",
+        permanent: true,
+      },
     ];
   },
 };
