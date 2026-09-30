@@ -8,6 +8,7 @@ import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { usePlan } from "@/hooks/usePlan";
 import { posthog } from "@/lib/posthog";
+import { trackEvent } from "@/lib/analytics";
 import { ChatPanel, type ChatPanelHandle } from "@/components/ChatPanel";
 import { DynamicPdfViewer } from "@/components/pdf/DynamicPdfViewer";
 import { SyncIndicator } from "@/components/SyncIndicator";
@@ -42,7 +43,7 @@ function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
       window.history.replaceState({}, "", "/builder");
     }
     if (searchParams.get("signup") === "true") {
-      posthog.capture("signup_completed");
+      trackEvent("signup_completed", { plan: "free", source: "signup_form" });
       window.history.replaceState({}, "", "/builder");
     }
   }, [searchParams, onUpgraded]);

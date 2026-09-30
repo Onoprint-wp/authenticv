@@ -91,7 +91,7 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
   const next = (formData.get("next") as string) || "";
   const destination = next.startsWith("/") ? next : "/builder";
@@ -104,7 +104,10 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(destination);
+  const target = destination.includes("?")
+    ? `${destination}&signup=true`
+    : `${destination}?signup=true`;
+  redirect(target);
 }
 
 export async function logout() {
