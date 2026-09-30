@@ -11,7 +11,7 @@ import {
 export const metadata: Metadata = {
   title: "CV Étudiant & Sans Expérience : Modèle IA Gratuit | AuthentiCV",
   description:
-    "Créez un CV étudiant percutant même sans expérience professionnelle. Alex, votre coach IA, transforme vos stages, projets académiques et compétences en atouts. Paiement Mobile Money.",
+    "Créez un CV étudiant percutant même sans expérience professionnelle. Alex, votre coach IA, transforme vos stages, projets académiques et compétences en atouts. Paiement Mobile Money dès 1 000 FCFA.",
   keywords: [
     "cv etudiant",
     "cv sans experience",
@@ -28,9 +28,26 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CV Étudiant & Sans Expérience — Coach IA Alex | AuthentiCV",
     description:
-      "Comment faire un CV professionnel quand on n'a pas encore d'expérience ? Alex vous guide question par question pour valoriser votre potentiel.",
+      "Pas encore d'expérience pro ? Tes projets comptent déjà. Alex IA les transforme en expériences professionnelles pour ton CV dès 1 000 FCFA en Mobile Money.",
     url: "https://www.authenticv.app/cv-etudiant",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "CV Étudiant et Sans Expérience AuthentiCV" }],
+    type: "website",
+    locale: "fr_FR",
+    siteName: "AuthentiCV Campus",
+    images: [
+      {
+        url: "/images/og-cv-etudiant-campus.jpg",
+        width: 1200,
+        height: 628,
+        alt: "AuthentiCV Campus - CV Étudiant & Sans Expérience avec Alex IA Coach",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CV Étudiant & Sans Expérience — Coach IA Alex | AuthentiCV",
+    description:
+      "Pas encore d'expérience pro ? Tes projets comptent déjà. Alex IA les transforme en expériences professionnelles pour ton CV dès 1 000 FCFA.",
+    images: ["/images/og-cv-etudiant-campus.jpg"],
   },
 };
 
