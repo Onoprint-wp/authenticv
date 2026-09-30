@@ -4,12 +4,15 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+import { captureAndStoreUtms } from "@/lib/utm";
+
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1393602539516255";
 
 function MetaPixelTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
+    captureAndStoreUtms();
     if (typeof window !== "undefined" && window.fbq) {
       window.fbq("track", "PageView");
     }

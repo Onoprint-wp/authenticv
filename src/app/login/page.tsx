@@ -1,4 +1,5 @@
-import { login, signup, requestPasswordReset } from "./actions";
+import { login, requestPasswordReset } from "./actions";
+import { SignupButton } from "./SignupButton";
 import { FileText, Sparkles } from "lucide-react";
 
 interface LoginPageProps {
@@ -191,13 +192,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   >
                     Se connecter
                   </button>
-                  <button
-                    id="signup-btn"
-                    formAction={signup}
-                    className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl text-sm transition-all duration-200 active:scale-[0.98]"
-                  >
-                    Créer un compte
-                  </button>
+                  <SignupButton />
                 </div>
               </form>
             </>
