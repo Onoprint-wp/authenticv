@@ -7,6 +7,7 @@ import NextImage from "next/image";
 import { useCvStore } from "@/store/useCvStore";
 import { useSyncCv } from "@/hooks/useSyncCv";
 import { usePlan } from "@/hooks/usePlan";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { posthog } from "@/lib/posthog";
 import { trackEvent } from "@/lib/analytics";
 import { ChatPanel, type ChatPanelHandle } from "@/components/ChatPanel";
@@ -87,8 +88,18 @@ export default function BuilderPage() {
   const hasUnseenUpdate = lastAiUpdateTs > lastPreviewSeenTs && mobileTab !== "preview";
 
 
+  // Un seul ChatPanel monté à la fois (desktop OU mobile) : évite deux instances useChat
+  // concurrentes qui se disputaient chatRef et doublaient les checkpoints.
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  /** Envoie un message au coach ; en mobile, affiche l'onglet Coach pour voir la réponse. */
+  const sendToChat = (text: string) => {
+    chatRef.current?.sendExternalMessage(text);
+    if (!isDesktop) setMobileTab("chat");
+  };
+
   const handleApplySuggestion = (chatPrompt: string) => {
-    chatRef.current?.sendExternalMessage(chatPrompt);
+    sendToChat(chatPrompt);
   };
 
   const handleToolFinish = () => {
@@ -97,9 +108,11 @@ export default function BuilderPage() {
     setLastAiUpdateTs();
   };
 
+  const hasPdfAccess = plan.plan === "pro" || (plan.singleCredits ?? 0) > 0;
+
   const handleDownloadPdf = () => {
     if (plan.loading) return;
-    if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
+    if (!hasPdfAccess) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
 
     // Déclencher immédiatement — le serveur génère le PDF et pose le header
     // Content-Disposition: attachment; filename="CV_Prénom_Nom.pdf"
@@ -117,7 +130,7 @@ export default function BuilderPage() {
 
   const handlePrintPdf = () => {
     if (plan.loading) return;
-    if (plan.plan !== "pro") { setUpgradeModal({ open: true, reason: "pdf" }); return; }
+    if (!hasPdfAccess) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
     window.open("/api/export-pdf", "_blank", "noopener,noreferrer");
   };
 
@@ -273,7 +286,9 @@ export default function BuilderPage() {
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
-              <ChatPanel key={chatMode} ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
+              {isDesktop && (
+                <ChatPanel key={chatMode} ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
+              )}
             </div>
           </div>
 
@@ -385,8 +400,10 @@ export default function BuilderPage() {
 
         {/* ── Mobile full-screen tabs (< md) ── */}
         <div className="flex md:hidden h-full flex-col">
-          {mobileTab === "chat" && (
-            <>
+          {/* Chat mobile : reste monté (masqué hors onglet) pour conserver l'historique
+              et recevoir les messages externes (JobMatch, onboarding) depuis les autres onglets. */}
+          {!isDesktop && (
+            <div className={mobileTab === "chat" ? "flex-1 flex flex-col overflow-hidden" : "hidden"}>
               <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
                 <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3 text-indigo-400" />
@@ -413,7 +430,7 @@ export default function BuilderPage() {
               <div className="flex-1 overflow-hidden">
                 <ChatPanel key={chatMode} ref={chatRef} onToolFinish={handleToolFinish} onCheckpoint={saveCheckpoint} />
               </div>
-            </>
+            </div>
           )}
 
           {mobileTab === "preview" && (
@@ -530,7 +547,7 @@ export default function BuilderPage() {
         <OnboardingModal
           onStart={(firstName) => {
             setHasSeenOnboarding();
-            if (firstName) chatRef.current?.sendExternalMessage(`Mon prénom est ${firstName}`);
+            if (firstName) sendToChat(`Mon prénom est ${firstName}`);
           }}
         />
       )}

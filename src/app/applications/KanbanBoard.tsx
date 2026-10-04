@@ -28,7 +28,8 @@ const COLUMNS: { id: ApplicationStatus; label: string; color: string }[] = [
   { id: "saved",     label: "À postuler",  color: "text-slate-400 border-slate-700" },
   { id: "applied",   label: "Postulé",     color: "text-blue-400 border-blue-800/50" },
   { id: "interview", label: "Entretien",   color: "text-violet-400 border-violet-800/50" },
-  { id: "offer",     label: "Offre / Refus", color: "text-emerald-400 border-emerald-800/50" },
+  { id: "offer",     label: "Offre",       color: "text-emerald-400 border-emerald-800/50" },
+  { id: "rejected",  label: "Refusé",      color: "text-red-400 border-red-800/50" },
 ];
 
 // ── Draggable card ──────────────────────────────────────────────────────────
@@ -209,26 +210,37 @@ export function KanbanBoard({ initial }: { initial: Application[] }) {
     const app = apps.find((a) => a.id === appId);
     if (!app || app.status === newStatus) return;
 
+    const previousStatus = app.status;
     setApps((prev) => prev.map((a) => a.id === appId ? { ...a, status: newStatus } : a));
-    await fetch(`/api/applications?id=${appId}`, {
+    const res = await fetch(`/api/applications?id=${appId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
-    });
+    }).catch(() => null);
+    if (!res?.ok) {
+      // Rollback : l'API a refusé le changement de statut
+      setApps((prev) => prev.map((a) => a.id === appId ? { ...a, status: previousStatus } : a));
+    }
   }, [apps]);
 
   const handleDelete = useCallback(async (id: string) => {
+    const removed = apps.find((a) => a.id === id);
     setApps((prev) => prev.filter((a) => a.id !== id));
-    await fetch(`/api/applications?id=${id}`, { method: "DELETE" });
-  }, []);
+    const res = await fetch(`/api/applications?id=${id}`, { method: "DELETE" }).catch(() => null);
+    if (!res?.ok && removed) {
+      setApps((prev) => [removed, ...prev]);
+    }
+  }, [apps]);
 
   const handleAdd = useCallback(async (app: Omit<Application, "id" | "created_at">) => {
     const res = await fetch("/api/applications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(app),
-    });
+    }).catch(() => null);
+    if (!res?.ok) return;
     const { id } = await res.json();
+    if (!id) return;
     setApps((prev) => [{ ...app, id, created_at: new Date().toISOString() }, ...prev]);
   }, []);
 

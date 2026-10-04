@@ -3,10 +3,20 @@
 import { useEffect } from "react";
 import { initPostHog, posthog } from "@/lib/posthog";
 import { createClient } from "@/utils/supabase/client";
+import { useCookieConsent } from "@/lib/consent";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const consent = useCookieConsent();
+
   useEffect(() => {
+    // Sans consentement explicite : aucun chargement PostHog (les posthog.capture() restent des no-op)
+    if (consent !== "accepted") {
+      if (consent === "refused" && posthog.__loaded) posthog.opt_out_capturing();
+      return;
+    }
+
     initPostHog();
+    if (posthog.__loaded && posthog.has_opted_out_capturing()) posthog.opt_in_capturing();
 
     const supabase = createClient();
 
@@ -27,7 +37,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [consent]);
 
   return <>{children}</>;
 }

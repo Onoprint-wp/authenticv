@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 import { captureAndStoreUtms } from "@/lib/utm";
+import { useCookieConsent } from "@/lib/consent";
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1393602539516255";
 
@@ -22,7 +23,11 @@ function MetaPixelTracker() {
 }
 
 export function MetaPixel() {
+  const consent = useCookieConsent();
+
   if (!META_PIXEL_ID) return null;
+  // Pas de consentement explicite → pas de Pixel (seule la capture UTM first-party tourne)
+  if (consent !== "accepted") return <MetaPixelTracker />;
 
   return (
     <>

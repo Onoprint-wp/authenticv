@@ -2,6 +2,7 @@
 
 import { posthog } from "@/lib/posthog";
 import { getStoredUtms, type UtmParams } from "@/lib/utm";
+import { hasAnalyticsConsent } from "@/lib/consent";
 
 declare global {
   interface Window {
@@ -62,6 +63,8 @@ async function sendServerCapiEvent(
 ) {
   try {
     if (typeof window === "undefined") return;
+    // Meta CAPI = traceur publicitaire (email/téléphone hashés) → consentement requis
+    if (!hasAnalyticsConsent()) return;
     void fetch("/api/analytics/meta-capi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,7 +102,7 @@ export function trackEvent(eventName: AnalyticsEvent, payload: EventPayload = {}
     };
 
     // 1. PostHog Product Analytics
-    if (typeof window !== "undefined" && posthog) {
+    if (typeof window !== "undefined" && posthog?.__loaded) {
       posthog.capture(eventName, enrichedPayload);
     }
 

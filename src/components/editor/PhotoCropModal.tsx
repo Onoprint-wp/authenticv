@@ -5,29 +5,47 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { X, Check, ZoomIn, ZoomOut } from "lucide-react";
 
+/** Taille max de la photo exportée (largement suffisant pour un CV, ~40-120 Ko en JPEG). */
+const MAX_OUTPUT_SIZE = 600;
+
 async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> {
   const image = new Image();
   image.src = imageSrc;
-  await new Promise<void>((resolve) => { image.onload = () => resolve(); });
+  await new Promise<void>((resolve, reject) => {
+    image.onload = () => resolve();
+    image.onerror = () => reject(new Error("Image illisible"));
+  });
 
-  const size = Math.min(pixelCrop.width, pixelCrop.height);
+  // Redimensionnement : les photos de smartphone (12+ Mpx) dépassaient la limite de 2 Mo de l'upload
+  const size = Math.max(1, Math.round(Math.min(pixelCrop.width, pixelCrop.height, MAX_OUTPUT_SIZE)));
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas indisponible");
+
+  // Fond blanc : le JPEG n'a pas de transparence, les coins hors cercle seraient noirs
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
 
   ctx.beginPath();
   ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
   ctx.clip();
 
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
     image,
     pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
     0, 0, size, size,
   );
 
-  return new Promise<Blob>((resolve) =>
-    canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.92),
+  return new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Export de l'image impossible"))),
+      "image/jpeg",
+      0.85,
+    ),
   );
 }
 
@@ -48,8 +66,13 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
 
   const handleConfirm = async () => {
     if (!croppedArea) return;
-    const blob = await getCroppedBlob(imageSrc, croppedArea);
-    onConfirm(blob);
+    try {
+      const blob = await getCroppedBlob(imageSrc, croppedArea);
+      onConfirm(blob);
+    } catch (err) {
+      console.error("[PhotoCrop] Export error:", err);
+      alert("Impossible de traiter cette image. Essayez une autre photo (JPG ou PNG).");
+    }
   };
 
   return (
