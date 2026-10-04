@@ -77,4 +77,83 @@ export class EmailService {
       return { success: false, error: err instanceof Error ? err.message : "Erreur envoi email" };
     }
   }
+
+  /**
+   * Envoie un email de relance de panier abandonné avec réduction spéciale.
+   */
+  static async sendRecoveryEmail(params: {
+    to: string;
+    candidateName: string;
+    jobTitle: string;
+    discountCode?: string;
+    discountPercent?: number;
+  }): Promise<{ success: boolean; error?: string }> {
+    if (!this.resend) {
+      console.warn("[EmailService] RESEND_API_KEY non configurée — envoi simulé");
+      return { success: true };
+    }
+
+    const code = params.discountCode || "BOOST20";
+    const discount = params.discountPercent || 20;
+    const finalPrice = Math.round(1000 * (1 - discount / 100));
+
+    try {
+      const { error } = await this.resend.emails.send({
+        from: FROM_EMAIL,
+        to: [params.to],
+        subject: `📄 ${params.candidateName}, votre CV "${params.jobTitle}" vous attend (-${discount}%)`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6;">
+            <div style="background: linear-gradient(135deg, #0F223D 0%, #3667F0 100%); padding: 28px; border-radius: 12px 12px 0 0; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">AuthentiCV</h1>
+              <p style="color: #cbd5e1; margin: 6px 0 0 0; font-size: 14px;">Votre CV certifié au standard international</p>
+            </div>
+            <div style="background: #ffffff; padding: 28px; border: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+              <h2 style="color: #0f172a; margin-top: 0; font-size: 18px;">Bonjour ${params.candidateName},</h2>
+              <p>Votre CV professionnel <strong>${params.jobTitle}</strong> est structuré et optimisé par Alex IA dans votre espace personnel.</p>
+              
+              <div style="margin: 20px 0; padding: 20px; background: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; color: #166534; font-weight: bold;">
+                  🎁 Offre exclusive de relance : -${discount}% de réduction
+                </p>
+                <div style="display: inline-block; background: #ffffff; border: 2px dashed #22c55e; padding: 8px 18px; border-radius: 8px; font-size: 18px; font-weight: bold; color: #15803d; letter-spacing: 1px;">
+                  ${code}
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 12px; color: #166534;">
+                  Téléchargez votre PDF Haute Définition certifié pour seulement <strong>${finalPrice} FCFA</strong> au lieu de 1 000 FCFA (Orange / MTN / Moov Money).
+                </p>
+              </div>
+
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="https://www.authenticv.app/builder?promo=${code}" style="display: inline-block; background: #3667F0; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(54, 103, 240, 0.3);">
+                  🚀 Finaliser & Télécharger mon CV (-${discount}%)
+                </a>
+              </div>
+
+              <div style="padding: 14px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3667F0; margin-top: 20px;">
+                <p style="margin: 0; font-size: 12px; color: #475569;">
+                  💡 <strong>Rappel :</strong> Les recruteurs privilégient les CVs au format PDF certifié sans filigrane respectant les normes de lecture automatique ATS.
+                </p>
+              </div>
+
+              <p style="margin-top: 28px; font-size: 11px; color: #94a3b8; text-align: center;">
+                Une question ? Répondez directement à cet email ou contactez notre équipe sur <a href="mailto:contact@authenticv.app" style="color: #3667F0;">contact@authenticv.app</a>.<br>
+                © ${new Date().getFullYear()} AuthentiCV — Douala, Cameroun.
+              </p>
+            </div>
+          </div>
+        `,
+      });
+
+      if (error) {
+        console.error("[EmailService.sendRecoveryEmail] Resend Error:", error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error("[EmailService.sendRecoveryEmail] Error:", err);
+      return { success: false, error: err instanceof Error ? err.message : "Erreur envoi email" };
+    }
+  }
 }

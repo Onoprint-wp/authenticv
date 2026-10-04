@@ -4,7 +4,8 @@
     "src/app/api/upload/route.ts": { "maxDuration": 60 },
     "src/app/api/optimize/route.ts": { "maxDuration": 60 },
     "src/app/api/cron/nudge/route.ts": { "maxDuration": 60 },
-    "src/app/api/cron/momo-renewal/route.ts": { "maxDuration": 60 }
+    "src/app/api/cron/momo-renewal/route.ts": { "maxDuration": 60 },
+    "src/app/api/cron/recovery/route.ts": { "maxDuration": 60 }
   },
   "crons": [
     {
@@ -14,6 +15,10 @@
     {
       "path": "/api/cron/momo-renewal",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/recovery",
+      "schedule": "0 10 * * *"
     }
   ]
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   ShoppingBag, RefreshCw, MessageSquare, Send, CheckCircle2,
-  AlertCircle, Sparkles, Phone, ExternalLink, Zap
+  AlertCircle, Sparkles, Phone, ExternalLink, Zap, Mail, Users
 } from "lucide-react";
 
 interface AbandonedCart {
@@ -25,7 +25,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
   CG: "🇨🇬",
   TD: "🇹🇩",
   CF: "🇨🇫",
-  GQ: "🇬🇶",
+  GQ: "GQ",
 };
 
 export function AdminAbandonedCheckout() {
@@ -34,6 +34,8 @@ export function AdminAbandonedCheckout() {
   const [error, setError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [generatingFor, setGeneratingFor] = useState<string | null>(null);
+  const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
+  const [sendingAll, setSendingAll] = useState(false);
   const [generatedMessage, setGeneratedMessage] = useState<{ id: string; text: string; whatsappUrl: string | null } | null>(null);
 
   const fetchAbandoned = async () => {
@@ -88,6 +90,71 @@ export function AdminAbandonedCheckout() {
     }
   };
 
+  const handleSendSingleEmail = async (cart: AbandonedCart) => {
+    if (!cart.email || cart.email.includes("candidat@authenticv.app")) {
+      alert("Ce candidat n'a pas d'adresse email valide.");
+      return;
+    }
+
+    setSendingEmailFor(cart.resumeId);
+    try {
+      const res = await fetch("/api/admin/abandoned", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send_email",
+          email: cart.email,
+          fullName: cart.fullName,
+          jobTitle: cart.jobTitle,
+          discountCode: "BOOST20",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Échec de l'envoi");
+      }
+
+      setActionSuccess(`Email de relance (-20% promo BOOST20) envoyé à ${cart.email}`);
+      setTimeout(() => setActionSuccess(null), 5000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erreur lors de l'envoi de l'email.");
+    } finally {
+      setSendingEmailFor(null);
+    }
+  };
+
+  const handleSendAllEmails = async () => {
+    if (!confirm(`Envoyer un email de relance (-20% avec code BOOST20) à l'ensemble des ${abandonedList.length} candidats identifiés ?`)) {
+      return;
+    }
+
+    setSendingAll(true);
+    try {
+      const res = await fetch("/api/admin/abandoned", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send_all_emails",
+          discountCode: "BOOST20",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors de l'envoi groupé");
+      }
+
+      setActionSuccess(`🎉 Succès : ${data.sentCount || 0} emails de relance envoyés avec succès !`);
+      setTimeout(() => setActionSuccess(null), 6000);
+      fetchAbandoned();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erreur lors de l'envoi groupé.");
+    } finally {
+      setSendingAll(false);
+    }
+  };
+
   const handleGrantProGeste = async (cart: AbandonedCart) => {
     if (!confirm(`Offrir 1 mois Pro à ${cart.fullName} (${cart.email}) comme geste commercial ?`)) return;
 
@@ -126,13 +193,27 @@ export function AdminAbandonedCheckout() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-right mr-2">
             <div className="text-xs text-slate-400">Cashflow Latent Estimé</div>
             <div className="text-lg font-black text-amber-400">
               {totalLatentRevenue.toLocaleString("fr-FR")} <span className="text-xs">FCFA</span>
             </div>
           </div>
+
+          {/* 1-Click Mass Recovery Button */}
+          {abandonedList.length > 0 && (
+            <button
+              onClick={handleSendAllEmails}
+              disabled={sendingAll || loading}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50"
+              title="Envoyer un email de relance avec -20% (code BOOST20) à tous les candidats"
+            >
+              <Users className="w-4 h-4" />
+              <span>{sendingAll ? "Relance en cours..." : "Relancer tous (Email -20%)"}</span>
+            </button>
+          )}
+
           <button
             onClick={fetchAbandoned}
             disabled={loading}
@@ -145,7 +226,7 @@ export function AdminAbandonedCheckout() {
       </div>
 
       {actionSuccess && (
-        <div className="p-4 bg-emerald-950/60 border border-emerald-800 rounded-2xl text-xs text-emerald-300 flex items-center gap-2">
+        <div className="p-4 bg-emerald-950/60 border border-emerald-800 rounded-2xl text-xs text-emerald-300 flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{actionSuccess}</span>
         </div>
@@ -231,14 +312,26 @@ export function AdminAbandonedCheckout() {
                       </td>
 
                       <td className="px-5 py-4 whitespace-nowrap text-right space-x-2">
+                        {/* Direct Email Recovery */}
+                        <button
+                          onClick={() => handleSendSingleEmail(cart)}
+                          disabled={sendingEmailFor === cart.resumeId}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-[11px] font-semibold border border-indigo-500/30 transition-all cursor-pointer disabled:opacity-50"
+                          title="Envoyer un email de relance immédiat avec code BOOST20 (-20%)"
+                        >
+                          <Mail className={`w-3.5 h-3.5 ${sendingEmailFor === cart.resumeId ? "animate-spin" : ""}`} />
+                          <span>{sendingEmailFor === cart.resumeId ? "Envoi..." : "Email -20%"}</span>
+                        </button>
+
                         {/* Generate WhatsApp / Relance */}
                         <button
                           onClick={() => handleGenerateRecovery(cart)}
                           disabled={generatingFor === cart.resumeId}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-[11px] font-semibold border border-emerald-500/30 transition-all cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-[11px] font-semibold border border-emerald-500/30 transition-all cursor-pointer disabled:opacity-50"
+                          title="Générer un message WhatsApp personnalisé"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          <span>Relance -20%</span>
+                          <span>WhatsApp</span>
                         </button>
 
                         {/* Direct Pro Gift Geste */}
