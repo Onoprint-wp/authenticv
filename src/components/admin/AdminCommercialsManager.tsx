@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Users, PlusCircle, RefreshCw,
-  X, Crown, ChevronDown, ChevronRight
+  X, Crown, ChevronDown, ChevronRight, Trash2
 } from "lucide-react";
 import { CommercialAgentRecord } from "@/app/api/admin/commercials/route";
 
@@ -181,6 +181,27 @@ export function AdminCommercialsManager() {
     }
   };
 
+  const handleDeleteAgent = async (agent: CommercialAgentRecord) => {
+    const isDirector = agent.role === "country_director";
+    const confirm = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer définitivement le commercial "${agent.full_name}" (${isDirector ? "Directeur Pays" : "Délégué"}) ?\nCette action supprimera également son code promo associé.`
+    );
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(`/api/admin/commercials?id=${encodeURIComponent(agent.id)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error);
+
+      alert(data.message || "Commercial supprimé avec succès.");
+      fetchAgents();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erreur lors de la suppression");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {error && (
@@ -337,7 +358,7 @@ export function AdminCommercialsManager() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         <div className="text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-amber-400">
                           Code : {hub.director.promo_code || `DIR${hub.countryCode}10`}
                         </div>
@@ -359,6 +380,14 @@ export function AdminCommercialsManager() {
                           className="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg shadow cursor-pointer"
                         >
                           Payer MoMo ({((hub.director.total_commissions_earned_xaf || 0) - (hub.director.total_commissions_paid_xaf || 0)).toLocaleString("fr-FR")} F)
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteAgent(hub.director!)}
+                          title="Supprimer ce directeur commercial"
+                          className="text-xs bg-red-950/80 hover:bg-red-900 text-red-300 hover:text-red-100 border border-red-800/60 p-2 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -396,7 +425,7 @@ export function AdminCommercialsManager() {
                                 <td className="p-3 font-bold text-amber-300">
                                   {pending > 0 ? `${pending.toLocaleString("fr-FR")} F` : "Réglé"}
                                 </td>
-                                <td className="p-3 text-right space-x-2">
+                                <td className="p-3 text-right space-x-1.5">
                                   <button
                                     onClick={() => {
                                       setEditingTargetAgent(agent);
@@ -412,6 +441,13 @@ export function AdminCommercialsManager() {
                                     className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold px-2.5 py-1 rounded text-[11px]"
                                   >
                                     Payer MoMo
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteAgent(agent)}
+                                    title="Supprimer ce commercial"
+                                    className="bg-red-950/80 hover:bg-red-900 text-red-300 hover:text-red-100 border border-red-800/60 px-2 py-1 rounded text-[11px] inline-flex items-center justify-center transition-colors cursor-pointer align-middle"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
                                   </button>
                                 </td>
                               </tr>

@@ -273,3 +273,64 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Erreur de mise à jour" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const authCheck = await verifyAdmin();
+    if ("response" in authCheck) return authCheck.response;
+
+    const { searchParams } = new URL(req.url);
+    let id = searchParams.get("id");
+
+    if (!id) {
+      const body = await req.json().catch(() => ({}));
+      id = body.id;
+    }
+
+    if (!id) {
+      return NextResponse.json({ error: "ID du commercial requis" }, { status: 400 });
+    }
+
+    const admin = createAdminClient();
+
+    // 1. Fetch agent to get promo code
+    const { data: agent } = await admin
+      .from("commercial_agents")
+      .select("id, promo_code, full_name")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!agent) {
+      return NextResponse.json({ error: "Commercial non trouvé" }, { status: 404 });
+    }
+
+    // 2. Delete agent from commercial_agents
+    const { error: deleteError } = await admin
+      .from("commercial_agents")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    // 3. Deactivate or delete associated promo code
+    if (agent.promo_code) {
+      await admin
+        .from("promo_codes")
+        .delete()
+        .eq("code", agent.promo_code);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Le commercial "${agent.full_name}" a été supprimé avec succès.`,
+    });
+  } catch (err) {
+    console.error("[Admin Commercials DELETE Error]:", err);
+    return NextResponse.json(
+      { error: "Erreur lors de la suppression du commercial" },
+      { status: 500 }
+    );
+  }
+}
