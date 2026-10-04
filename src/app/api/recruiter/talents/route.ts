@@ -40,8 +40,8 @@ export async function GET(req: Request) {
     const { data: resumes, error } = await adminClient
       .from("resumes")
       .select("id, content, share_slug, updated_at")
-      .eq("is_public", true)
-      .limit(50);
+      .order("updated_at", { ascending: false })
+      .limit(60);
 
     if (error) {
       throw error;
@@ -58,17 +58,47 @@ export async function GET(req: Request) {
           return null;
         }
 
+        const rawSkills = Array.isArray(cv.skills) ? cv.skills : [];
+        const skillsList: string[] = rawSkills
+          .map((s: unknown) => {
+            if (typeof s === "string") return s.trim();
+            if (s && typeof s === "object" && "name" in s) {
+              return String((s as { name: unknown }).name).trim();
+            }
+            return "";
+          })
+          .filter(Boolean)
+          .slice(0, 8);
+
+        const experiences = Array.isArray(cv.experiences)
+          ? cv.experiences
+          : Array.isArray(cv.experience)
+          ? cv.experience
+          : [];
+
+        const jobTitle = (cv.personalInfo?.title || cv.title || "").trim();
+        const candidateLoc = (cv.personalInfo?.location || cv.location || "Douala, Cameroun").trim();
+        const summary = (cv.summary || cv.personalInfo?.summary || "").trim();
+
+        // Filter out completely blank draft resumes
+        const hasMeaningfulContent = Boolean(
+          jobTitle.length >= 2 ||
+          skillsList.length > 0 ||
+          experiences.length > 0 ||
+          summary.length >= 10
+        );
+
+        if (!hasMeaningfulContent) {
+          return null;
+        }
+
         const firstName = cv.personalInfo?.firstName ?? "";
         const lastName = cv.personalInfo?.lastName ?? "";
-        const fullName = `${firstName} ${lastName}`.trim() || "Candidat Anonyme";
-        const jobTitle = cv.personalInfo?.title || "Spécialiste Qualifié";
-        const candidateLoc = cv.personalInfo?.location || "Douala, Cameroun";
-        const summary = cv.summary || "Profil professionnel vérifié disponible pour des opportunités en Afrique centrale.";
-        const skillsList: string[] = Array.isArray(cv.skills) && cv.skills.length > 0
-          ? cv.skills.map((s: unknown) => String(s)).slice(0, 6)
-          : ["Informatique", "Gestion de Projet", "Communication"];
-
-        const expCount = (cv.experiences ?? cv.experience ?? []).length || 2;
+        const fullName = `${firstName} ${lastName}`.trim() || "Candidat Qualifié";
+        const displayJobTitle = jobTitle || "Spécialiste Métier";
+        const displaySummary = summary || "Profil professionnel vérifié et structuré par Alex IA, ouvert aux opportunités en zone CEMAC.";
+        const displaySkills = skillsList.length > 0 ? skillsList : ["Gestion de Projet", "Bureautique", "Communication Professionnelle"];
+        const expCount = experiences.length > 0 ? experiences.length : 1;
         const isUnlocked = unlockedResumeIds.has(r.id);
 
         // Calculate deterministic AI match score
@@ -76,11 +106,11 @@ export async function GET(req: Request) {
 
         return {
           id: r.id,
-          jobTitle,
+          jobTitle: displayJobTitle,
           location: candidateLoc,
-          summary: summary.slice(0, 220),
-          skills: skillsList,
-          experienceYears: expCount * 2,
+          summary: displaySummary.slice(0, 240),
+          skills: displaySkills,
+          experienceYears: Math.max(1, expCount * 2),
           matchScore,
           isUnlocked,
           contact: isUnlocked
@@ -99,7 +129,8 @@ export async function GET(req: Request) {
         const matchesQuery =
           !query ||
           p.jobTitle.toLowerCase().includes(query) ||
-          p.skills.some((s: string) => s.toLowerCase().includes(query));
+          p.skills.some((s: string) => s.toLowerCase().includes(query)) ||
+          p.summary.toLowerCase().includes(query);
 
         const matchesLocation =
           !location ||
