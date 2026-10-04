@@ -47,7 +47,11 @@ interface CamPayWebhookPayload {
  */
 function verifySignature(payload: CamPayWebhookPayload): boolean {
   if (!CAMPAY_WEBHOOK_SECRET) {
-    console.warn("[CamPay Webhook] No CAMPAY_WEBHOOK_SECRET set — skipping verification");
+    if (process.env.NODE_ENV === "production") {
+      console.error("[CamPay Webhook] CRITICAL: CAMPAY_WEBHOOK_SECRET missing in production — rejecting");
+      return false;
+    }
+    console.warn("[CamPay Webhook] No CAMPAY_WEBHOOK_SECRET set — skipping verification (dev only)");
     return true; // Allow in dev/sandbox without secret
   }
 

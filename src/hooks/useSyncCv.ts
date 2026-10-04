@@ -113,7 +113,7 @@ export function useSyncCv() {
         if (!response.ok) throw new Error(`Failed to fetch resume: ${response.status}`);
 
         const data = await response.json();
-        if (data) {
+        if (data && data.id) {
           resumeIdRef.current = data.id;
           setCurrentResumeId(data.id);
           if (data.content && Object.keys(data.content).length > 0) {

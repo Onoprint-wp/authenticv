@@ -177,6 +177,10 @@ export function verifyMoovWebhookSignature(
   payloadToken?: string
 ): boolean {
   if (!MOOV_WEBHOOK_SECRET) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[Moov Webhook] MOOV_WEBHOOK_SECRET not set in production — rejecting");
+      return false;
+    }
     console.warn("[Moov Webhook] MOOV_WEBHOOK_SECRET not set — bypassing signature check in dev mode");
     return true;
   }

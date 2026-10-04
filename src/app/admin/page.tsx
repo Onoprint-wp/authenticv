@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { AdminDashboardView } from "@/components/admin/AdminDashboardView";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const metadata: Metadata = {
   title: "Backoffice Administrateur — AuthentiCV",
@@ -24,15 +25,8 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
-  // Admin emails whitelist (normalized to lowercase)
-  const ADMIN_EMAILS = [
-    "onoprint25@gmail.com",
-    "authenticv.playwright.test@gmail.com",
-    process.env.ADMIN_EMAIL?.toLowerCase().trim(),
-  ].filter(Boolean) as string[];
-
-  const userEmail = (user.email ?? "").toLowerCase().trim();
-  const isAdmin = ADMIN_EMAILS.some((adminEmail) => adminEmail.toLowerCase().trim() === userEmail);
+  // Admin emails whitelist — source unique dans src/lib/admin-auth.ts
+  const isAdmin = isAdminEmail(user.email);
   if (!isAdmin && process.env.NODE_ENV === "production") {
     redirect("/dashboard");
   }

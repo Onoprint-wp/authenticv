@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { CEMAC_COUNTRIES, type CemacCountryCode } from "@/lib/commercial-engine";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +30,9 @@ export interface CommercialAgentRecord {
 
 export async function GET(req: Request) {
   try {
+    const authCheck = await verifyAdmin();
+    if ("response" in authCheck) return authCheck.response;
+
     const { searchParams } = new URL(req.url);
     const country = searchParams.get("country");
 
@@ -101,6 +105,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const authCheck = await verifyAdmin();
+    if ("response" in authCheck) return authCheck.response;
+
     const body = await req.json();
     const {
       full_name,
@@ -215,6 +222,9 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    const authCheck = await verifyAdmin();
+    if ("response" in authCheck) return authCheck.response;
+
     const body = await req.json();
     const { id, status, mark_paid_amount_xaf, monthly_target_xaf, role, director_id } = body;
 

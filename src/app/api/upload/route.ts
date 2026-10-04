@@ -82,8 +82,21 @@ const CvDataSchema = z.object({
 // ─── Extracteurs de texte ─────────────────────────────────────────────────────
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  const data = await getPdfParse()(buffer);
-  return data.text;
+  const pdfParseModule = getPdfParse();
+  if (typeof pdfParseModule === "function") {
+    const data = await pdfParseModule(buffer);
+    return data.text;
+  }
+  if (pdfParseModule?.PDFParse) {
+    const parser = new pdfParseModule.PDFParse({ data: buffer });
+    try {
+      const res = await parser.getText();
+      return res.text;
+    } finally {
+      await parser.destroy?.();
+    }
+  }
+  throw new Error("Impossible d'initialiser le parseur PDF.");
 }
 
 async function extractTextFromDocx(buffer: Buffer): Promise<string> {

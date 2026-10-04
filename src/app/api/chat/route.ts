@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@/utils/supabase/server";
 import { chatRateLimit } from "@/lib/rate-limit";
@@ -125,6 +125,7 @@ export async function POST(req: Request) {
       system: dynamicSystemPrompt,
       messages: coreMessages,
       ...(tools !== undefined ? { tools } : {}),
+      stopWhen: stepCountIs(3),
     });
 
     return result.toUIMessageStreamResponse();

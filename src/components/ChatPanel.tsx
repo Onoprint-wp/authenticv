@@ -63,20 +63,32 @@ export const ChatPanel = forwardRef<
       console.error("[Chat] Error:", err);
     },
     onFinish({ message }) {
-      const msg = message as unknown as { parts?: Array<{ type: string; toolInvocation?: { state: string; toolName: string; args: Record<string, unknown> } }> };
-      const parts = msg.parts ?? [];
-      const toolParts = parts.filter(
-        (p) => p.type === "tool-invocation" && p.toolInvocation?.state === "result"
-      );
+      // AI SDK v6 : les appels d'outils arrivent sous forme de parts `tool-<nom>` (ou `dynamic-tool`)
+      // avec `state` et `input`. On n'applique au store que les appels réussis côté serveur.
+      type ToolPart = {
+        type: string;
+        state?: string;
+        input?: Record<string, unknown>;
+        toolName?: string;
+      };
+      const parts = ((message as unknown as { parts?: ToolPart[] })?.parts ?? []);
+      let hadToolCall = false;
 
-      if (toolParts.length > 0) {
-        for (const part of toolParts) {
-          if (part.toolInvocation) {
-            const { toolName, args } = part.toolInvocation;
-            applyOptimisticUpdate(toolName, args ?? {});
-          }
+      for (const part of parts) {
+        if (part.state !== "output-available") continue;
+
+        let toolName: string | undefined;
+        if (part.type === "dynamic-tool") toolName = part.toolName;
+        else if (part.type.startsWith("tool-")) toolName = part.type.slice("tool-".length);
+
+        if (toolName) {
+          applyOptimisticUpdate(toolName, part.input ?? {});
+          hadToolCall = true;
         }
-        if (onToolFinish) onToolFinish();
+      }
+
+      if (hadToolCall && onToolFinish) {
+        onToolFinish();
       }
       onCheckpoint?.();
     },

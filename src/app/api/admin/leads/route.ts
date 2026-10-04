@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,16 +13,34 @@ export async function GET(req: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (!user || !user.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+    const authCheck = await verifyAdmin();
+    const isAdmin = !("response" in authCheck);
+
+    if (!isAdmin) {
+      const { data: agent } = await admin
+        .from("commercial_agents")
+        .select("id, assigned_country, role")
+        .or(`user_id.eq.${user.id},email.eq.${user.email.toLowerCase()}`)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (!agent) {
+        return NextResponse.json(
+          { error: "Forbidden: Commercial or Admin access required" },
+          { status: 403 }
+        );
+      }
     }
 
     const { searchParams } = new URL(req.url);
     const country = searchParams.get("country");
     const stage = searchParams.get("stage");
     const search = searchParams.get("search");
-
-    const admin = createAdminClient();
 
     let query = admin
       .from("crm_leads")
@@ -73,8 +92,28 @@ export async function POST(req: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user && process.env.NODE_ENV === "production") {
+    if (!user || !user.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+    const authCheck = await verifyAdmin();
+    const isAdmin = !("response" in authCheck);
+
+    if (!isAdmin) {
+      const { data: agent } = await admin
+        .from("commercial_agents")
+        .select("id, assigned_country, role")
+        .or(`user_id.eq.${user.id},email.eq.${user.email.toLowerCase()}`)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (!agent) {
+        return NextResponse.json(
+          { error: "Forbidden: Commercial or Admin access required" },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await req.json();
@@ -97,8 +136,6 @@ export async function POST(req: Request) {
     if (!company_name) {
       return NextResponse.json({ error: "company_name est requis" }, { status: 400 });
     }
-
-    const admin = createAdminClient();
 
     const payload = {
       company_name,

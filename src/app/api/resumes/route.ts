@@ -67,8 +67,7 @@ export async function GET() {
     if (error) throw error;
 
     const resume = resumes && resumes.length > 0 ? resumes[0] : null;
-
-    return NextResponse.json(resume || {});
+    return NextResponse.json(resume);
   } catch (error) {
     console.error("[API Resumes GET Error]:", error);
     return NextResponse.json(

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 export interface PlanInfo {
   plan: "free" | "pro";
+  singleCredits: number;
   messageCount: number;
   messageLimit: number;
   messagesRemaining: number | null;
@@ -12,6 +13,7 @@ export interface PlanInfo {
 
 const DEFAULT: PlanInfo = {
   plan: "free",
+  singleCredits: 0,
   messageCount: 0,
   messageLimit: 20,
   messagesRemaining: 20,

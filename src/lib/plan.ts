@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export type Plan = "free" | "pro";
 
@@ -9,16 +10,25 @@ export const PRICE_SINGLE_XAF = 1000;
 export const PRICE_MONTHLY_XAF = 5000;
 export const PRICE_ANNUAL_XAF = 18000;
 
-/** Retourne le plan actif de l'utilisateur. */
+/** Retourne le plan actif de l'utilisateur. Vérifie le statut et la date d'expiration. */
 export async function getUserPlan(userId: string): Promise<Plan> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("user_subscriptions")
-    .select("status")
+    .select("status, current_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
-  return data?.status === "active" ? "pro" : "free";
+  if (data?.status !== "active") return "free";
+
+  if (data.current_period_end) {
+    const expiresAt = new Date(data.current_period_end).getTime();
+    if (Date.now() > expiresAt) {
+      return "free";
+    }
+  }
+
+  return "pro";
 }
 
 /** Retourne le nombre de crédits de déblocage uniques de l'utilisateur (achat 1 000 FCFA). */
@@ -33,18 +43,20 @@ export async function getUserSingleCredits(userId: string): Promise<number> {
   return data?.single_credits ?? 0;
 }
 
-/** Consomme 1 crédit à l'acte. */
+/** Consomme 1 crédit à l'acte en utilisant le client admin pour contourner la restriction RLS. */
 export async function consumeSingleCredit(userId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const credits = await getUserSingleCredits(userId);
   if (credits <= 0) return false;
 
-  const { error } = await supabase
+  const { data, error } = await admin
     .from("user_subscriptions")
     .update({ single_credits: credits - 1, updated_at: new Date().toISOString() })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("single_credits")
+    .single();
 
-  return !error;
+  return !error && data !== null;
 }
 
 /** Retourne le nombre de messages envoyés ce mois-ci. */
