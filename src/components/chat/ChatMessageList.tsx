@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Bot, User } from "lucide-react";
+import { Bot, User, Sparkles } from "lucide-react";
 import { type UIMessage } from "ai";
+import { useCvStore } from "@/store/useCvStore";
 
 interface ChatMessageListProps {
   messages: UIMessage[];
@@ -24,6 +25,8 @@ export function ChatMessageList({
   onRetry,
 }: ChatMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const cvData = useCvStore((s) => s.cvData);
+  const firstName = cvData.personalInfo?.firstName?.trim() || "";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -32,12 +35,12 @@ export function ChatMessageList({
   return (
     <div data-testid="chat-messages" className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
       {messages.length === 0 && (
-        <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
+        <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-4 py-2">
           <div
-            className={`w-14 h-14 rounded-[16px] flex items-center justify-center border transition-all ${
+            className={`w-14 h-14 rounded-[18px] flex items-center justify-center border transition-all ${
               chatMode === "interview"
                 ? "bg-[#7C5CFC]/15 border-[#7C5CFC]/30 text-[#7C5CFC]"
-                : "gradient-ai text-white border-transparent shadow-sm"
+                : "gradient-ai text-white border-transparent shadow-md"
             }`}
           >
             <Bot className="w-7 h-7 text-white" />
@@ -49,31 +52,32 @@ export function ChatMessageList({
                   ? "Interview prep with Alex 🎓"
                   : "Préparation entretien avec Alex 🎓"
                 : coachLanguage === "en"
-                ? "Hi! I'm Alex 👋"
-                : "Bonjour ! Je suis Alex 👋"}
+                ? firstName ? `Hello ${firstName}! I'm Alex 👋` : "Hi! I'm Alex 👋"
+                : firstName ? `Bonjour ${firstName} ! Je suis Alex 👋` : "Bonjour ! Je suis Alex 👋"}
             </p>
-            <p className="text-[#6B7280] dark:text-[#AAB8CB] text-sm leading-relaxed font-sans max-w-sm">
+            <p className="text-[#6B7280] dark:text-[#AAB8CB] text-xs md:text-sm leading-relaxed font-sans max-w-sm">
               {chatMode === "interview"
                 ? coachLanguage === "en"
                   ? "I'll simulate a real job interview based on your CV. Answer naturally — I'll give feedback after each response."
                   : "Je vais simuler un vrai entretien d'embauche basé sur votre CV. Répondez naturellement — je vous donne un retour après chaque réponse."
                 : coachLanguage === "en"
-                ? "Your personal CV coach. I'll ask you questions to build a compelling resume, step by step."
-                : "Votre coach CV personnel. Je vais vous poser des questions pour construire un CV percutant, étape par étape."}
+                ? "Your certified AI CV Coach. I can generate and optimize your entire professional resume in 30 seconds."
+                : "Votre coach CV intelligent. Je structure et rédige l'intégralité de votre CV certifié en 30 secondes."}
             </p>
           </div>
           {isHydrated && (
-            <p
-              className="text-xs font-semibold text-[#7C5CFC] dark:text-[#967BFF] animate-pulse font-sans"
-            >
-              {chatMode === "interview"
-                ? coachLanguage === "en"
-                  ? "Click below to start the simulation"
-                  : "Cliquez ci-dessous pour démarrer la simulation"
-                : coachLanguage === "en"
-                ? "Start by telling me your first name!"
-                : "Commencez par me dire votre prénom !"}
-            </p>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3667F0] dark:text-[#5D82FF] bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 px-3 py-1.5 rounded-full font-sans shadow-xs animate-in fade-in">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>
+                {chatMode === "interview"
+                  ? coachLanguage === "en"
+                    ? "Click a topic below to start"
+                    : "Choisissez une option ci-dessous pour démarrer"
+                  : coachLanguage === "en"
+                  ? "Choose a quick option below or tell me your target job!"
+                  : "Choisissez un profil rapide ci-dessous ou écrivez votre poste cible !"}
+              </span>
+            </div>
           )}
         </div>
       )}

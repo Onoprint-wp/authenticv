@@ -545,9 +545,9 @@ export default function BuilderPage() {
       {/* ── Onboarding ── */}
       {showOnboarding && (
         <OnboardingModal
-          onStart={(firstName) => {
+          onStart={(initialPrompt) => {
             setHasSeenOnboarding();
-            if (firstName) sendToChat(`Mon prénom est ${firstName}`);
+            if (initialPrompt) sendToChat(initialPrompt);
           }}
         />
       )}
