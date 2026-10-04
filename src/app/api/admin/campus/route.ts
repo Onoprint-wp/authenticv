@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,14 +15,8 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ADMIN_EMAILS = [
-      "onoprint25@gmail.com",
-      "authenticv.playwright.test@gmail.com",
-      process.env.ADMIN_EMAIL,
-    ].filter(Boolean);
-
-    const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
-    if (!isAdmin && process.env.NODE_ENV === "production") {
+    // Liste blanche centralisée (src/lib/admin-auth.ts) — plus de contournement hors production
+    if (!isAdminEmail(user.email)) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
@@ -61,14 +56,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const ADMIN_EMAILS = [
-      "onoprint25@gmail.com",
-      "authenticv.playwright.test@gmail.com",
-      process.env.ADMIN_EMAIL,
-    ].filter(Boolean);
-
-    const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
-    if (!isAdmin && process.env.NODE_ENV === "production") {
+    // Liste blanche centralisée (src/lib/admin-auth.ts) — plus de contournement hors production
+    if (!isAdminEmail(user.email)) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 

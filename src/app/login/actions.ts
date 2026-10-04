@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export async function requestPasswordReset(formData: FormData) {
   const supabase = await createClient();
@@ -41,14 +42,8 @@ export async function login(formData: FormData) {
   // Auto-routage intelligent si aucune destination explicite
   if (!destination && data?.user) {
     try {
-      const adminEmails = [
-        "onoprint25@gmail.com",
-        "authenticv.playwright.test@gmail.com",
-        process.env.ADMIN_EMAIL,
-      ].filter(Boolean);
-
-      // 0. Priorité Absolue Administrateur Central
-      if (adminEmails.includes(data.user.email ?? "")) {
+      // 0. Priorité Absolue Administrateur Central (liste blanche centralisée)
+      if (isAdminEmail(data.user.email)) {
         destination = "/admin";
       } else {
         const admin = createAdminClient();

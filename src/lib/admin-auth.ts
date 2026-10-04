@@ -7,12 +7,12 @@ import { NextResponse } from "next/server";
  * - Comptes codés en dur : historiques du projet (identiques à l'ancienne liste dupliquée).
  * - ADMIN_EMAIL / ADMIN_EMAILS (séparés par des virgules) : ajout via variables d'environnement.
  *
- * ⚠️ Le compte Playwright est conservé pour ne pas casser les tests E2E "live".
- *    À retirer dès que les tests utilisent ADMIN_EMAILS dans un environnement dédié.
+ * ⚠️ Ne JAMAIS ajouter ici un compte de test : le dépôt est public et l'inscription Supabase
+ *    ne demande pas de confirmation d'email (mailer_autoconfirm) → n'importe qui pourrait
+ *    créer ce compte et devenir admin. Pour les tests, utiliser ADMIN_EMAILS en local.
  */
 const HARDCODED_ADMIN_EMAILS = [
   "onoprint25@gmail.com",
-  "authenticv.playwright.test@gmail.com",
 ];
 
 export function getAdminEmails(): string[] {
