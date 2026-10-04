@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { sanitizeRedirectPath } from "@/lib/safe-redirect";
 
 export const runtime = "nodejs";
 
@@ -96,7 +97,8 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const type = searchParams.get("type"); // "signup" | "recovery" | "magiclink"
-  const next = searchParams.get("next") ?? "/builder";
+  const rawNext = searchParams.get("next");
+  const next = sanitizeRedirectPath(rawNext, "/builder");
 
   if (code) {
     const supabase = await createClient();

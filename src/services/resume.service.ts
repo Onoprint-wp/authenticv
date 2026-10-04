@@ -46,6 +46,35 @@ export class ResumeService {
   }
 
   /**
+   * Récupère un CV spécifique par son ID et l'ID de l'utilisateur.
+   */
+  static async getResumeById(
+    supabase: SupabaseClient,
+    userId: string,
+    resumeId: string
+  ): Promise<ResumeRecord | null> {
+    const { data, error } = await supabase
+      .from("resumes")
+      .select("*")
+      .eq("id", resumeId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      title: data.title,
+      content: parseCvData(data.content),
+      updated_at: data.updated_at,
+      created_at: data.created_at,
+    };
+  }
+
+  /**
    * Met à jour ou insère un CV dans la base de données.
    */
   static async saveResumeContent(

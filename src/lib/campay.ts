@@ -170,6 +170,7 @@ export async function createPaymentLink(opts: {
   redirectUrl?: string;
   failureRedirectUrl?: string;
   description?: string;
+  externalReference?: string;
 }): Promise<PaymentLinkResponse> {
   const redirectUrl = opts.redirectUrl ?? `${SITE_URL}/builder?upgraded=true`;
   const failureRedirectUrl = opts.failureRedirectUrl ?? `${SITE_URL}/builder?payment=failed`;
@@ -186,7 +187,7 @@ export async function createPaymentLink(opts: {
       description: opts.description ?? "AuthenticV Pro – Abonnement mensuel",
       redirect_url: redirectUrl,
       failure_redirect_url: failureRedirectUrl,
-      external_reference: opts.userId,
+      external_reference: opts.externalReference ?? opts.userId,
       // CamPay uses these for the checkout page
       name: opts.userEmail || "Client AuthenticV",
       email: opts.userEmail || "client@authenticv.app",

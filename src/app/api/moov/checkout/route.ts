@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createMoovPaymentLink, SITE_URL } from "@/lib/moov";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
+import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +12,7 @@ export const dynamic = "force-dynamic";
  * POST /api/moov/checkout
  *
  * Body: { tier?: "single" | "monthly" | "annual", countryCode?: string, promoCode?: string }
- * Creates a Moov Money payment link for Gabon (GA), Tchad (TD), CI or CEMAC region.
+ * Creates a Moov Money payment link for Gabon (GA), Tchad (TD), CI or CEMAC region with deterministic intent registration.
  */
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -61,6 +63,8 @@ export async function POST(req: Request) {
     description = `AuthenticV Pro – Pass Annuel Moov Money (${countryCode})`;
   }
 
+  let discountPercent = 0;
+
   // Apply promo code discount if provided
   if (promoCode) {
     const PROMOS: Record<string, number> = {
@@ -76,22 +80,49 @@ export async function POST(req: Request) {
     };
     const discount = PROMOS[promoCode];
     if (discount) {
+      discountPercent = discount;
       amount = Math.max(100, Math.round(amount * (1 - discount / 100)));
       description = `${description} [Code: ${promoCode} -${discount}%]`;
     }
   }
 
+  const intentNonce = crypto.randomUUID().slice(0, 8);
+  const externalRef = `b2c:${user.id}:${tier}:${intentNonce}`;
+  const targetType = `b2c_${tier}` as PaymentTargetType;
+
   try {
+    // Pre-register payment intent
+    await PaymentLedgerService.createPaymentIntent(supabase, {
+      user_id: user.id,
+      external_reference: externalRef,
+      provider: "moov",
+      target_type: targetType,
+      amount_xaf: amount,
+      promo_code: promoCode || undefined,
+      discount_percent: discountPercent,
+      status: "pending",
+      metadata: {
+        tier,
+        countryCode,
+        user_email: user.email,
+        description,
+      },
+    });
+
     const result = await createMoovPaymentLink({
       amount,
-      userId: user.id,
+      userId: externalRef,
       userEmail: user.email ?? "",
       countryCode,
       redirectUrl: `${SITE_URL}/builder?upgraded=true&gateway=moov&tier=${tier}${promoCode ? `&promo=${promoCode}` : ""}`,
       description,
     });
 
-    return NextResponse.json({ url: result.payment_url, transaction_id: result.transaction_id });
+    return NextResponse.json({
+      url: result.payment_url,
+      transaction_id: result.transaction_id,
+      externalReference: externalRef,
+    });
   } catch (err) {
     console.error("[Moov Checkout] Error:", err);
     return NextResponse.json(

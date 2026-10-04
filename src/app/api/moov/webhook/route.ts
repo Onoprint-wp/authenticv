@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { verifyMoovWebhookSignature, checkMoovTransactionStatus } from "@/lib/moov";
-import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
+import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 import { AdminAlertService } from "@/services/admin-alert.service";
 
 export const runtime = "nodejs";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  *
  * Payload format:
  * - cpay_transaction_id / transaction_id
- * - cpay_custom / customer_id (user_id or recruiter:id:pack)
+ * - cpay_custom / customer_id (user_id or b2c:... / b2b:...)
  * - cpay_status / status ("ACCEPTED" | "REFUSED" | "PENDING")
  * - cpay_amount / amount
  * - cpay_currency / currency
@@ -40,11 +40,11 @@ export async function POST(req: Request) {
   const status = String(
     payload.cpay_status || payload.status || payload.code || ""
   ).toUpperCase();
-  const customId = String(
+  const rawExtRef = String(
     payload.cpay_custom || payload.customer_id || payload.metadata || ""
   );
 
-  console.log(`[Moov Webhook] Received: tx=${transactionId} status=${status} custom=${customId}`);
+  console.log(`[Moov Webhook] Received: tx=${transactionId} status=${status} ext_ref=${rawExtRef}`);
 
   // Verify HMAC signature or token
   if (!verifyMoovWebhookSignature(req.headers, rawBody, String(payload.token || ""))) {
@@ -57,9 +57,9 @@ export async function POST(req: Request) {
   // Re-check transaction status directly with Moov/CinetPay API for double verification
   let isSuccessful = status === "ACCEPTED" || status === "SUCCEEDED" || status === "200" || status === "00";
   let paidAmount = Number(payload.cpay_amount || payload.amount || 0);
-  let userId = customId;
+  let effectiveExtRef = rawExtRef;
 
-  if (transactionId && (!isSuccessful || !userId)) {
+  if (transactionId && (!isSuccessful || !effectiveExtRef)) {
     try {
       const verifiedTx = await checkMoovTransactionStatus(transactionId);
       if (verifiedTx.status === "ACCEPTED") {
@@ -71,18 +71,18 @@ export async function POST(req: Request) {
     }
   }
 
-  if (!userId && typeof payload.metadata === "string") {
+  if (!effectiveExtRef && typeof payload.metadata === "string") {
     try {
       const parsedMeta = JSON.parse(payload.metadata);
-      userId = parsedMeta.user_id || userId;
+      effectiveExtRef = parsedMeta.user_id || effectiveExtRef;
     } catch {
       // ignore
     }
   }
 
-  if (!userId) {
-    console.error("[Moov Webhook] Missing customer reference/user_id in webhook");
-    return NextResponse.json({ error: "Missing user reference" }, { status: 400 });
+  if (!effectiveExtRef) {
+    console.error("[Moov Webhook] Missing customer reference in webhook");
+    return NextResponse.json({ error: "Missing customer reference" }, { status: 400 });
   }
 
   try {
@@ -94,34 +94,63 @@ export async function POST(req: Request) {
         return NextResponse.json({ received: true, idempotent_skip: true });
       }
 
-      // ── B2B Recruiter Purchases ──
-      if (userId.startsWith("recruiter:")) {
-        const parts = userId.split(":");
-        const recruiterUserId = parts[1];
-        const pack = parts[2] || "pack5";
+      // 1. Recherche de l'intention de paiement enregistrée
+      const intent = await PaymentLedgerService.getPaymentIntent(supabase, effectiveExtRef);
 
+      let resolvedUserId = intent?.user_id || "";
+      let targetType: PaymentTargetType = intent?.target_type || "b2c_monthly";
+
+      // 2. Fallback de décodage si l'intent n'a pas été trouvé directement
+      if (!intent) {
+        if (effectiveExtRef.startsWith("b2c:")) {
+          const [, uid, tier] = effectiveExtRef.split(":");
+          resolvedUserId = uid;
+          targetType = `b2c_${tier}` as PaymentTargetType;
+        } else if (effectiveExtRef.startsWith("b2b:") || effectiveExtRef.startsWith("recruiter:")) {
+          const [, uid, pack] = effectiveExtRef.split(":");
+          resolvedUserId = uid;
+          targetType = `b2b_${pack}` as PaymentTargetType;
+        } else {
+          resolvedUserId = effectiveExtRef;
+          if (paidAmount === 1000) {
+            targetType = "b2c_single";
+          } else if (paidAmount === 18000) {
+            targetType = "b2c_annual";
+          } else {
+            targetType = "b2c_monthly";
+          }
+        }
+      }
+
+      const isB2B = targetType.startsWith("b2b_");
+
+      // ── Exécution déterministe de la livraison selon targetType ──
+      if (isB2B) {
+        // B2B RECRUTEUR
         const { data: comp } = await supabase
           .from("companies")
           .select("credits_balance, plan")
-          .eq("user_id", recruiterUserId)
+          .eq("user_id", resolvedUserId)
           .maybeSingle();
 
         let additionalCredits = 5;
         let newPlan = comp?.plan ?? "pay_as_you_go";
 
-        if (pack === "single" || paidAmount === 5000) {
+        if (targetType === "b2b_single") {
           additionalCredits = 1;
-        } else if (pack === "pack15" || paidAmount === 50000) {
+        } else if (targetType === "b2b_pack5") {
+          additionalCredits = 5;
+        } else if (targetType === "b2b_pack15") {
           additionalCredits = 15;
-        } else if (pack === "monthly_pro" || paidAmount === 75000) {
+        } else if (targetType === "b2b_monthly_pro") {
           additionalCredits = 999;
           newPlan = "monthly_pro";
         }
 
         const currentCredits = comp?.credits_balance ?? 0;
-        const { error: compError } = await supabase.from("companies").upsert(
+        await supabase.from("companies").upsert(
           {
-            user_id: recruiterUserId,
+            user_id: resolvedUserId,
             company_name: "Entreprise Recruteur (Moov Money)",
             email: "",
             credits_balance: currentCredits + additionalCredits,
@@ -130,93 +159,105 @@ export async function POST(req: Request) {
           { onConflict: "user_id" }
         );
 
-        if (compError) {
-          console.error("[Moov Webhook] B2B credits update error:", compError);
-        } else {
-          console.log(`[Moov Webhook] Recruiter ${recruiterUserId} credited with ${additionalCredits} credits via Moov`);
-        }
+        console.log(`[Moov Webhook] Recruiter ${resolvedUserId} credited with ${additionalCredits} credits via Moov`);
+      } else if (targetType === "b2c_single") {
+        // B2C CRÉDIT UNIQUE
+        const { data: currentSub } = await supabase
+          .from("user_subscriptions")
+          .select("single_credits")
+          .eq("user_id", resolvedUserId)
+          .maybeSingle();
+
+        const existingCredits = currentSub?.single_credits ?? 0;
+
+        await supabase.from("user_subscriptions").upsert(
+          {
+            user_id: resolvedUserId,
+            campay_reference: transactionId,
+            campay_operator: "MOOV_MONEY",
+            campay_payment_status: "SUCCESSFUL",
+            single_credits: existingCredits + 1,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
+
+        console.log(`[Moov Webhook] User ${resolvedUserId} +1 single credit via Moov Money`);
       } else {
-        // ── B2C Candidate Purchases ──
-        if (paidAmount === 1000) {
-          // Single credit (1 000 FCFA)
-          const { data: currentSub } = await supabase
-            .from("user_subscriptions")
-            .select("single_credits")
-            .eq("user_id", userId)
-            .maybeSingle();
-
-          const existingCredits = currentSub?.single_credits ?? 0;
-
-          const { error } = await supabase.from("user_subscriptions").upsert(
-            {
-              user_id: userId,
-              campay_reference: transactionId,
-              campay_operator: "MOOV_MONEY",
-              campay_payment_status: "SUCCESSFUL",
-              single_credits: existingCredits + 1,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id" }
-          );
-
-          if (error) {
-            console.error("[Moov Webhook] Supabase single_credits error:", error);
-          } else {
-            console.log(`[Moov Webhook] User ${userId} +1 single credit via Moov Money`);
-          }
+        // B2C ABONNEMENT PRO
+        const isAnnual = targetType === "b2c_annual";
+        const periodEnd = new Date();
+        if (isAnnual) {
+          periodEnd.setFullYear(periodEnd.getFullYear() + 1);
         } else {
-          // Pro subscription (5 000 FCFA monthly or 18 000 FCFA annual)
-          const periodEnd = new Date();
-          if (paidAmount === 18000) {
-            periodEnd.setFullYear(periodEnd.getFullYear() + 1);
-          } else {
-            periodEnd.setMonth(periodEnd.getMonth() + 1);
-          }
-
-          const planName = paidAmount === 18000 ? "pro_annual" : "pro";
-
-          const { error } = await supabase.from("user_subscriptions").upsert(
-            {
-              user_id: userId,
-              campay_reference: transactionId,
-              campay_operator: "MOOV_MONEY",
-              campay_payment_status: "SUCCESSFUL",
-              plan_name: planName,
-              status: "active",
-              current_period_end: periodEnd.toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id" }
-          );
-
-          if (error) {
-            console.error("[Moov Webhook] Supabase subscription update error:", error);
-          } else {
-            console.log(`[Moov Webhook] User ${userId} → active (${planName}) via Moov Money`);
-          }
+          periodEnd.setMonth(periodEnd.getMonth() + 1);
         }
+
+        const planName = isAnnual ? "pro_annual" : "pro";
+
+        await supabase.from("user_subscriptions").upsert(
+          {
+            user_id: resolvedUserId,
+            campay_reference: transactionId,
+            campay_operator: "MOOV_MONEY",
+            campay_payment_status: "SUCCESSFUL",
+            plan_name: planName,
+            status: "active",
+            current_period_end: periodEnd.toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
+
+        console.log(`[Moov Webhook] User ${resolvedUserId} → active (${planName}) via Moov Money`);
       }
 
-      // ── Notification Admin SUCCESSFUL (fire-and-forget) ──
+      // 3. Mise à jour de l'intention de paiement
+      await PaymentLedgerService.updatePaymentIntentStatus(supabase, effectiveExtRef, "successful");
+
+      // 4. Enregistrement centralisé dans le grand livre des transactions
+      await PaymentLedgerService.recordTransaction(supabase, {
+        reference_id: transactionId,
+        user_id: resolvedUserId,
+        amount_xaf: paidAmount,
+        currency: "XAF",
+        country_code: "GA",
+        operator: "MOOV",
+        payment_type: targetType,
+        status: "successful",
+        metadata: {
+          external_reference: effectiveExtRef,
+          provider: "moov",
+          promo_code: intent?.promo_code,
+          discount_percent: intent?.discount_percent,
+        },
+      });
+
+      // 5. Notification Admin SUCCESSFUL (fire-and-forget)
       AdminAlertService.notifyPayment({
         event: "SUCCESSFUL",
         provider: "moov",
         amount: paidAmount,
         operator: "MOOV_MONEY",
-        userId,
+        userId: resolvedUserId,
         reference: transactionId,
-        isB2B: userId.startsWith("recruiter:"),
+        isB2B,
       });
     } else {
-      console.warn(`[Moov Webhook] Payment unsuccessful for user ${userId}: status=${status}`);
+      console.warn(`[Moov Webhook] Payment unsuccessful for ext_ref ${effectiveExtRef}: status=${status}`);
 
-      // ── Notification Admin FAILED (fire-and-forget) ──
+      await PaymentLedgerService.updatePaymentIntentStatus(supabase, effectiveExtRef, "failed");
+
+      const intent = await PaymentLedgerService.getPaymentIntent(supabase, effectiveExtRef);
+      const resolvedUserId = intent?.user_id || effectiveExtRef;
+
+      // Notification Admin FAILED (fire-and-forget)
       AdminAlertService.notifyPayment({
         event: "FAILED",
         provider: "moov",
         amount: paidAmount,
         operator: "MOOV_MONEY",
-        userId,
+        userId: resolvedUserId,
         reference: transactionId,
         reason: `status=${status}`,
       });

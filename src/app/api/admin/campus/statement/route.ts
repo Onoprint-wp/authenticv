@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
@@ -15,6 +16,10 @@ export async function GET(req: Request) {
 
     if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!isAdminEmail(user.email)) {
+      return new NextResponse("Forbidden: Admin access required", { status: 403 });
     }
 
     const dateStr = new Date().toLocaleDateString("fr-FR");

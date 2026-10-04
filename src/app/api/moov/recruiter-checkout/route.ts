@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createMoovPaymentLink, SITE_URL } from "@/lib/moov";
+import { RECRUITER_PRICES, type RecruiterPackType } from "@/lib/recruiter-plans";
+import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +11,7 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/moov/recruiter-checkout
  *
- * Body: { pack: "single" | "pack5" | "pack15" | "monthly_pro", countryCode?: string }
+ * Body: { pack: "single" | "pack5" | "pack15" | "monthly_pro", countryCode?: string, promoCode?: string }
  * Creates a Moov Money payment link for Recruiter credits / subscriptions.
  */
 export async function POST(req: Request) {
@@ -19,44 +22,82 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let pack = "pack5";
+  let pack: RecruiterPackType = "pack5";
   let countryCode = "GA";
+  let promoCode = "";
 
   try {
     const body = await req.json();
-    if (body.pack) pack = String(body.pack);
-    if (body.countryCode) countryCode = String(body.countryCode).toUpperCase();
+    if (body.pack && body.pack in RECRUITER_PRICES) {
+      pack = body.pack as RecruiterPackType;
+    }
+    if (body.countryCode) {
+      countryCode = String(body.countryCode).toUpperCase();
+    }
+    if (body.promoCode) {
+      promoCode = String(body.promoCode).trim().toUpperCase();
+    }
   } catch {
     // default
   }
 
-  let amount = 15000; // Pack 5 CVs default (15 000 FCFA)
-  let description = "AuthenticV Recruteur – Pack 5 CVs (Moov Money)";
+  const packConfig = RECRUITER_PRICES[pack];
+  let finalAmount = packConfig.amount;
+  let discountApplied = 0;
+  let discountPercent = 0;
 
-  if (pack === "single") {
-    amount = 5000;
-    description = "AuthenticV Recruteur – 1 Déblocage Candidat (Moov Money)";
-  } else if (pack === "pack15") {
-    amount = 50000;
-    description = "AuthenticV Recruteur – Pack 15 CVs (Moov Money)";
-  } else if (pack === "monthly_pro") {
-    amount = 75000;
-    description = "AuthenticV Recruteur – Pass Pro Mensuel Illimité (Moov Money)";
+  if (promoCode) {
+    const { data: promo } = await supabase
+      .from("promo_codes")
+      .select("*")
+      .eq("code", promoCode)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    discountPercent = promo?.discount_percent || 10;
+    discountApplied = Math.round(finalAmount * (discountPercent / 100));
+    finalAmount = finalAmount - discountApplied;
   }
 
-  const externalRef = `recruiter:${user.id}:${pack}`;
+  const intentNonce = crypto.randomUUID().slice(0, 8);
+  const externalRef = `b2b:${user.id}:${pack}:${intentNonce}`;
+  const targetType = `b2b_${pack}` as PaymentTargetType;
 
   try {
+    // Pre-register B2B payment intent in Supabase
+    await PaymentLedgerService.createPaymentIntent(supabase, {
+      user_id: user.id,
+      external_reference: externalRef,
+      provider: "moov",
+      target_type: targetType,
+      amount_xaf: finalAmount,
+      promo_code: promoCode || undefined,
+      discount_percent: discountPercent,
+      status: "pending",
+      metadata: {
+        pack,
+        countryCode,
+        credits: packConfig.credits,
+        user_email: user.email,
+      },
+    });
+
     const result = await createMoovPaymentLink({
-      amount,
+      amount: finalAmount,
       userId: externalRef,
       userEmail: user.email ?? "",
       countryCode,
-      redirectUrl: `${SITE_URL}/recruiter?credited=true&gateway=moov&pack=${pack}`,
-      description,
+      redirectUrl: `${SITE_URL}/recruiter/search?payment=success&gateway=moov&pack=${pack}${promoCode ? `&ref=${promoCode}` : ""}`,
+      description: `AuthenticV Recruteur – ${packConfig.label}${discountApplied > 0 ? ` (-${discountApplied} F Réduction ${promoCode})` : ""}`,
     });
 
-    return NextResponse.json({ url: result.payment_url, transaction_id: result.transaction_id });
+    return NextResponse.json({
+      url: result.payment_url,
+      transaction_id: result.transaction_id,
+      finalAmount,
+      discountApplied,
+      externalReference: externalRef,
+    });
   } catch (err) {
     console.error("[Moov Recruiter Checkout] Error:", err);
     return NextResponse.json(

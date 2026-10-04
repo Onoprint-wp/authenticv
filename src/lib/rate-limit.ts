@@ -26,6 +26,7 @@ export const chatRateLimit = hasUpstash
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(15, "1 m"),
       analytics: true,
+      prefix: "ratelimit:chat",
     })
   : mockLimiter(15);
 
@@ -35,6 +36,7 @@ export const uploadRateLimit = hasUpstash
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(5, "1 m"),
       analytics: true,
+      prefix: "ratelimit:upload",
     })
   : mockLimiter(5);
 
@@ -44,5 +46,16 @@ export const optimizeRateLimit = hasUpstash
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(10, "1 m"),
       analytics: true,
+      prefix: "ratelimit:optimize",
+    })
+  : mockLimiter(10);
+
+// 10 exports PDF par minute par utilisateur
+export const exportRateLimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, "1 m"),
+      analytics: true,
+      prefix: "ratelimit:export",
     })
   : mockLimiter(10);

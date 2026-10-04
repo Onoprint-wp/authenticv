@@ -2,7 +2,7 @@ import { streamText, stepCountIs } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@/utils/supabase/server";
 import { chatRateLimit } from "@/lib/rate-limit";
-import { getUserPlan, incrementMessageCount } from "@/lib/plan";
+import { getUserPlan, incrementMessageCount, getMonthlyMessageCount, FREE_MONTHLY_MESSAGES } from "@/lib/plan";
 import { DEFAULT_CV_DATA, type CvData } from "@/lib/schemas/cv.schema";
 import { buildSystemPrompt } from "@/lib/ai/prompts";
 import { createCvTools } from "@/lib/ai/tools/cv-tools";
@@ -76,11 +76,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Suivi de l'utilisation mensuelle (non-bloquant pour la création de CV de base)
+    // Suivi et limitation de l'utilisation mensuelle pour le plan gratuit
     const plan = await getUserPlan(user.id);
     const { messages } = await req.json();
 
     if (plan === "free") {
+      const messageCount = await getMonthlyMessageCount(user.id);
+      if (messageCount >= FREE_MONTHLY_MESSAGES) {
+        return new Response(
+          JSON.stringify({
+            error: "quota_exceeded",
+            message: `Vous avez atteint votre quota gratuit de ${FREE_MONTHLY_MESSAGES} messages ce mois-ci. Passez à AuthenticV Pro pour un accompagnement illimité.`,
+            limit: FREE_MONTHLY_MESSAGES,
+            used: messageCount,
+          }),
+          { status: 403, headers: { "Content-Type": "application/json" } }
+        );
+      }
       await incrementMessageCount(user.id);
     }
     const headerLang = req.headers.get("X-Coach-Language");

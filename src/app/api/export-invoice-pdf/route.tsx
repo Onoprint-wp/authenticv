@@ -218,7 +218,11 @@ export async function GET(req: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const clientEmail = user?.email || "client@authenticv.app";
+    if (!user) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const clientEmail = user.email || "client@authenticv.app";
     const dateStr = new Date().toLocaleDateString("fr-FR", {
       day: "2-digit",
       month: "2-digit",

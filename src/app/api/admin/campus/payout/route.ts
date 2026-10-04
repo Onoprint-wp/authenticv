@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
@@ -10,6 +11,10 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    if (!isAdminEmail(user.email)) {
+      return NextResponse.json({ error: "Interdit : Droits administrateur requis." }, { status: 403 });
     }
 
     const body = await req.json();

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { sanitizeRedirectPath } from '@/lib/safe-redirect'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -50,7 +51,7 @@ export async function updateSession(request: NextRequest) {
   if (user && request.nextUrl.pathname.startsWith('/login')) {
     const url = request.nextUrl.clone()
     const nextParam = request.nextUrl.searchParams.get('next')
-    url.pathname = nextParam && nextParam.startsWith('/') ? nextParam : '/builder'
+    url.pathname = sanitizeRedirectPath(nextParam, '/builder')
     url.search = ''
     return NextResponse.redirect(url)
   }

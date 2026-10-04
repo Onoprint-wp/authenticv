@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createPaymentLink, SITE_URL } from "@/lib/campay";
 import { RECRUITER_PRICES, type RecruiterPackType } from "@/lib/recruiter-plans";
+import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +32,7 @@ export async function POST(req: Request) {
 
     let finalAmount = packConfig.amount;
     let discountApplied = 0;
+    let discountPercent = 0;
 
     // Validate promo code if provided
     if (promoCode) {
@@ -40,7 +43,7 @@ export async function POST(req: Request) {
         .eq("is_active", true)
         .maybeSingle();
 
-      const discountPercent = promo?.discount_percent || 10; // Default 10% for commercial affiliate codes
+      discountPercent = promo?.discount_percent || 10; // Default 10% for commercial affiliate codes
       discountApplied = Math.round(finalAmount * (discountPercent / 100));
       finalAmount = finalAmount - discountApplied;
     }
@@ -57,19 +60,40 @@ export async function POST(req: Request) {
       { onConflict: "user_id" }
     );
 
-    // External reference formatted to indicate recruiter purchase & affiliate tracking:
-    // "recruiter:{userId}:{pack}:{promoCode}"
-    const externalRef = `recruiter:${user.id}:${pack}${promoCode ? `:${promoCode}` : ""}`;
+    // External reference formatted for deterministic webhook resolution:
+    // "b2b:{userId}:{pack}:{intentNonce}"
+    const intentNonce = crypto.randomUUID().slice(0, 8);
+    const externalRef = `b2b:${user.id}:${pack}:${intentNonce}`;
+    const targetType = `b2b_${pack}` as PaymentTargetType;
+
+    // Pre-register B2B payment intent in Supabase
+    await PaymentLedgerService.createPaymentIntent(supabase, {
+      user_id: user.id,
+      external_reference: externalRef,
+      provider: "campay",
+      target_type: targetType,
+      amount_xaf: finalAmount,
+      promo_code: promoCode || undefined,
+      discount_percent: discountPercent,
+      status: "pending",
+      metadata: {
+        pack,
+        company_name: companyName,
+        credits: packConfig.credits,
+        user_email: user.email,
+      },
+    });
 
     const result = await createPaymentLink({
       amount: finalAmount,
-      userId: externalRef,
+      userId: user.id,
+      externalReference: externalRef,
       userEmail: user.email ?? "",
       redirectUrl: `${SITE_URL}/recruiter/search?payment=success&pack=${pack}${promoCode ? `&ref=${promoCode}` : ""}`,
       description: `AuthenticV Recruteur – ${packConfig.label}${discountApplied > 0 ? ` (-${discountApplied} F Réduction ${promoCode})` : ""}`,
     });
 
-    return NextResponse.json({ url: result.link, finalAmount, discountApplied });
+    return NextResponse.json({ url: result.link, finalAmount, discountApplied, externalReference: externalRef });
   } catch (err) {
     console.error("[Recruiter CamPay Checkout Error]:", err);
     return NextResponse.json(

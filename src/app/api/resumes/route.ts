@@ -48,13 +48,30 @@ async function processReferralReward(userId: string, req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const targetId = searchParams.get("id");
+
+    if (targetId) {
+      const { data: specificResume, error } = await supabase
+        .from("resumes")
+        .select("*")
+        .eq("id", targetId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (specificResume) {
+        return NextResponse.json(specificResume);
+      }
     }
 
     const { data: resumes, error } = await supabase

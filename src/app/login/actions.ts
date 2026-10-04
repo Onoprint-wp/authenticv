@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
+import { sanitizeRedirectPath } from "@/lib/safe-redirect";
 
 export async function requestPasswordReset(formData: FormData) {
   const supabase = await createClient();
@@ -29,13 +30,13 @@ export async function login(formData: FormData) {
 
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
-  const next = (formData.get("next") as string) || "";
-  let destination = next.startsWith("/") ? next : "";
+  const nextRaw = (formData.get("next") as string) || "";
+  let destination = nextRaw ? sanitizeRedirectPath(nextRaw, "") : "";
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    const errorUrl = next ? `/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
+    const errorUrl = nextRaw ? `/login?next=${encodeURIComponent(nextRaw)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
     redirect(errorUrl);
   }
 
@@ -88,13 +89,13 @@ export async function signup(formData: FormData) {
 
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
-  const next = (formData.get("next") as string) || "";
-  const destination = next.startsWith("/") ? next : "/builder";
+  const nextRaw = (formData.get("next") as string) || "";
+  const destination = sanitizeRedirectPath(nextRaw, "/builder");
 
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    const errorUrl = next ? `/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
+    const errorUrl = nextRaw ? `/login?next=${encodeURIComponent(nextRaw)}&error=${encodeURIComponent(error.message)}` : `/login?error=${encodeURIComponent(error.message)}`;
     redirect(errorUrl);
   }
 

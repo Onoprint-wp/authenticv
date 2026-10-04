@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createPaymentLink, SITE_URL } from "@/lib/campay";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
+import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,8 +11,8 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/campay/checkout
  *
- * Body: { tier?: "single" | "monthly" | "annual" }
- * Creates a CamPay payment link for the chosen AuthenticV tier.
+ * Body: { tier?: "single" | "monthly" | "annual", promoCode?: string }
+ * Creates a CamPay payment link for the chosen AuthenticV tier with deterministic intent registration.
  */
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -56,6 +58,8 @@ export async function POST(req: Request) {
     description = "AuthenticV Pro – Pass Annuel Carrière (18 000 FCFA)";
   }
 
+  let discountPercent = 0;
+
   // Apply promo code discount if provided
   if (promoCode) {
     const PROMOS: Record<string, number> = {
@@ -70,21 +74,45 @@ export async function POST(req: Request) {
     };
     const discount = PROMOS[promoCode];
     if (discount) {
+      discountPercent = discount;
       amount = Math.max(100, Math.round(amount * (1 - discount / 100)));
       description = `${description} [Code: ${promoCode} -${discount}%]`;
     }
   }
 
+  // Generate unique intent external reference: b2c:{userId}:{tier}:{randomId}
+  const intentNonce = crypto.randomUUID().slice(0, 8);
+  const externalRef = `b2c:${user.id}:${tier}:${intentNonce}`;
+  const targetType = `b2c_${tier}` as PaymentTargetType;
+
   try {
+    // Enregistrement préalable de l'intention pour réconciliation déterministe
+    await PaymentLedgerService.createPaymentIntent(supabase, {
+      user_id: user.id,
+      external_reference: externalRef,
+      provider: "campay",
+      target_type: targetType,
+      amount_xaf: amount,
+      promo_code: promoCode || undefined,
+      discount_percent: discountPercent,
+      status: "pending",
+      metadata: {
+        tier,
+        user_email: user.email,
+        description,
+      },
+    });
+
     const result = await createPaymentLink({
       amount,
       userId: user.id,
+      externalReference: externalRef,
       userEmail: user.email ?? "",
       redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}${promoCode ? `&promo=${promoCode}` : ""}`,
       description,
     });
 
-    return NextResponse.json({ url: result.link });
+    return NextResponse.json({ url: result.link, externalReference: externalRef });
   } catch (err) {
     console.error("[CamPay Checkout] Error:", err);
     return NextResponse.json(
