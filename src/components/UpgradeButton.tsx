@@ -22,7 +22,7 @@ export function UpgradeButton({ tier = "monthly", className, children }: Upgrade
       });
 
       if (res.status === 401) {
-        window.location.href = `/login?next=/tarifs`;
+        window.location.href = `/builder`;
         return;
       }
 
