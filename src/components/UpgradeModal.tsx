@@ -27,7 +27,7 @@ const PRO_FEATURES = [
 ];
 
 export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalProps) {
-  const [selectedTier, setSelectedTier] = useState<"single" | "monthly" | "annual">("monthly");
+  const [selectedTier, setSelectedTier] = useState<"single" | "monthly" | "annual">("single");
   const [selectedCountry, setSelectedCountry] = useState<"CM" | "GA" | "TD" | "CG" | "CF">("CM");
   const [loading, setLoading] = useState(false);
   const [promoInput, setPromoInput] = useState("");
@@ -289,9 +289,9 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
                 rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95 cursor-pointer"
             >
               {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Redirection…</>
+                <><Loader2 className="w-4 h-4 animate-spin" /> Redirection vers Mobile Money…</>
               ) : (
-                <><Zap className="w-4 h-4" /> {selectedTier === "single" ? "Débloquer le Pass 24h" : selectedTier === "monthly" ? "Souscrire au Pass Mensuel" : "Activer le Pass Annuel"}</>
+                <><Zap className="w-4 h-4" /> {selectedTier === "single" ? "Débloquer & Télécharger mon CV (1 000 FCFA)" : selectedTier === "monthly" ? "Souscrire au Pass Pro Mensuel" : "Activer le Pass Annuel"}</>
               )}
             </button>
 
