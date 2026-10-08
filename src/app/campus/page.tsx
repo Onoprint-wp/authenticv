@@ -45,6 +45,11 @@ const CAMPUS_BENEFITS = [
 ];
 
 export default function CampusPage() {
+  const campusWhatsAppPhone =
+    process.env.NEXT_PUBLIC_CAMPUS_WHATSAPP_PHONE ||
+    process.env.NEXT_PUBLIC_WHATSAPP_PHONE ||
+    "237688114491";
+
   return (
     <div className="min-h-screen bg-[#FAFAFC] dark:bg-[#081426] text-[#111827] dark:text-[#F8FAFC] flex flex-col selection:bg-[#3667F0] selection:text-white">
       {/* Header */}
@@ -108,7 +113,7 @@ export default function CampusPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <a
-              href="https://wa.me/237699123456?text=Bonjour%2C%20je%20souhaite%20mettre%20en%20place%20un%20partenariat%20Campus%20AuthentiCV%20pour%20notre%20%C3%A9tablissement."
+              href={`https://wa.me/${campusWhatsAppPhone}?text=Bonjour%2C%20je%20souhaite%20mettre%20en%20place%20un%20partenariat%20Campus%20AuthentiCV%20pour%20notre%20%C3%A9tablissement.`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#25C78A] hover:bg-[#25C78A]/90 text-white font-semibold text-xs py-3 px-6 rounded-[12px] transition-all shadow-sm active:scale-95 font-sans"

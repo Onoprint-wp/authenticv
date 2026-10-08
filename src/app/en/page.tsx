@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { VideoShowcaseSection } from "@/components/landing/VideoShowcaseSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { RecruiterCTASection } from "@/components/landing/RecruiterCTASection";
@@ -70,10 +71,11 @@ export default function HomeEn() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <main className="min-h-screen bg-slate-950">
+      <main className="min-h-screen bg-[#0F223D] text-slate-100 font-sans antialiased">
         <Navbar dict={en.navbar} />
         <HeroSection dict={en.hero} />
         <HowItWorks dict={en.howItWorks} />
+        <VideoShowcaseSection />
         <FeaturesSection dict={en.features} />
         <PricingSection dict={en.pricing} />
         <RecruiterCTASection />

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, GraduationCap, Building2, Play, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { VideoModal } from "./VideoModal";
 
 interface UniverseTab {
@@ -22,7 +23,7 @@ interface UniverseTab {
   statLabel: string;
 }
 
-const TABS: UniverseTab[] = [
+const TABS_FR: UniverseTab[] = [
   {
     id: "candidat",
     title: "Candidats & Talents",
@@ -82,23 +83,99 @@ const TABS: UniverseTab[] = [
   },
 ];
 
+const TABS_EN: UniverseTab[] = [
+  {
+    id: "candidat",
+    title: "Candidates & Talents",
+    badge: "FOR CANDIDATES",
+    icon: User,
+    headline: "Alex AI — Turn Your Career into a 100% ATS-Compliant CV",
+    description: "No more unanswered applications. Alex draws out your true strengths through guided dialogue and crafts a 100% ATS-compliant CV with a tailored cover letter.",
+    benefits: [
+      "Step-by-step interactive AI coaching",
+      "87%+ Job Match calibrated for local and international openings",
+      "Card & Mobile Money payment (MTN MoMo & Orange Money)",
+    ],
+    videoSrc: "/videos/authenticv_spot_candidat.mp4",
+    posterSrc: "/images/poster_hero_grand_format.jpg",
+    ctaText: "Build my CV with Alex",
+    ctaLink: "/builder",
+    statNumber: "92%",
+    statLabel: "Average ATS filter pass rate",
+  },
+  {
+    id: "campus",
+    title: "Universities & Campus",
+    badge: "CAMPUS PARTNERSHIP",
+    icon: GraduationCap,
+    headline: "AuthentiCV Campus — Built-in AI Career Center for Your Graduates",
+    description: "Equip every graduate with a branded AI Career Center. Certify their skills with an academic verification badge at zero infrastructure cost.",
+    benefits: [
+      "Instant activation with academic email",
+      "Real-time graduate career tracking dashboard",
+      "Zero infrastructure cost partnership (0 FCFA)",
+    ],
+    videoSrc: "/videos/authenticv_spot_campus.mp4",
+    posterSrc: "/images/campus_students.jpg",
+    ctaText: "Explore Campus Solutions",
+    ctaLink: "/campus",
+    statNumber: "0 FCFA",
+    statLabel: "Infrastructure cost for your institution",
+  },
+  {
+    id: "recruteur",
+    title: "Companies & Recruiters",
+    badge: "TALENT SOURCING HR",
+    icon: Building2,
+    headline: "AuthentiCV Recruiter — Source Verified Top Talent Across the CEMAC Region",
+    description: "Directly access an AI-curated talent pool across Douala, Yaoundé, Abidjan, Libreville and Brazzaville. Cut your sourcing time by 60%.",
+    benefits: [
+      "Precise filters by African cities & specialized skills",
+      "Verified career tracks & standardized ATS formats",
+      "Direct talent outreach & interview scheduling",
+    ],
+    videoSrc: "/videos/authenticv_spot_recruteur.mp4",
+    posterSrc: "/images/recruiter_hr.jpg",
+    ctaText: "Access Talent Pool",
+    ctaLink: "/en/recruiter",
+    statNumber: "3×",
+    statLabel: "Faster to hire the right candidates",
+  },
+];
+
 export function VideoShowcaseSection() {
+  const pathname = usePathname();
+  const isEn = pathname.startsWith("/en");
+  const tabs = isEn ? TABS_EN : TABS_FR;
+
   const [activeTab, setActiveTab] = useState<"candidat" | "campus" | "recruteur">("candidat");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalVideoSrc, setModalVideoSrc] = useState("/videos/spot_authenticv_grand-format_v1.mp4");
-  const [modalTitle, setModalTitle] = useState("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)");
+  const [modalTitle, setModalTitle] = useState(
+    isEn
+      ? "AuthentiCV — From CV to Opportunity: The AI Recruitment Revolution in Africa (Full HD Master Film)"
+      : "AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)"
+  );
 
-  const currentTab = TABS.find((t) => t.id === activeTab) || TABS[0];
+  const currentTab = tabs.find((t) => t.id === activeTab) || tabs[0];
 
   const handleOpenMasterFilm = () => {
     setModalVideoSrc("/videos/spot_authenticv_grand-format_v1.mp4");
-    setModalTitle("AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)");
+    setModalTitle(
+      isEn
+        ? "AuthentiCV — From CV to Opportunity: The AI Recruitment Revolution in Africa (Full HD Master Film)"
+        : "AuthentiCV — Du CV à l'Opportunité : La Révolution IA du Recrutement en Afrique (Spot Grand Format HD)"
+    );
     setIsModalOpen(true);
   };
 
   const handleOpenCurrentSpot = () => {
     setModalVideoSrc(currentTab.videoSrc);
-    setModalTitle(`AuthentiCV — Spot ${currentTab.title} (30s)`);
+    setModalTitle(
+      isEn
+        ? `AuthentiCV — ${currentTab.title} Spot (30s)`
+        : `AuthentiCV — Spot ${currentTab.title} (30s)`
+    );
     setIsModalOpen(true);
   };
 
@@ -113,16 +190,29 @@ export function VideoShowcaseSection() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-cyan-300 text-xs font-semibold mb-4 tracking-wider uppercase shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
-            L&apos;Écosystème AuthentiCV en Action
+            {isEn ? "The AuthentiCV Ecosystem in Action" : "L'Écosystème AuthentiCV en Action"}
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight mb-4">
-            Un écosystème conçu pour{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
-              propulser chaque opportunité
-            </span>
+            {isEn ? (
+              <>
+                An ecosystem built to{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
+                  propel every opportunity
+                </span>
+              </>
+            ) : (
+              <>
+                Un écosystème conçu pour{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-400">
+                  propulser chaque opportunité
+                </span>
+              </>
+            )}
           </h2>
           <p className="text-slate-300 font-sans text-base md:text-lg leading-relaxed">
-            Découvrez comment AuthentiCV transforme la recherche d&apos;emploi et le recrutement à travers nos trois piliers dédiés.
+            {isEn
+              ? "Discover how AuthentiCV transforms job search and hiring through our three dedicated pillars."
+              : "Découvrez comment AuthentiCV transforme la recherche d'emploi et le recrutement à travers nos trois piliers dédiés."}
           </p>
 
           {/* Master film banner CTA */}
@@ -134,7 +224,9 @@ export function VideoShowcaseSection() {
               <div className="w-6 h-6 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Play className="w-3.5 h-3.5 fill-slate-950 translate-x-0.5" />
               </div>
-              <span>Regarder le Film Master de Marque (1 min 40)</span>
+              <span>
+                {isEn ? "Watch the Brand Master Film (HD)" : "Regarder le Film Master de Marque (HD)"}
+              </span>
             </button>
           </div>
         </div>
@@ -142,7 +234,7 @@ export function VideoShowcaseSection() {
         {/* Interactive Tabs Selector */}
         <div className="flex justify-center mb-12">
           <div className="inline-flex p-1.5 rounded-2xl bg-[#162B46] border border-slate-700/80 backdrop-blur-md max-w-full overflow-x-auto shadow-md">
-            {TABS.map((tab) => {
+            {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
@@ -231,7 +323,7 @@ export function VideoShowcaseSection() {
               <button
                 onClick={handleOpenCurrentSpot}
                 className="absolute inset-0 flex items-center justify-center group/btn cursor-pointer"
-                aria-label={`Lire le spot ${currentTab.title}`}
+                aria-label={isEn ? `Play ${currentTab.title} spot` : `Lire le spot ${currentTab.title}`}
               >
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-600/90 text-white flex items-center justify-center border-2 border-cyan-400/60 shadow-[0_0_50px_rgba(37,99,235,0.8)] group-hover/btn:scale-110 group-hover/btn:bg-blue-500 transition-all">
                   <Play className="w-7 h-7 md:w-8 md:h-8 fill-white translate-x-0.5" />
@@ -242,10 +334,10 @@ export function VideoShowcaseSection() {
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none">
                 <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-semibold text-white">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                  <span>Spot Démo 30s • Audio Techno</span>
+                  <span>{isEn ? "30s Demo Spot • Techno Audio" : "Spot Démo 30s • Audio Techno"}</span>
                 </div>
                 <div className="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md">
-                  Cliquez pour agrandir
+                  {isEn ? "Click to expand" : "Cliquez pour agrandir"}
                 </div>
               </div>
             </div>
