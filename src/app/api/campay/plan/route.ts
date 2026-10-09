@@ -19,7 +19,13 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({
+      plan: "free",
+      singleCredits: 0,
+      messageCount: 0,
+      messageLimit: FREE_MONTHLY_MESSAGES,
+      messagesRemaining: FREE_MONTHLY_MESSAGES,
+    });
   }
 
   const [plan, messageCount, singleCredits] = await Promise.all([

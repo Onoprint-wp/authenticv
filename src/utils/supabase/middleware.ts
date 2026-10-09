@@ -36,16 +36,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    request.nextUrl.pathname === '/builder'
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  // Mode Fast-Track / Invité : /builder est accessible librement sans compte préalable
+  // (permet la création instantanée de CV sans friction pour les visiteurs Meta Ads)
 
   // If user is accessing login page, but they are already logged in, redirect them to destination or /builder
   if (user && request.nextUrl.pathname.startsWith('/login')) {

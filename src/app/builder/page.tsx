@@ -40,6 +40,9 @@ function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
   const searchParams = useSearchParams();
   useEffect(() => {
     if (searchParams.get("upgraded") === "true") {
+      const tier = searchParams.get("tier") || "single";
+      const value = tier === "single" ? 1000 : tier === "annual" ? 18000 : 5000;
+      trackEvent("payment_momo_completed", { value, currency: "XAF", plan: tier });
       onUpgraded();
       window.history.replaceState({}, "", "/builder");
     }

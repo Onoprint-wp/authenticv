@@ -44,9 +44,9 @@ export function setConsent(value: "accepted" | "refused") {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
-/** true uniquement si l'utilisateur a explicitement accepté les traceurs analytiques/publicitaires. */
+/** true sauf si l'utilisateur a explicitement refusé les traceurs. */
 export function hasAnalyticsConsent(): boolean {
-  return getConsent() === "accepted";
+  return getConsent() !== "refused";
 }
 
 export function useCookieConsent(): ConsentState {

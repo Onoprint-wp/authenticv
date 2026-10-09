@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail, Phone } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { useCvStore } from "@/store/useCvStore";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -27,9 +28,17 @@ const PRO_FEATURES = [
 ];
 
 export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalProps) {
+  const personalInfo = useCvStore((s) => s.cvData.personalInfo);
   const [selectedTier, setSelectedTier] = useState<"single" | "monthly" | "annual">("single");
   const [selectedCountry, setSelectedCountry] = useState<"CM" | "GA" | "TD" | "CG" | "CF">("CM");
+  const [phoneNumber, setPhoneNumber] = useState(personalInfo?.phone || "");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (personalInfo?.phone && !phoneNumber) {
+      setPhoneNumber(personalInfo.phone);
+    }
+  }, [personalInfo?.phone, phoneNumber]);
   const [promoInput, setPromoInput] = useState("");
   const [validatingPromo, setValidatingPromo] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<{
@@ -98,6 +107,8 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
           tier: selectedTier,
           countryCode: selectedCountry,
           promoCode: appliedPromo?.code || undefined,
+          phoneNumber: phoneNumber.trim() || personalInfo?.phone || undefined,
+          email: personalInfo?.email || undefined,
         }),
       });
       const data = await res.json();
@@ -265,6 +276,28 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
             )}
           </div>
 
+          {/* Mobile Money Phone Input (Fast-Track) */}
+          <div className="px-5 py-2.5 border-t border-slate-800/80 bg-slate-950/40">
+            <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center justify-between">
+              <span>Numéro Mobile Money (MTN / Orange) :</span>
+              <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                ⚡ Push USSD Direct
+              </span>
+            </label>
+            <div className="relative">
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="ex: 677 12 34 56 ou 699 00 00 00"
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+              <span>🔒 Vous recevrez une invite de confirmation sur votre téléphone.</span>
+            </p>
+          </div>
+
           {/* Price + CTA */}
           <div className="px-5 pb-5 pt-2 space-y-3">
             <div className="flex items-baseline gap-2">
@@ -295,9 +328,16 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               )}
             </button>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-              <span>Paiement sécurisé ({selectedCountry === "GA" || selectedCountry === "TD" ? "Moov Money / Airtel" : "CamPay / MoMo / OM"})</span>
-              <a href="/recruiter" className="text-indigo-400 hover:underline">Espace Recruteurs</a>
+            <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+              <a
+                href="https://wa.me/237688114491?text=Bonjour%2C%20j%27ai%20besoin%20d%27assistance%20pour%20mon%20paiement%20sur%20AuthentiCV"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium transition-colors"
+              >
+                <span>💬 Assistance WhatsApp direct</span>
+              </a>
+              <span className="text-slate-500">Paiement sécurisé MTN / OM</span>
             </div>
           </div>
         </div>

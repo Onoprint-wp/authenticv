@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { CAMPAY_WEBHOOK_SECRET } from "@/lib/campay";
+import { CAMPAY_WEBHOOK_SECRET, getTransactionStatus } from "@/lib/campay";
 import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 import { AdminAlertService } from "@/services/admin-alert.service";
 
@@ -31,12 +31,7 @@ interface CamPayWebhookPayload {
  */
 function verifySignature(payload: CamPayWebhookPayload): boolean {
   if (!CAMPAY_WEBHOOK_SECRET) {
-    if (process.env.NODE_ENV === "production") {
-      console.error("[CamPay Webhook] CRITICAL: CAMPAY_WEBHOOK_SECRET missing in production — rejecting");
-      return false;
-    }
-    console.warn("[CamPay Webhook] No CAMPAY_WEBHOOK_SECRET set — skipping verification (dev only)");
-    return true; // Allow in dev/sandbox without secret
+    return false;
   }
 
   // CamPay signature is computed over: reference + status
@@ -65,9 +60,22 @@ export async function POST(req: Request) {
 
   console.log(`[CamPay Webhook] Received: status=${payload.status} ref=${payload.reference} ext_ref=${payload.external_reference}`);
 
-  // Verify signature (relaxed in dev mode)
-  if (!verifySignature(payload)) {
-    console.error("[CamPay Webhook] Invalid signature");
+  // Verify signature with API fallback if webhook secret is not yet set in production
+  let isVerified = verifySignature(payload);
+  if (!isVerified && payload.reference) {
+    try {
+      const liveTx = await getTransactionStatus(payload.reference);
+      if (liveTx && liveTx.status === payload.status) {
+        console.log(`[CamPay Webhook] Direct CamPay API verification succeeded for ref ${payload.reference}`);
+        isVerified = true;
+      }
+    } catch (e) {
+      console.warn(`[CamPay Webhook] Direct API verification check failed:`, e);
+    }
+  }
+
+  if (!isVerified) {
+    console.error("[CamPay Webhook] Invalid signature and API verification failed");
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 

@@ -82,7 +82,22 @@ export function useSyncCv() {
         // Charger la liste des CVs
         const listRes = await fetch("/api/resumes/list");
         if (listRes.status === 401) {
-          window.location.href = "/login";
+          // Mode invité / non connecté : charger depuis localStorage si disponible
+          if (typeof window !== "undefined") {
+            try {
+              const localSaved = localStorage.getItem("acv_guest_cv");
+              if (localSaved) {
+                const parsed = JSON.parse(localSaved);
+                if (parsed && typeof parsed === "object") {
+                  isSavingFromServer.current = true;
+                  setCvData(parsed);
+                }
+              }
+            } catch {
+              // ignore
+            }
+          }
+          setIsHydrated(true);
           return;
         }
         if (listRes.ok) {
@@ -180,7 +195,7 @@ export function useSyncCv() {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       const response = await fetch("/api/resumes");
       if (response.status === 401) {
-        window.location.href = "/login";
+        // En mode invité, garder les modifications locales sans rediriger
         return;
       }
       if (!response.ok) {
@@ -199,7 +214,50 @@ export function useSyncCv() {
 
   // ── Auto-save ─────────────────────────────────────────────────────
   const save = useCallback(async () => {
-    if (!resumeIdRef.current) return;
+    // Mode Invité : persistance immédiate dans le localStorage sans appel serveur bloquant
+    if (!resumeIdRef.current) {
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("acv_guest_cv", JSON.stringify(cvData));
+          setSyncStatus("saved");
+          setTimeout(() => setSyncStatus("idle"), 2000);
+        } catch {
+          // non-blocking
+        }
+      }
+
+      const guestId = "guest_session";
+      const milestones = getTrackedMilestones(guestId);
+      let milestoneChanged = false;
+
+      if (!milestones.started && hasMeaningfulContent(cvData)) {
+        milestones.started = true;
+        milestoneChanged = true;
+        trackEvent("profile_started", { resumeId: guestId, candidateId: guestId });
+      }
+
+      const completeness = computeProfileCompleteness(cvData);
+      if (!milestones.progress50 && completeness.score >= 50) {
+        milestones.progress50 = true;
+        milestoneChanged = true;
+        trackEvent("profile_progress_50", { resumeId: guestId, candidateId: guestId, score: completeness.score });
+      }
+      if (!milestones.completed && completeness.score >= 90) {
+        milestones.completed = true;
+        milestoneChanged = true;
+        trackEvent("profile_completed", { resumeId: guestId, candidateId: guestId, score: completeness.score });
+      }
+      if (!milestones.qualified && completeness.isQualified) {
+        milestones.qualified = true;
+        milestoneChanged = true;
+        trackEvent("qualified_profile", { resumeId: guestId, candidateId: guestId, score: completeness.score });
+      }
+      if (milestoneChanged) {
+        saveTrackedMilestones(guestId, milestones);
+      }
+      return;
+    }
+
     const currentId = resumeIdRef.current;
 
     setSyncStatus("saving");
@@ -210,7 +268,15 @@ export function useSyncCv() {
         body: JSON.stringify({ content: cvData, id: currentId }),
       });
       if (response.status === 401) {
-        window.location.href = "/login";
+        // En cas de perte de session, basculer proprement sur localStorage sans éjecter l'utilisateur
+        resumeIdRef.current = null;
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("acv_guest_cv", JSON.stringify(cvData));
+          } catch {}
+        }
+        setSyncStatus("saved");
+        setTimeout(() => setSyncStatus("idle"), 2000);
         return;
       }
       if (!response.ok) throw new Error(`Failed to save resume: ${response.status}`);

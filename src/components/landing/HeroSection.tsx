@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, CheckCircle, Play, Sparkles, MessageSquareText } from "lucide-react";
 import type { LandingDict } from "@/lib/i18n/landing";
 import { VideoModal } from "./VideoModal";
@@ -107,14 +108,13 @@ export function HeroSection({ dict }: Props) {
             <div className="relative rounded-3xl bg-slate-900 border-2 border-cyan-500/30 shadow-[0_0_60px_rgba(37,99,235,0.3)] overflow-hidden group">
               {/* Video Teaser Background with auto-loop */}
               <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
-                <video
-                  src="/videos/spot_authenticv_grand-format_v1.mp4"
-                  poster="/images/poster_hero_grand_format.jpg"
-                  muted
-                  autoPlay
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover opacity-85 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700"
+                <Image
+                  src="/images/poster_hero_grand_format.jpg"
+                  alt="AuthentiCV Démo Vidéo"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 500px"
+                  priority
+                  className="object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700"
                 />
 
                 {/* Subtle dark gradient overlay */}

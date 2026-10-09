@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, GraduationCap, Building2, Play, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { VideoModal } from "./VideoModal";
 
@@ -306,14 +307,12 @@ export function VideoShowcaseSection() {
           {/* Right Column: Cinematic Video Card */}
           <div className="lg:col-span-6 relative">
             <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-slate-700/80 group shadow-2xl bg-slate-950">
-              <video
-                src={currentTab.videoSrc}
-                poster={currentTab.posterSrc}
-                muted
-                autoPlay
-                loop
-                playsInline
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+              <Image
+                src={currentTab.posterSrc}
+                alt={currentTab.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 600px"
+                className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-85 group-hover:opacity-100"
               />
 
               {/* Gradient Overlay */}

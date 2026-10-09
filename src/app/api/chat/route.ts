@@ -61,11 +61,10 @@ export async function POST(req: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      return new Response("Unauthorized", { status: 401 });
-    }
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "guest_ip";
+    const rateLimitKey = user ? user.id : `guest:${clientIp}`;
 
-    const { success } = await chatRateLimit.limit(user.id);
+    const { success } = await chatRateLimit.limit(rateLimitKey);
     if (!success) {
       return new Response(
         JSON.stringify({
@@ -77,10 +76,10 @@ export async function POST(req: Request) {
     }
 
     // Suivi et limitation de l'utilisation mensuelle pour le plan gratuit
-    const plan = await getUserPlan(user.id);
+    const plan = user ? await getUserPlan(user.id) : "free";
     const { messages } = await req.json();
 
-    if (plan === "free") {
+    if (user && plan === "free") {
       const messageCount = await getMonthlyMessageCount(user.id);
       if (messageCount >= FREE_MONTHLY_MESSAGES) {
         return new Response(
@@ -110,21 +109,26 @@ export async function POST(req: Request) {
       .filter((m) => m.content.trim().length > 0)
       .slice(-MAX_HISTORY);
 
-    const userId = user.id;
+    // Récupérer le CV actuel (via Supabase si connecté, ou mémoire si invité)
+    let currentResumeId: string | null = null;
+    let localContent: CvData = { ...DEFAULT_CV_DATA };
 
-    // Récupérer le CV actuel via la couche service
-    const currentResume = await ResumeService.getLatestResume(supabase, userId);
-    let currentResumeId: string | null = currentResume?.id ?? null;
-
-    // État mémoire pour éviter les race conditions pendant les exécutions concurrentes de tools
-    let localContent: CvData = currentResume?.content ?? { ...DEFAULT_CV_DATA };
+    if (user) {
+      const currentResume = await ResumeService.getLatestResume(supabase, user.id);
+      currentResumeId = currentResume?.id ?? null;
+      if (currentResume?.content) {
+        localContent = currentResume.content;
+      }
+    }
 
     // Helper unifié pour appliquer les modifications au CV
     const applyUpdate = async (updater: (content: CvData) => CvData) => {
       localContent = updater(localContent);
-      const res = await ResumeService.saveResumeContent(supabase, userId, currentResumeId, localContent);
-      if (res.resumeId) {
-        currentResumeId = res.resumeId;
+      if (user) {
+        const res = await ResumeService.saveResumeContent(supabase, user.id, currentResumeId, localContent);
+        if (res.resumeId) {
+          currentResumeId = res.resumeId;
+        }
       }
       return true;
     };

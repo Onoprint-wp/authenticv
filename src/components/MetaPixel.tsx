@@ -26,8 +26,8 @@ export function MetaPixel() {
   const consent = useCookieConsent();
 
   if (!META_PIXEL_ID) return null;
-  // Pas de consentement explicite → pas de Pixel (seule la capture UTM first-party tourne)
-  if (consent !== "accepted") return <MetaPixelTracker />;
+  // Ne charger le pixel que si l'utilisateur n'a pas explicitement refusé
+  if (consent === "refused") return null;
 
   return (
     <>
