@@ -15,6 +15,62 @@ interface ChatMessageListProps {
   onRetry: (text: string) => void;
 }
 
+function FormattedMessageText({ text, isUser }: { text: string; isUser: boolean }) {
+  if (isUser) {
+    return <span className="whitespace-pre-wrap">{text}</span>;
+  }
+
+  // Assistant message formatting (support bold **...**, lists, paragraphs)
+  const paragraphs = text.split("\n\n");
+
+  return (
+    <div className="space-y-2.5">
+      {paragraphs.map((paragraph, pIdx) => {
+        const lines = paragraph.split("\n");
+        return (
+          <div key={pIdx} className="space-y-1">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("• ") || (trimmed.startsWith("* ") && !trimmed.startsWith("**"));
+              const content = isBullet ? trimmed.replace(/^[-•*]\s+/, "") : line;
+
+              // Parse **bold** and clean asterisks (including *** trailing)
+              const parts = content.split(/(\*\*[^*]+(?:\*\*|\*+))/g);
+
+              const formattedLine = parts.map((part, partIdx) => {
+                if (part.startsWith("**")) {
+                  const cleanBold = part.replace(/^\*\*+/, "").replace(/\*+$/, "");
+                  return (
+                    <strong key={partIdx} className="font-bold text-foreground dark:text-white">
+                      {cleanBold}
+                    </strong>
+                  );
+                }
+                return part;
+              });
+
+              if (isBullet) {
+                return (
+                  <div key={lIdx} className="flex items-start gap-2 pl-1">
+                    <span className="text-brand-blue font-bold text-sm leading-tight">•</span>
+                    <span className="flex-1">{formattedLine}</span>
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lIdx} className={trimmed === "" ? "h-1.5" : "leading-relaxed"}>
+                  {formattedLine}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ChatMessageList({
   messages,
   isLoading,
@@ -130,13 +186,13 @@ export function ChatMessageList({
 
             <div
               data-testid="chat-message"
-              className={`max-w-[85%] rounded-[16px] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap font-sans ${
+              className={`max-w-[85%] rounded-[16px] px-4 py-3 text-sm leading-relaxed font-sans shadow-2xs ${
                 isUser
                   ? "bg-[#3667F0] text-white rounded-tr-xs"
                   : "bg-[#F3F4F6] text-[#111827] border border-[#D1D5DB] dark:bg-[#162B46] dark:border-slate-700 dark:text-slate-100 rounded-tl-xs"
               }`}
             >
-              {textContent}
+              <FormattedMessageText text={textContent} isUser={isUser} />
             </div>
           </div>
         );

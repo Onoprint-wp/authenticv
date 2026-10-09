@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { Sparkles, MessageSquare, PenLine } from "lucide-react";
 import { useCvStore } from "@/store/useCvStore";
 import { CvRenderer } from "./CvRenderer";
 import { CvRendererModern } from "./CvRendererModern";
@@ -27,13 +28,41 @@ export function HtmlCvPreview() {
     || personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
 
   if (!hasContent && !personalInfo.firstName && !personalInfo.lastName && !personalInfo.title) {
+    const handleGoToChat = () => {
+      window.dispatchEvent(new CustomEvent("switch-mobile-tab", { detail: "chat" }));
+    };
+    const handleGoToEdit = () => {
+      window.dispatchEvent(new CustomEvent("switch-mobile-tab", { detail: "edit" }));
+    };
+
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-100/50">
-        <div className="text-slate-400 text-center flex flex-col items-center gap-3">
-          <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center">
-            <span className="text-2xl">📄</span>
-          </div>
-          <p>Le CV est vide. Commencez par ajouter des informations.</p>
+      <div className="flex-1 w-full h-full min-h-[380px] flex flex-col items-center justify-center p-6 text-center bg-slate-50 dark:bg-slate-900/40">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50 dark:bg-blue-950/50 rounded-2xl sm:rounded-3xl flex items-center justify-center border border-blue-200/80 dark:border-blue-800/50 mb-4 shadow-xs">
+          <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-brand-blue" />
+        </div>
+        <h3 className="text-base sm:text-lg font-bold text-foreground font-heading mb-1.5">
+          Votre CV est encore vide
+        </h3>
+        <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed font-sans">
+          Discutez avec Alex Coach pour générer un CV technique complet et optimisé ATS en 30 secondes, ou commencez par l'édition manuelle.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-xs">
+          <button
+            type="button"
+            onClick={handleGoToChat}
+            className="w-full flex items-center justify-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Créer avec Alex Coach
+          </button>
+          <button
+            type="button"
+            onClick={handleGoToEdit}
+            className="w-full flex items-center justify-center gap-2 bg-card border border-border text-foreground font-medium text-xs py-2.5 px-4 rounded-xl hover:bg-muted transition-all active:scale-95 cursor-pointer"
+          >
+            <PenLine className="w-4 h-4 text-muted-foreground" />
+            Remplir manuellement
+          </button>
         </div>
       </div>
     );

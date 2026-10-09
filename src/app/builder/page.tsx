@@ -69,6 +69,17 @@ export default function BuilderPage() {
   const [isPdfDownloading, setIsPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handleSwitchMobileTab = (e: Event) => {
+      const customEvent = e as CustomEvent<MobileTab>;
+      if (customEvent.detail) {
+        setMobileTab(customEvent.detail);
+      }
+    };
+    window.addEventListener("switch-mobile-tab", handleSwitchMobileTab);
+    return () => window.removeEventListener("switch-mobile-tab", handleSwitchMobileTab);
+  }, []);
+
   const handleUpgraded = useCallback(() => {
     posthog.capture("subscribed_pro");
     setShowUpgradeToast(true);
@@ -159,7 +170,7 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background text-foreground overflow-hidden">
+    <div className="h-screen h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden">
       <Suspense fallback={null}>
         <UpgradeToastDetector onUpgraded={handleUpgraded} />
         <ReferralTracker />
@@ -407,26 +418,27 @@ export default function BuilderPage() {
               et recevoir les messages externes (JobMatch, onboarding) depuis les autres onglets. */}
           {!isDesktop && (
             <div className={mobileTab === "chat" ? "flex-1 flex flex-col overflow-hidden" : "hidden"}>
-              <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-indigo-400" />
+              <div className="px-4 py-2 bg-card border-b border-border flex items-center justify-between shadow-2xs">
+                <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 font-heading">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-blue" />
                   Coach IA — Alex
                 </p>
                 <div className="flex items-center gap-2">
                   {!plan.loading && plan.plan !== "pro" && (
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-muted-foreground font-medium">
                       {plan.messagesRemaining ?? 0}/{plan.messageLimit}
                     </span>
                   )}
                   <button
                     onClick={() => setChatMode(chatMode === "coach" ? "interview" : "coach")}
-                    className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md border transition-colors ${
+                    className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
                       chatMode === "interview"
-                        ? "bg-violet-900/40 border-violet-700/50 text-violet-300"
-                        : "border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600"
+                        ? "bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 font-bold"
+                        : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
-                    <GraduationCap className="w-3 h-3" />
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span className="text-[11px] font-medium">{chatMode === "interview" ? "Entretien" : "Entretien"}</span>
                   </button>
                 </div>
               </div>
@@ -437,60 +449,60 @@ export default function BuilderPage() {
           )}
 
           {mobileTab === "preview" && (
-            <div className="flex-1 overflow-hidden flex flex-col bg-slate-800">
-              <div className="px-3 py-2 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between gap-2">
+            <div className="flex-1 overflow-hidden flex flex-col h-full bg-slate-50 dark:bg-slate-950">
+              <div className="px-3 py-2 bg-card border-b border-border flex items-center justify-between gap-2 shadow-2xs">
                 <button
                   onClick={handleOpenJobMatch}
-                  className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-md
-                    border border-slate-700/50 text-slate-400 hover:text-violet-300
-                    hover:bg-violet-950/40 transition-all"
+                  className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl
+                    border border-border text-foreground hover:bg-muted
+                    transition-all active:scale-95 font-medium"
                 >
-                  <Briefcase className="w-3.5 h-3.5" />
+                  <Briefcase className="w-3.5 h-3.5 text-brand-blue" />
                   <span>Optimiser</span>
                 </button>
                 <div className="relative">
                   <button
                     data-design-panel-trigger
                     onClick={() => setIsDesignPanelOpen((p) => !p)}
-                    className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded-md border transition-all ${
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl border transition-all ${
                       isDesignPanelOpen
-                        ? "bg-indigo-950/60 border-indigo-700/50 text-indigo-300"
-                        : "border-slate-700/50 text-slate-400 hover:text-indigo-300 hover:bg-indigo-950/40"
+                        ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-700/50 text-brand-blue font-bold"
+                        : "border-border text-foreground hover:bg-muted"
                     }`}
                   >
-                    <Palette className="w-3.5 h-3.5" />
+                    <Palette className="w-3.5 h-3.5 text-brand-blue" />
                   </button>
                   {isDesignPanelOpen && <DesignPanel onClose={handleCloseDesignPanel} />}
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={handleDownloadPdf}
                     disabled={isPdfDownloading || plan.loading}
-                    className="flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md transition-all active:scale-95"
+                    className="flex items-center gap-1.5 text-xs bg-brand-blue hover:bg-brand-blue/90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
                   >
                     {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                    {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}
+                    <span>{isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}</span>
                   </button>
                   <button
                     onClick={handlePrintPdf}
                     disabled={plan.loading}
                     title="Imprimer le CV"
-                    className="flex items-center justify-center text-xs border border-slate-700/50 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-40 p-1.5 rounded-md transition-all active:scale-95"
+                    className="flex items-center justify-center text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 p-1.5 rounded-xl transition-all active:scale-95"
                   >
                     <Printer className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-hidden flex flex-col h-full">
                 <HtmlCvPreview />
               </div>
             </div>
           )}
 
           {mobileTab === "edit" && (
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800">
-                <p className="text-xs font-medium text-slate-400">Édition manuelle</p>
+            <div className="flex-1 overflow-hidden flex flex-col bg-background">
+              <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground font-heading">Édition manuelle</p>
               </div>
               <div className="flex-1 overflow-hidden">
                 <CvEditorView />
@@ -499,10 +511,10 @@ export default function BuilderPage() {
           )}
 
           {mobileTab === "letter" && (
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <div className="px-4 py-2.5 bg-slate-900/50 border-b border-slate-800">
-                <p className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-                  <Mail className="w-3 h-3 text-indigo-400" />
+            <div className="flex-1 overflow-hidden flex flex-col bg-background">
+              <div className="px-4 py-2.5 bg-card border-b border-border flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 font-heading">
+                  <Mail className="w-3.5 h-3.5 text-brand-blue" />
                   Lettre de motivation
                 </p>
               </div>
@@ -515,34 +527,41 @@ export default function BuilderPage() {
       </div>
 
       {/* ── Mobile bottom tab bar ── */}
-      <nav className="md:hidden flex-shrink-0 flex border-t border-slate-800 bg-slate-950 safe-area-inset-bottom">
+      <nav className="md:hidden flex-shrink-0 flex items-center border-t border-border bg-card/95 backdrop-blur-md pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-lg z-20">
         {([
           { id: "chat", icon: MessageSquare, label: "Coach" },
           { id: "preview", icon: Eye, label: "Aperçu" },
           { id: "edit", icon: PenLine, label: "Édition" },
           { id: "letter", icon: Mail, label: "Lettre" },
-        ] as const).map(({ id, icon: Icon, label }) => (
-          <button
-            key={id}
-            onClick={() => {
-              if (id === "preview") setLastPreviewSeenTs(Date.now());
-              if (id === "letter" && plan.plan !== "pro") {
-                setUpgradeModal({ open: true, reason: "letter" });
-                return;
-              }
-              setMobileTab(id);
-            }}
-            className={`flex-1 relative flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
-              mobileTab === id ? "text-indigo-400" : "text-slate-600 hover:text-slate-400"
-            }`}
-          >
-            <Icon className="w-5 h-5" />
-            {id === "preview" && hasUnseenUpdate && (
-              <span className="absolute top-2 right-[calc(50%-14px)] w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
-            )}
-            {label}
-          </button>
-        ))}
+        ] as const).map(({ id, icon: Icon, label }) => {
+          const isActive = mobileTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => {
+                if (id === "preview") setLastPreviewSeenTs(Date.now());
+                if (id === "letter" && plan.plan !== "pro") {
+                  setUpgradeModal({ open: true, reason: "letter" });
+                  return;
+                }
+                setMobileTab(id);
+              }}
+              className={`flex-1 relative flex flex-col items-center justify-center gap-1 pt-2.5 pb-1 text-xs font-medium transition-all ${
+                isActive
+                  ? "text-brand-blue font-bold"
+                  : "text-muted-foreground hover:text-foreground active:scale-95"
+              }`}
+            >
+              <div className={`p-1 rounded-xl transition-all ${isActive ? "bg-brand-blue/10" : ""}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              {id === "preview" && hasUnseenUpdate && (
+                <span className="absolute top-2 right-[calc(50%-14px)] w-2.5 h-2.5 bg-brand-blue rounded-full ring-2 ring-card animate-pulse" />
+              )}
+              <span className="text-[11px] leading-tight">{label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* ── Onboarding ── */}
