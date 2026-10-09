@@ -80,10 +80,10 @@ export function UploadCvButton() {
   };
 
   const icons: Record<UploadStatus, React.ReactNode> = {
-    idle: <Upload className="w-3.5 h-3.5" />,
-    uploading: <Loader2 className="w-3.5 h-3.5 animate-spin" />,
-    success: <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />,
-    error: <AlertCircle className="w-3.5 h-3.5 text-red-400" />,
+    idle: <Upload className="w-3.5 h-3.5 text-brand-blue shrink-0" />,
+    uploading: <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-blue shrink-0" />,
+    success: <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />,
+    error: <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />,
   };
 
   const labels: Record<UploadStatus, string> = {
@@ -94,8 +94,8 @@ export function UploadCvButton() {
   };
 
   const buttonColors: Record<UploadStatus, string> = {
-    idle: "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-medium",
-    uploading: "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 cursor-not-allowed",
+    idle: "text-foreground bg-card hover:bg-muted font-medium shadow-xs",
+    uploading: "text-brand-blue bg-brand-blue/10 cursor-not-allowed",
     success: "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40",
     error: "text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40",
   };
@@ -126,8 +126,8 @@ export function UploadCvButton() {
             : "Importer un CV existant (PDF ou DOCX)"
         }
         className={`
-          flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md
-          border border-slate-700/50 transition-all duration-200
+          flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-[10px]
+          border border-border transition-all duration-200 cursor-pointer
           ${buttonColors[status]}
         `}
       >
@@ -139,8 +139,8 @@ export function UploadCvButton() {
       {status === "error" && errorMsg && (
         <div
           className="absolute top-full mt-1.5 right-0 z-50 w-56 
-          bg-slate-900 border border-red-800/50 rounded-lg p-2.5
-          text-xs text-red-300 shadow-xl"
+          bg-card border border-destructive/40 rounded-xl p-2.5
+          text-xs text-destructive shadow-xl backdrop-blur-md"
         >
           {errorMsg}
         </div>

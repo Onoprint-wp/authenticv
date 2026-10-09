@@ -35,10 +35,11 @@ export function SyncIndicator() {
 
   return (
     <div
+      title={label}
       className={`flex items-center gap-1.5 text-xs font-medium transition-all duration-300 ${className}`}
     >
       {icon}
-      <span>{label}</span>
+      <span className="hidden sm:inline">{label}</span>
     </div>
   );
 }

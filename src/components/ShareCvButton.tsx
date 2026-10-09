@@ -139,15 +139,17 @@ export function ShareCvButton() {
           }`}
           title="Lien public actif — cliquer pour voir les options"
         >
-          <Share2 className="w-3.5 h-3.5" />
-          <span>Partager</span>
-          <span className="opacity-40">·</span>
-          <span className="font-semibold">{viewCount} {viewCount > 1 ? "vues" : "vue"}</span>
-          <ChevronDown className={`w-3 h-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+          <Share2 className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Partager</span>
+          <span className="hidden sm:inline opacity-40">·</span>
+          <span className="font-semibold text-[11px] sm:text-xs">
+            {viewCount} <span className="hidden sm:inline">{viewCount > 1 ? "vues" : "vue"}</span>
+          </span>
+          <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
 
         {dropdownOpen && (
-          <div className="absolute top-full right-0 mt-2 w-72 bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl z-[100] p-3.5 space-y-2 backdrop-blur-md">
+          <div className="absolute top-full right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl z-[100] p-3.5 space-y-2 backdrop-blur-md">
             <div className="flex items-center justify-between px-1 pb-2 border-b border-border">
               <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 font-heading">
                 <Globe className="w-3.5 h-3.5" />

@@ -13,6 +13,11 @@ export function HtmlCvPreview() {
   const cvData = useCvStore((s) => s.cvData);
   const paperRef = useRef<HTMLDivElement>(null);
   const [paperHeight, setPaperHeight] = useState(0);
+  const [zoom, setZoom] = useState(1);
+
+  const handleZoomIn = () => setZoom((z) => Math.min(1.4, Number((z + 0.1).toFixed(2))));
+  const handleZoomOut = () => setZoom((z) => Math.max(0.6, Number((z - 0.1).toFixed(2))));
+  const handleResetZoom = () => setZoom(1);
 
   useEffect(() => {
     const el = paperRef.current;
@@ -72,24 +77,33 @@ export function HtmlCvPreview() {
 
   return (
     <div className="flex-1 overflow-auto bg-slate-200/80 dark:bg-slate-900/60 p-4 sm:p-8 flex justify-center items-start custom-scrollbar relative">
-      {/* Floating Canvas Zoom Controls */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-1 z-30 shadow-lg bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 p-1">
+      {/* Floating Canvas Zoom Controls — positionné au-dessus de la bottom nav mobile (bottom-20) */}
+      <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 flex flex-col gap-1 z-30 shadow-lg bg-card/95 backdrop-blur-md rounded-full border border-border p-1">
         <button
           type="button"
+          onClick={handleZoomIn}
           title="Zoom avant"
-          className="w-8 h-8 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors font-bold text-base"
+          aria-label="Zoom avant"
+          className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors font-bold text-base active:scale-95 cursor-pointer"
         >
           +
         </button>
-        <div className="h-px bg-slate-200 dark:bg-slate-700 mx-2" />
-        <span className="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300 font-label-bold text-[10px]">
-          100%
-        </span>
-        <div className="h-px bg-slate-200 dark:bg-slate-700 mx-2" />
+        <div className="h-px bg-border mx-2" />
         <button
           type="button"
+          onClick={handleResetZoom}
+          title="Réinitialiser à 100%"
+          className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground font-semibold text-[10px] cursor-pointer"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <div className="h-px bg-border mx-2" />
+        <button
+          type="button"
+          onClick={handleZoomOut}
           title="Zoom arrière"
-          className="w-8 h-8 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors font-bold text-base"
+          aria-label="Zoom arrière"
+          className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors font-bold text-base active:scale-95 cursor-pointer"
         >
           -
         </button>
@@ -97,7 +111,12 @@ export function HtmlCvPreview() {
 
       <div
         ref={paperRef}
-        className="relative w-full max-w-[850px] min-h-[1122px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(15,34,61,0.08)] border border-slate-200/80 overflow-hidden flex flex-col"
+        style={{
+          transform: `scale(${zoom})`,
+          transformOrigin: "top center",
+          transition: "transform 0.15s ease-out",
+        }}
+        className="relative w-full max-w-[850px] min-h-[1122px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(15,34,61,0.08)] border border-slate-200/80 overflow-hidden flex flex-col mb-16 sm:mb-0"
       >
         {/* Page break indicators */}
         {Array.from({ length: Math.floor(paperHeight / A4_PAGE_PX) }, (_, i) => (

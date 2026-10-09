@@ -100,29 +100,29 @@ export function DesignPanel({ onClose }: Props) {
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 top-full mt-2 z-50 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/40 p-4"
+      className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-full mt-2 z-50 sm:w-72 max-w-[340px] mx-auto sm:mx-0 bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl p-4 backdrop-blur-md"
     >
       {/* Modèles */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Modèle</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Modèle</p>
       <div className="grid grid-cols-3 gap-2 mb-5">
         {LAYOUTS.map((layout) => (
           <button
             key={layout.id}
             onClick={() => updateDesignSettings({ layout: layout.id })}
-            className={`relative flex flex-col items-center gap-1.5 p-1.5 rounded-lg border-2 transition-all hover:scale-[1.03] focus:outline-none ${
+            className={`relative flex flex-col items-center gap-1.5 p-1.5 rounded-xl border-2 transition-all hover:scale-[1.02] focus:outline-none cursor-pointer ${
               currentLayout === layout.id
-                ? "border-indigo-500 bg-indigo-950/40"
-                : "border-slate-700 bg-slate-800/40 hover:border-slate-600"
+                ? "border-brand-blue bg-brand-blue/10"
+                : "border-border bg-muted/40 hover:border-border/80"
             }`}
           >
-            <div className="w-full aspect-[4/5] rounded overflow-hidden bg-white shadow-sm">
+            <div className="w-full aspect-[4/5] rounded overflow-hidden bg-white shadow-xs border border-border/40">
               {layout.preview}
             </div>
-            <span className={`text-[10px] font-medium ${currentLayout === layout.id ? "text-indigo-300" : "text-slate-400"}`}>
+            <span className={`text-[10px] font-semibold ${currentLayout === layout.id ? "text-brand-blue" : "text-muted-foreground"}`}>
               {layout.label}
             </span>
             {currentLayout === layout.id && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-indigo-500 rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-brand-blue rounded-full flex items-center justify-center shadow-xs">
                 <Check className="w-2.5 h-2.5 text-white" />
               </span>
             )}
@@ -131,14 +131,14 @@ export function DesignPanel({ onClose }: Props) {
       </div>
 
       {/* Couleurs */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Couleur</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Couleur</p>
       <div className="grid grid-cols-4 gap-2 mb-5">
         {COLOR_THEMES.map((theme) => (
           <button
             key={theme.id}
             title={theme.label}
             onClick={() => updateDesignSettings({ colorTheme: theme.id })}
-            className="relative w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 focus:outline-none"
+            className="relative w-10 h-10 rounded-xl border-2 transition-all hover:scale-105 focus:outline-none cursor-pointer shadow-xs"
             style={{
               background: theme.headerGradient,
               borderColor: currentTheme === theme.id ? theme.accentColor : "transparent",
@@ -153,14 +153,14 @@ export function DesignPanel({ onClose }: Props) {
       </div>
 
       {/* Police */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Police</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Police</p>
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => updateDesignSettings({ fontFamily: "sans" })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium border transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
             currentFont === "sans"
-              ? "bg-indigo-600 border-indigo-500 text-white"
-              : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+              ? "bg-brand-blue border-brand-blue text-white shadow-xs"
+              : "bg-muted/50 border-border text-muted-foreground hover:text-foreground"
           }`}
         >
           <Type className="w-3.5 h-3.5" />
@@ -168,10 +168,10 @@ export function DesignPanel({ onClose }: Props) {
         </button>
         <button
           onClick={() => updateDesignSettings({ fontFamily: "serif" })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm border transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
             currentFont === "serif"
-              ? "bg-indigo-600 border-indigo-500 text-white"
-              : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+              ? "bg-brand-blue border-brand-blue text-white shadow-xs"
+              : "bg-muted/50 border-border text-muted-foreground hover:text-foreground"
           }`}
           style={{ fontFamily: "Georgia, serif" }}
         >
@@ -181,16 +181,16 @@ export function DesignPanel({ onClose }: Props) {
       </div>
 
       {/* Espacement */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Espacement</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Espacement</p>
       <div className="flex gap-2 mb-5">
         {(["compact", "normal", "spacious"] as const).map((s) => (
           <button
             key={s}
             onClick={() => updateDesignSettings({ spacing: s })}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-all ${
+            className={`flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
               currentSpacing === s
-                ? "bg-indigo-600 border-indigo-500 text-white"
-                : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+                ? "bg-brand-blue border-brand-blue text-white shadow-xs"
+                : "bg-muted/50 border-border text-muted-foreground hover:text-foreground"
             }`}
           >
             {s === "compact" ? "Compact" : s === "normal" ? "Normal" : "Aéré"}
@@ -199,13 +199,13 @@ export function DesignPanel({ onClose }: Props) {
       </div>
 
       {/* Visibilité Recruteurs B2B */}
-      <div className="pt-3 border-t border-slate-800">
+      <div className="pt-3 border-t border-border">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+            <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
               <span>Visibilité CVthèque Recruteurs</span>
             </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+            <p className="text-[10px] text-muted-foreground mt-0.5">
               Profil anonymisé visible par les entreprises partenaires CEMAC
             </p>
           </div>
@@ -213,7 +213,7 @@ export function DesignPanel({ onClose }: Props) {
             type="button"
             onClick={() => updateDesignSettings({ recruiterVisible: !(designSettings?.recruiterVisible ?? true) })}
             className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              (designSettings?.recruiterVisible ?? true) ? "bg-indigo-600" : "bg-slate-700"
+              (designSettings?.recruiterVisible ?? true) ? "bg-brand-blue" : "bg-muted-foreground/30"
             }`}
           >
             <span
