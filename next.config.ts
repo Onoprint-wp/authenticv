@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const PROD_DOMAIN = "www.authenticv.app";
+const PROD_DOMAIN = process.env.NEXT_PUBLIC_PROD_DOMAIN || "www.authenticv.app";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "@prisma/client/edge", "@react-pdf/renderer"],
@@ -19,6 +19,19 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         has: [{ type: "host", value: "authenticv\\.app" }],
+        destination: `https://${PROD_DOMAIN}/:path*`,
+        permanent: true,
+      },
+      // Redirect apex authenticv.com or aliases if connected
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "authenticv\\.com" }],
+        destination: `https://${PROD_DOMAIN}/:path*`,
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "authentic-cv\\.com" }],
         destination: `https://${PROD_DOMAIN}/:path*`,
         permanent: true,
       },

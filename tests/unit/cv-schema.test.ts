@@ -67,4 +67,19 @@ describe("CvDataSchema & parseCvData (Single Source of Truth)", () => {
     expect(parsed.current).toBe(false);
     expect(parsed.description).toBe("");
   });
+
+  it("should correctly retain both base64 Data URLs and remote URLs in personalInfo", () => {
+    const dataUri = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+    const remoteUrl = "https://example.com/avatar.jpg";
+
+    const parsedDataUri = parseCvData({
+      personalInfo: { photoUrl: dataUri },
+    });
+    expect(parsedDataUri.personalInfo.photoUrl).toBe(dataUri);
+
+    const parsedRemote = parseCvData({
+      personalInfo: { photoUrl: remoteUrl },
+    });
+    expect(parsedRemote.personalInfo.photoUrl).toBe(remoteUrl);
+  });
 });

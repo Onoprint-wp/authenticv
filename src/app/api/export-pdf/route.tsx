@@ -14,16 +14,24 @@ async function generatePdfResponse(cvData: any, showWatermark: boolean): Promise
   // Convertir la photo en base64 pour éviter les échecs de fetch dans le contexte serverless
   if (cvData?.personalInfo?.photoUrl) {
     try {
-      const imgRes = await fetch(cvData.personalInfo.photoUrl);
-      if (imgRes.ok) {
-        const buffer = await imgRes.arrayBuffer();
-        const contentType = imgRes.headers.get("content-type") || "image/jpeg";
-
-        // react-pdf cannot render WebP — skip the photo in that case
-        if (contentType.includes("webp")) {
+      const photo = cvData.personalInfo.photoUrl.trim();
+      if (photo.startsWith("data:")) {
+        // Déjà en data URI (base64) - s'assurer que ce n'est pas du WebP
+        if (photo.startsWith("data:image/webp")) {
           cvData.personalInfo.photoUrl = "";
-        } else {
-          cvData.personalInfo.photoUrl = `data:${contentType};base64,${Buffer.from(buffer).toString("base64")}`;
+        }
+      } else if (photo.startsWith("http://") || photo.startsWith("https://")) {
+        const imgRes = await fetch(photo);
+        if (imgRes.ok) {
+          const buffer = await imgRes.arrayBuffer();
+          const contentType = imgRes.headers.get("content-type") || "image/jpeg";
+
+          // react-pdf cannot render WebP — skip the photo in that case
+          if (contentType.includes("webp")) {
+            cvData.personalInfo.photoUrl = "";
+          } else {
+            cvData.personalInfo.photoUrl = `data:${contentType};base64,${Buffer.from(buffer).toString("base64")}`;
+          }
         }
       }
     } catch {

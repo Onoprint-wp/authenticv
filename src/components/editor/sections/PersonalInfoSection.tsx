@@ -28,15 +28,42 @@ const PhotoUpload = () => {
       return;
     }
     setUploading(true);
+
+    const setLocalPhotoBase64 = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        updatePersonalInfo({ photoUrl: base64data });
+      };
+      reader.readAsDataURL(blob);
+    };
+
     try {
       const formData = new FormData();
       formData.append("photo", blob, "photo.jpg");
       const res = await fetch("/api/upload-photo", { method: "POST", body: formData });
-      if (!res.ok) { const err = await res.json(); alert(err.error || "Erreur lors de l'upload."); return; }
+      
+      // Mode invité / non connecté : persistance locale immédiate sans erreur
+      if (res.status === 401) {
+        setLocalPhotoBase64();
+        return;
+      }
+
+      if (!res.ok) {
+        console.warn("[Upload Photo] Fallback local base64 suite à réponse:", res.status);
+        setLocalPhotoBase64();
+        return;
+      }
+
       const { photoUrl } = await res.json();
-      updatePersonalInfo({ photoUrl });
-    } catch {
-      alert("Erreur réseau lors de l'upload.");
+      if (photoUrl) {
+        updatePersonalInfo({ photoUrl });
+      } else {
+        setLocalPhotoBase64();
+      }
+    } catch (err) {
+      console.warn("[Upload Photo] Fallback local base64 suite à erreur réseau:", err);
+      setLocalPhotoBase64();
     } finally {
       setUploading(false);
     }
