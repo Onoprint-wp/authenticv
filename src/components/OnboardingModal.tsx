@@ -70,32 +70,32 @@ export function OnboardingModal({ onStart }: OnboardingModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-white dark:bg-[#0F223D] border border-[#D1D5DB] dark:border-slate-800 rounded-[20px] shadow-2xl overflow-hidden relative font-sans">
+    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+      <div className="w-full max-w-lg max-h-[92dvh] flex flex-col bg-white dark:bg-[#0F223D] border border-[#D1D5DB] dark:border-slate-800 rounded-[20px] shadow-2xl overflow-hidden relative font-sans">
         
-        {/* Header */}
-        <div className="p-6 pb-4 text-center border-b border-border bg-[#FAFAFC] dark:bg-slate-900/60">
-          <div className="w-12 h-12 gradient-ai text-white rounded-[14px] flex items-center justify-center mx-auto mb-3 shadow-md">
-            <Bot className="w-6 h-6 text-white" />
+        {/* Header (shrink-0) */}
+        <div className="p-5 sm:p-6 pb-3 sm:pb-4 text-center border-b border-border bg-[#FAFAFC] dark:bg-slate-900/60 shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 gradient-ai text-white rounded-[12px] sm:rounded-[14px] flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-md">
+            <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
-          <h2 className="text-xl font-bold font-heading text-[#0F223D] dark:text-white mb-1">
-            {firstName ? `Bienvenue ${firstName} !` : "Bienvenue sur AuthentiCV !"}
+          <h2 className="text-lg sm:text-xl font-bold font-heading text-[#0F223D] dark:text-white mb-1">
+            {firstName ? `Bienvenue ${firstName} !` : "Bienvenue sur AuthenticV !"}
           </h2>
           <p className="text-xs text-[#6B7280] dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
             Alex IA va rédiger et structurer l&apos;intégralité de votre CV certifié en 30 secondes. Choisissez votre domaine :
           </p>
         </div>
 
-        {/* Presets Grid */}
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {/* Scrollable Presets Grid & Form */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
             {PRESET_PROFILES.map((preset) => {
               const Icon = preset.icon;
               return (
                 <button
                   key={preset.id}
                   onClick={() => handleSelectPreset(preset.prompt)}
-                  className="flex items-start gap-3 p-3 text-left rounded-[12px] bg-[#F3F4F6] hover:bg-blue-50 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-[#D1D5DB] dark:border-slate-700 hover:border-[#3667F0]/40 transition-all group cursor-pointer active:scale-98"
+                  className="flex items-start gap-3 p-2.5 sm:p-3 text-left rounded-[12px] bg-[#F3F4F6] hover:bg-blue-50 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-[#D1D5DB] dark:border-slate-700 hover:border-[#3667F0]/40 transition-all group cursor-pointer active:scale-98"
                 >
                   <div className="w-8 h-8 rounded-[8px] bg-white dark:bg-slate-900 flex items-center justify-center text-[#3667F0] shrink-0 border border-border group-hover:scale-105 transition-transform">
                     <Icon className="w-4 h-4" />
@@ -138,8 +138,8 @@ export function OnboardingModal({ onStart }: OnboardingModalProps) {
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-3 bg-[#FAFAFC] dark:bg-slate-900/60 border-t border-border flex items-center justify-between text-xs">
+        {/* Footer (shrink-0) */}
+        <div className="px-5 sm:px-6 py-3 bg-[#FAFAFC] dark:bg-slate-900/60 border-t border-border flex items-center justify-between text-xs shrink-0">
           <span className="text-[11px] text-[#6B7280] dark:text-slate-400 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-[#3667F0]" />
             <span>Format optimisé normes CEMAC & ATS</span>
@@ -155,7 +155,7 @@ export function OnboardingModal({ onStart }: OnboardingModalProps) {
         {/* Close Button */}
         <button
           onClick={() => onStart("")}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors p-1"
+          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center cursor-pointer"
           title="Fermer"
         >
           <X className="w-4 h-4" />

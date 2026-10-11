@@ -251,191 +251,198 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 transition-opacity"
         onClick={onClose}
       />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <div
-          className="pointer-events-auto w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden"
+          className="pointer-events-auto w-full max-w-md max-h-[92dvh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative px-6 pt-5 pb-4 bg-gradient-to-br from-indigo-950/80 to-violet-950/60 border-b border-slate-800">
+          <div className="relative px-5 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 bg-gradient-to-br from-indigo-950/90 via-slate-900 to-violet-950/70 border-b border-slate-800 shrink-0">
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors"
+              className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-7 h-7 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Fermer"
             >
               <X className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-600/40">
-                <Zap className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-600/40 shrink-0">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               </div>
-              <span className="text-sm font-bold text-white">AuthenticV — Choisissez votre offre</span>
+              <span className="text-xs sm:text-sm font-bold text-white tracking-tight">AuthenticV — Choisissez votre offre</span>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">{REASONS[reason]}</p>
+            <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed pr-6">{REASONS[reason]}</p>
           </div>
 
-          {/* Country Selection */}
-          <div className="px-5 pt-3 pb-1 border-b border-slate-800/60 flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400">Votre pays de résidence :</span>
-            <select
-              value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value as "CM" | "GA" | "TD" | "CG" | "CF")}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500"
-            >
-              <option value="CM">🇨🇲 Cameroun (MTN / Orange)</option>
-              <option value="GA">🇬🇦 Gabon (Moov Money / Airtel)</option>
-              <option value="TD">🇹🇩 Tchad (Moov Money / Airtel)</option>
-              <option value="CG">🇨🇬 Congo (Moov / MTN)</option>
-              <option value="CF">🇨🇫 RCA / Autres CEMAC</option>
-            </select>
-          </div>
-
-          {/* Tier Selection Grid */}
-          <div className="px-5 pt-3 pb-2 space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sélectionnez une formule :</p>
-            <div className="grid grid-cols-3 gap-2">
-
-              {/* Pass 24h */}
-              <button
-                type="button"
-                onClick={() => setSelectedTier("single")}
-                className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all ${
-                  selectedTier === "single"
-                    ? "bg-indigo-950/60 border-indigo-500 ring-1 ring-indigo-500 text-white shadow-md shadow-indigo-950"
-                    : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
-                }`}
+          {/* Scrollable Modal Body */}
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            {/* Country Selection */}
+            <div className="px-5 pt-3 pb-2 border-b border-slate-800/60 flex items-center justify-between bg-slate-950/20">
+              <span className="text-[11px] font-semibold text-slate-400">Votre pays de résidence :</span>
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value as "CM" | "GA" | "TD" | "CG" | "CF")}
+                className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-indigo-300 font-medium focus:outline-none focus:border-indigo-500 cursor-pointer"
               >
-                <span className="text-[10px] font-semibold text-indigo-400 uppercase">Pass 24h</span>
-                <span className="text-sm font-bold text-white mt-0.5">1 000 FCFA</span>
-                <span className="text-[10px] text-slate-400 mt-1 leading-tight">PDF sans filigrane illimité 24h</span>
-              </button>
-
-              {/* Pro Mensuel (Best value) */}
-              <button
-                type="button"
-                onClick={() => setSelectedTier("monthly")}
-                className={`relative flex flex-col items-start p-2.5 rounded-xl border text-left transition-all ${
-                  selectedTier === "monthly"
-                    ? "bg-indigo-900/40 border-indigo-500 ring-2 ring-indigo-500 text-white shadow-lg shadow-indigo-950"
-                    : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
-                }`}
-              >
-                <span className="absolute -top-2 right-2 bg-indigo-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase">
-                  Recommandé
-                </span>
-                <span className="text-[10px] font-semibold text-indigo-300 uppercase">Pro Mensuel</span>
-                <span className="text-sm font-bold text-white mt-0.5">5 000 FCFA</span>
-                <span className="text-[10px] text-slate-400 mt-1 leading-tight">Messages IA + PDF + JobMatch</span>
-              </button>
-
-              {/* Pass Annuel */}
-              <button
-                type="button"
-                onClick={() => setSelectedTier("annual")}
-                className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all ${
-                  selectedTier === "annual"
-                    ? "bg-violet-950/60 border-violet-500 ring-1 ring-violet-500 text-white shadow-md shadow-violet-950"
-                    : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
-                }`}
-              >
-                <span className="text-[10px] font-semibold text-violet-400 uppercase">Pass 1 An</span>
-                <span className="text-sm font-bold text-white mt-0.5">18 000 FCFA</span>
-                <span className="text-[10px] text-slate-400 mt-1 leading-tight">Illimité toute l&apos;année (-70%)</span>
-              </button>
-
+                <option value="CM">🇨🇲 Cameroun (MTN / Orange)</option>
+                <option value="GA">🇬🇦 Gabon (Moov Money / Airtel)</option>
+                <option value="TD">🇹🇩 Tchad (Moov Money / Airtel)</option>
+                <option value="CG">🇨🇬 Congo (Moov / MTN)</option>
+                <option value="CF">🇨🇫 RCA / Autres CEMAC</option>
+              </select>
             </div>
-          </div>
 
-          {/* Features Checklist */}
-          <div className="px-5 py-3 space-y-2 border-t border-slate-800/60 mt-2">
-            {PRO_FEATURES.map(({ icon: FeatureIcon, label }) => (
-              <div key={label} className="flex items-center gap-2.5">
-                <div className="w-4 h-4 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-                  <FeatureIcon className="w-2.5 h-2.5 text-indigo-400" />
-                </div>
-                <span className="text-xs text-slate-300">{label}</span>
-              </div>
-            ))}
-          </div>
+            {/* Tier Selection Grid */}
+            <div className="px-4 sm:px-5 pt-3 pb-2 space-y-2">
+              <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">Sélectionnez une formule :</p>
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
 
-          {/* Promo Code Input */}
-          <div className="px-5 py-2 border-t border-slate-800/80">
-            {appliedPromo ? (
-              <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-700/50 rounded-xl px-3 py-1.5 text-xs text-emerald-300">
-                <span>✓ Code {appliedPromo.code} (-{appliedPromo.discountPercent}%)</span>
+                {/* Pass 24h */}
                 <button
-                  onClick={() => {
-                    setAppliedPromo(null);
-                    setPromoInput("");
-                  }}
-                  className="text-slate-400 hover:text-white"
+                  type="button"
+                  onClick={() => setSelectedTier("single")}
+                  className={`flex flex-col items-start p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedTier === "single"
+                      ? "bg-indigo-950/70 border-indigo-500 ring-1 ring-indigo-500 text-white shadow-md shadow-indigo-950"
+                      : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
+                  }`}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <span className="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-tight">Pass 24h</span>
+                  <span className="text-xs sm:text-sm font-black text-white mt-0.5 tracking-tight">1 000 F</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 mt-1 leading-tight">PDF illimité 24h</span>
                 </button>
+
+                {/* Pro Mensuel (Best value) */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("monthly")}
+                  className={`relative flex flex-col items-start p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedTier === "monthly"
+                      ? "bg-indigo-900/50 border-indigo-500 ring-2 ring-indigo-500 text-white shadow-lg shadow-indigo-950"
+                      : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
+                  }`}
+                >
+                  <span className="absolute -top-2 right-1.5 sm:right-2 bg-indigo-600 text-white text-[8px] sm:text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase shadow">
+                    Top
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-indigo-300 uppercase tracking-tight">Pro Mois</span>
+                  <span className="text-xs sm:text-sm font-black text-white mt-0.5 tracking-tight">5 000 F</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 mt-1 leading-tight">IA + PDF + Job</span>
+                </button>
+
+                {/* Pass Annuel */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("annual")}
+                  className={`flex flex-col items-start p-2 sm:p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedTier === "annual"
+                      ? "bg-violet-950/70 border-violet-500 ring-1 ring-violet-500 text-white shadow-md shadow-violet-950"
+                      : "bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
+                  }`}
+                >
+                  <span className="text-[9px] sm:text-[10px] font-bold text-violet-400 uppercase tracking-tight">Pass 1 An</span>
+                  <span className="text-xs sm:text-sm font-black text-white mt-0.5 tracking-tight">18 000 F</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 mt-1 leading-tight">Année (-70%)</span>
+                </button>
+
               </div>
-            ) : (
-              <div className="space-y-1">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={promoInput}
-                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                    placeholder="Code Promo / Université (ex: UY1, GABON2026)"
-                    className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
-                  />
+            </div>
+
+            {/* Features Checklist */}
+            <div className="px-4 sm:px-5 py-2.5 sm:py-3 space-y-1.5 sm:space-y-2 border-t border-slate-800/60 bg-slate-950/10">
+              {PRO_FEATURES.map(({ icon: FeatureIcon, label }) => (
+                <div key={label} className="flex items-center gap-2 sm:gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                    <FeatureIcon className="w-2.5 h-2.5 text-indigo-400" />
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-slate-300">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Promo Code Input */}
+            <div className="px-4 sm:px-5 py-2 border-t border-slate-800/80 bg-slate-950/20">
+              {appliedPromo ? (
+                <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-700/50 rounded-xl px-3 py-1.5 text-xs text-emerald-300">
+                  <span className="font-semibold">✓ Code {appliedPromo.code} (-{appliedPromo.discountPercent}%)</span>
                   <button
-                    type="button"
-                    onClick={handleApplyPromo}
-                    disabled={validatingPromo || !promoInput.trim()}
-                    className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                    onClick={() => {
+                      setAppliedPromo(null);
+                      setPromoInput("");
+                    }}
+                    className="text-slate-400 hover:text-white cursor-pointer"
                   >
-                    {validatingPromo ? "..." : "Appliquer"}
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                {promoError && (
-                  <p className="text-[11px] text-red-400">{promoError}</p>
+              ) : (
+                <div className="space-y-1">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      placeholder="Code Promo / Université (ex: UY1, STUDENT50)"
+                      className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyPromo}
+                      disabled={validatingPromo || !promoInput.trim()}
+                      className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer"
+                    >
+                      {validatingPromo ? "..." : "Appliquer"}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="text-[11px] text-red-400">{promoError}</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Money Phone Input (Fast-Track) */}
+            <div className="px-4 sm:px-5 py-2.5 border-t border-slate-800/80 bg-slate-950/40">
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                <span>Numéro Mobile Money (MTN / Orange) :</span>
+                <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                  ⚡ Push USSD Direct
+                </span>
+              </label>
+              <div className="relative">
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="ex: 677 12 34 56 ou 699 00 00 00"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                <span>🔒 Vous recevrez une invite de confirmation sur votre téléphone.</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Price + CTA with High-End FinTech Gradient */}
+          <div className="shrink-0 relative px-4 sm:px-5 pt-3 sm:pt-4 pb-4 bg-gradient-to-b from-slate-900 via-indigo-950/70 to-slate-950 border-t border-indigo-500/30 space-y-2.5 sm:space-y-3 shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
+            {/* Price Row */}
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
+                  {currentPrice.toLocaleString("fr-FR")} <span className="text-indigo-400 text-base sm:text-lg font-bold">FCFA</span>
+                </span>
+                {appliedPromo && (
+                  <span className="text-xs line-through text-slate-500 font-medium">
+                    {originalPrice.toLocaleString("fr-FR")} FCFA
+                  </span>
                 )}
               </div>
-            )}
-          </div>
-
-          {/* Mobile Money Phone Input (Fast-Track) */}
-          <div className="px-5 py-2.5 border-t border-slate-800/80 bg-slate-950/40">
-            <label className="block text-[11px] font-semibold text-slate-300 mb-1 flex items-center justify-between">
-              <span>Numéro Mobile Money (MTN / Orange) :</span>
-              <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
-                ⚡ Push USSD Direct
-              </span>
-            </label>
-            <div className="relative">
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="ex: 677 12 34 56 ou 699 00 00 00"
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-            <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-              <span>🔒 Vous recevrez une invite de confirmation sur votre téléphone.</span>
-            </p>
-          </div>
-
-          {/* Price + CTA */}
-          <div className="px-5 pb-5 pt-2 space-y-3">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-white">
-                {currentPrice.toLocaleString("fr-FR")} FCFA
-              </span>
-              {appliedPromo && (
-                <span className="text-xs line-through text-slate-500">
-                  {originalPrice.toLocaleString("fr-FR")} FCFA
-                </span>
-              )}
-              <span className="text-xs text-slate-500">
-                {selectedTier === "single" ? " / 24 heures" : selectedTier === "monthly" ? " / mois" : " / an"}
+              <span className="text-[11px] font-semibold text-indigo-300 bg-indigo-950/90 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+                {selectedTier === "single" ? "Pass 24 heures" : selectedTier === "monthly" ? "Par mois" : "Par an (-70%)"}
               </span>
             </div>
 
@@ -451,30 +458,30 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
             )}
 
             {collect ? (
-              <div role="status" aria-live="polite" className="bg-slate-950/70 border border-indigo-700/50 rounded-xl px-4 py-3 text-xs text-slate-200 space-y-2">
+              <div role="status" aria-live="polite" className="relative bg-gradient-to-br from-indigo-950/90 via-slate-900/95 to-violet-950/80 border border-indigo-500/40 rounded-xl px-3.5 py-3 text-xs text-slate-200 space-y-2 shadow-xl shadow-indigo-950/40">
                 {collect.phase === "waiting" && (
                   <>
-                    <p className="flex items-center gap-2 font-semibold text-white text-sm">
-                      <Loader2 className="w-4 h-4 animate-spin text-indigo-400" /> Validez le paiement sur votre téléphone
+                    <p className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin text-indigo-400 shrink-0" /> Validez le paiement sur votre téléphone
                     </p>
-                    <p className="leading-relaxed">
-                      Une demande de paiement de <b>{currentPrice.toLocaleString("fr-FR")} FCFA</b> vient d&apos;être envoyée
-                      au <b>{phoneNumber || personalInfo?.phone}</b>. Entrez votre code secret Mobile Money pour confirmer.
+                    <p className="leading-relaxed text-[11px] sm:text-xs">
+                      Une demande de <b>{currentPrice.toLocaleString("fr-FR")} FCFA</b> a été envoyée
+                      au <b>{phoneNumber || personalInfo?.phone}</b>. Entrez votre code secret Mobile Money.
                     </p>
-                    <p className="text-slate-400 leading-relaxed">
+                    <p className="text-slate-400 leading-relaxed text-[10px] sm:text-[11px]">
                       Pas de message ? Composez <b className="text-amber-300">{ussdHint(collect.operator, collect.ussdCode)}</b> pour
-                      afficher les paiements en attente. Restez sur cette page : votre CV se débloque automatiquement.
+                      valider. Restez sur cette page : déblocage automatique.
                     </p>
                   </>
                 )}
                 {collect.phase === "failed" && (
                   <>
-                    <p className="font-semibold text-red-300 text-sm">Paiement refusé ou annulé</p>
-                    <p className="text-slate-400">Aucun montant n&apos;a été débité. Vérifiez votre solde et réessayez.</p>
+                    <p className="font-bold text-red-300 text-xs sm:text-sm">Paiement refusé ou annulé</p>
+                    <p className="text-slate-400 text-[11px]">Aucun montant n&apos;a été débité. Vérifiez votre solde et réessayez.</p>
                     <button
                       type="button"
                       onClick={() => setCollect(null)}
-                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg"
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg cursor-pointer"
                     >
                       Réessayer
                     </button>
@@ -482,32 +489,33 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
                 )}
                 {collect.phase === "timeout" && (
                   <>
-                    <p className="font-semibold text-amber-300 text-sm">Nous n&apos;avons pas encore reçu la confirmation</p>
-                    <p className="text-slate-400 leading-relaxed">
-                      Si vous avez validé sur votre téléphone, cliquez sur « Vérifier à nouveau ». Si vous n&apos;avez reçu
-                      aucune demande, payez via la page sécurisée CamPay.
+                    <p className="font-bold text-amber-300 text-xs sm:text-sm">Confirmation en attente</p>
+                    <p className="text-slate-400 leading-relaxed text-[11px]">
+                      Si vous avez validé sur votre mobile, cliquez sur « Vérifier à nouveau ».
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCollect((c) => (c ? { ...c, phase: "waiting" } : c));
-                        setPollKey((k) => k + 1);
-                      }}
-                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg"
-                    >
-                      Vérifier à nouveau
-                    </button>
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={() => {
-                        setCollect(null);
-                        handleUpgrade(true);
-                      }}
-                      className="w-full py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 font-medium rounded-lg"
-                    >
-                      Payer via la page CamPay
-                    </button>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCollect((c) => (c ? { ...c, phase: "waiting" } : c));
+                          setPollKey((k) => k + 1);
+                        }}
+                        className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg cursor-pointer"
+                      >
+                        Vérifier
+                      </button>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => {
+                          setCollect(null);
+                          handleUpgrade(true);
+                        }}
+                        className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 font-medium rounded-lg cursor-pointer"
+                      >
+                        Page CamPay
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
@@ -515,28 +523,31 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               <button
                 onClick={() => handleUpgrade()}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500
-                  disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold
-                  rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3 sm:py-3.5 px-4
+                  bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600
+                  hover:from-indigo-500 hover:to-violet-500
+                  disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold
+                  rounded-xl transition-all shadow-lg shadow-indigo-600/35 hover:shadow-indigo-500/50
+                  active:scale-[0.98] cursor-pointer"
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> {selectedCountry === "CM" ? "Envoi de la demande de paiement…" : "Redirection vers Mobile Money…"}</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {selectedCountry === "CM" ? "Envoi de la demande sur votre mobile…" : "Redirection vers Mobile Money…"}</>
                 ) : (
-                  <><Zap className="w-4 h-4" /> {selectedTier === "single" ? "Débloquer & Télécharger mon CV (1 000 FCFA)" : selectedTier === "monthly" ? "Souscrire au Pass Pro Mensuel" : "Activer le Pass Annuel"}</>
+                  <><Zap className="w-4 h-4 fill-white text-white" /> {selectedTier === "single" ? "Débloquer & Télécharger mon CV (1 000 FCFA)" : selectedTier === "monthly" ? "Souscrire au Pass Pro Mensuel" : "Activer le Pass Annuel"}</>
                 )}
               </button>
             )}
 
-            <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-slate-400 pt-0.5">
               <a
                 href="https://wa.me/237688114491?text=Bonjour%2C%20j%27ai%20besoin%20d%27assistance%20pour%20mon%20paiement%20sur%20AuthentiCV"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium transition-colors"
+                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold transition-colors"
               >
                 <span>💬 Assistance WhatsApp direct</span>
               </a>
-              <span className="text-slate-500">Paiement sécurisé MTN / OM</span>
+              <span className="text-slate-400 font-medium">🔒 MTN / Orange Sécurisé</span>
             </div>
           </div>
         </div>

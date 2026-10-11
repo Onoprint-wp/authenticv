@@ -66,9 +66,9 @@ export function RecruiterBuyCreditsModal({ isOpen, onClose, isEn = false }: Prop
   return (
     <>
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 pointer-events-none">
         <div
-          className="pointer-events-auto w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden"
+          className="pointer-events-auto w-full max-w-lg max-h-[92dvh] flex flex-col bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
