@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { PaymentLedgerService } from "@/services/payment/payment-ledger.service";
+import { applyCampayTransaction } from "@/services/payment/campay-processor";
+import { getTransactionStatus } from "@/lib/campay";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,9 +28,29 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const intent = await PaymentLedgerService.getPaymentIntent(createAdminClient(), ref);
+  const admin = createAdminClient();
+  let intent = await PaymentLedgerService.getPaymentIntent(admin, ref);
   if (!intent || intent.user_id !== user.id) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  // ── Active reconciliation (collect mode): ask CamPay directly if the webhook hasn't landed yet ──
+  const campayRef = (intent.metadata as Record<string, unknown> | null | undefined)?.campay_reference;
+  if ((intent.status ?? "pending") === "pending" && typeof campayRef === "string" && campayRef) {
+    try {
+      const tx = await getTransactionStatus(campayRef);
+      if (tx && (tx.status === "SUCCESSFUL" || tx.status === "FAILED")) {
+        // The reference was obtained from our own /collect/ call; bind it to this intent.
+        await applyCampayTransaction(admin, {
+          ...tx,
+          reference: tx.reference || campayRef,
+          external_reference: ref,
+        });
+        intent = (await PaymentLedgerService.getPaymentIntent(admin, ref)) ?? intent;
+      }
+    } catch (err) {
+      console.warn("[CamPay Status] Reconciliation check failed:", err);
+    }
   }
 
   return NextResponse.json({

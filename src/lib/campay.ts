@@ -144,15 +144,20 @@ export async function collectPayment(opts: {
   phoneNumber: string;
   userId: string;
   description?: string;
+  externalReference?: string;
 }): Promise<CollectResponse> {
+  // CamPay demo environment has a strict max limit of 25 XAF
+  const isDemo = CAMPAY_API_BASE.includes("demo.campay.net");
+  const requestAmount = isDemo ? Math.min(opts.amount, 25) : opts.amount;
+
   return campayFetch<CollectResponse>("/collect/", {
     method: "POST",
     body: JSON.stringify({
-      amount: String(opts.amount),
+      amount: String(requestAmount),
       currency: "XAF",
       from: opts.phoneNumber,
       description: opts.description ?? "AuthenticV Pro – Abonnement mensuel",
-      external_reference: opts.userId,
+      external_reference: opts.externalReference ?? opts.userId,
     }),
   });
 }

@@ -96,9 +96,77 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
     }
   };
 
-  const handleUpgrade = async () => {
-    setLoading(true);
+  const [collect, setCollect] = useState<{
+    ref: string;
+    tier: "single" | "monthly" | "annual";
+    ussdCode?: string;
+    operator?: string;
+    phase: "waiting" | "failed" | "timeout";
+  } | null>(null);
+  const [pollKey, setPollKey] = useState(0);
+
+  // ── Collect mode: poll the real payment status until the operator confirms ──
+  useEffect(() => {
+    if (!collect || collect.phase !== "waiting") return;
+    let cancelled = false;
+    let tries = 0;
+    const MAX_TRIES = 60; // ~3 minutes at 3s
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const tick = async () => {
+      if (cancelled) return;
+      tries += 1;
+      try {
+        const res = await fetch(`/api/campay/status?ref=${encodeURIComponent(collect.ref)}`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (cancelled) return;
+          if (data.status === "successful") {
+            // Full reload so the builder picks up the new session/credit; the builder shows the
+            // confirmation toast and fires the Meta Purchase event (once per ref).
+            window.location.assign(
+              `/builder?upgraded=true&tier=${collect.tier}&ref=${encodeURIComponent(collect.ref)}`,
+            );
+            return;
+          }
+          if (data.status === "failed") {
+            setCollect((c) => (c ? { ...c, phase: "failed" } : c));
+            return;
+          }
+        }
+      } catch {
+        // network hiccup: keep polling
+      }
+      if (cancelled) return;
+      if (tries >= MAX_TRIES) {
+        setCollect((c) => (c ? { ...c, phase: "timeout" } : c));
+        return;
+      }
+      timer = setTimeout(tick, 3000);
+    };
+
+    timer = setTimeout(tick, 3000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [collect?.ref, collect?.phase, collect?.tier, pollKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleUpgrade = async (forceLink = false) => {
     setCheckoutError(null);
+
+    const isCampay = !(selectedCountry === "GA" || selectedCountry === "TD" || selectedCountry === "CG");
+    const useCollect = selectedCountry === "CM" && !forceLink;
+    const rawPhone = (phoneNumber.trim() || personalInfo?.phone || "").replace(/[^0-9]/g, "");
+    const localPhone = rawPhone.startsWith("237") && rawPhone.length === 12 ? rawPhone.slice(3) : rawPhone;
+    if (useCollect && !/^6\d{8}$/.test(localPhone)) {
+      setCheckoutError({
+        message: "Entrez votre numéro Mobile Money MTN ou Orange (9 chiffres, ex : 677 12 34 56) pour recevoir la demande de paiement.",
+      });
+      return;
+    }
+
+    setLoading(true);
     trackEvent("checkout_started", {
       plan: selectedTier,
       value: getCalculatedPrice(selectedTier),
@@ -107,9 +175,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
     });
     try {
       // Direct Gabon and Tchad to Moov Africa checkout API, Cameroun to CamPay
-      const checkoutEndpoint = (selectedCountry === "GA" || selectedCountry === "TD" || selectedCountry === "CG")
-        ? "/api/moov/checkout"
-        : "/api/campay/checkout";
+      const checkoutEndpoint = isCampay ? "/api/campay/checkout" : "/api/moov/checkout";
 
       const res = await fetch(checkoutEndpoint, {
         method: "POST",
@@ -117,6 +183,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
         body: JSON.stringify({
           tier: selectedTier,
           countryCode: selectedCountry,
+          mode: useCollect ? "collect" : undefined,
           promoCode: appliedPromo?.code || undefined,
           phoneNumber: phoneNumber.trim() || personalInfo?.phone || undefined,
           email: personalInfo?.email || undefined,
@@ -126,13 +193,28 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
       });
       const data = await res.json().catch(() => ({} as Record<string, string>));
 
-      if (res.ok && data.url) {
+      if (res.ok && (data.url || data.mode === "collect")) {
         try {
           localStorage.setItem(
             "acv_pending_payment",
             JSON.stringify({ ref: data.externalReference, tier: selectedTier, ts: Date.now() }),
           );
         } catch {}
+      }
+
+      if (res.ok && data.mode === "collect" && data.externalReference) {
+        setLoading(false);
+        setCollect({
+          ref: data.externalReference,
+          tier: selectedTier,
+          ussdCode: data.ussdCode,
+          operator: data.operator,
+          phase: "waiting",
+        });
+        return;
+      }
+
+      if (res.ok && data.url) {
         window.location.href = data.url;
         return;
       }
@@ -151,6 +233,14 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
       setLoading(false);
       setCheckoutError({ message: "Connexion internet instable : le paiement n'a pas pu démarrer. Vérifiez votre réseau et réessayez." });
     }
+  };
+
+  const ussdHint = (op?: string, code?: string) => {
+    const o = (op || "").toUpperCase();
+    if (code) return code;
+    if (o.includes("ORANGE")) return "#150*50#";
+    if (o.includes("MTN")) return "*126#";
+    return "#150*50# (Orange) ou *126# (MTN)";
   };
 
   if (!isOpen) return null;
@@ -360,19 +450,82 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
               </div>
             )}
 
-            <button
-              onClick={handleUpgrade}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500
-                disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold
-                rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95 cursor-pointer"
-            >
-              {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Redirection vers Mobile Money…</>
-              ) : (
-                <><Zap className="w-4 h-4" /> {selectedTier === "single" ? "Débloquer & Télécharger mon CV (1 000 FCFA)" : selectedTier === "monthly" ? "Souscrire au Pass Pro Mensuel" : "Activer le Pass Annuel"}</>
-              )}
-            </button>
+            {collect ? (
+              <div role="status" aria-live="polite" className="bg-slate-950/70 border border-indigo-700/50 rounded-xl px-4 py-3 text-xs text-slate-200 space-y-2">
+                {collect.phase === "waiting" && (
+                  <>
+                    <p className="flex items-center gap-2 font-semibold text-white text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin text-indigo-400" /> Validez le paiement sur votre téléphone
+                    </p>
+                    <p className="leading-relaxed">
+                      Une demande de paiement de <b>{currentPrice.toLocaleString("fr-FR")} FCFA</b> vient d&apos;être envoyée
+                      au <b>{phoneNumber || personalInfo?.phone}</b>. Entrez votre code secret Mobile Money pour confirmer.
+                    </p>
+                    <p className="text-slate-400 leading-relaxed">
+                      Pas de message ? Composez <b className="text-amber-300">{ussdHint(collect.operator, collect.ussdCode)}</b> pour
+                      afficher les paiements en attente. Restez sur cette page : votre CV se débloque automatiquement.
+                    </p>
+                  </>
+                )}
+                {collect.phase === "failed" && (
+                  <>
+                    <p className="font-semibold text-red-300 text-sm">Paiement refusé ou annulé</p>
+                    <p className="text-slate-400">Aucun montant n&apos;a été débité. Vérifiez votre solde et réessayez.</p>
+                    <button
+                      type="button"
+                      onClick={() => setCollect(null)}
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg"
+                    >
+                      Réessayer
+                    </button>
+                  </>
+                )}
+                {collect.phase === "timeout" && (
+                  <>
+                    <p className="font-semibold text-amber-300 text-sm">Nous n&apos;avons pas encore reçu la confirmation</p>
+                    <p className="text-slate-400 leading-relaxed">
+                      Si vous avez validé sur votre téléphone, cliquez sur « Vérifier à nouveau ». Si vous n&apos;avez reçu
+                      aucune demande, payez via la page sécurisée CamPay.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCollect((c) => (c ? { ...c, phase: "waiting" } : c));
+                        setPollKey((k) => k + 1);
+                      }}
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg"
+                    >
+                      Vérifier à nouveau
+                    </button>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setCollect(null);
+                        handleUpgrade(true);
+                      }}
+                      className="w-full py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 font-medium rounded-lg"
+                    >
+                      Payer via la page CamPay
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => handleUpgrade()}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500
+                  disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold
+                  rounded-xl transition-all shadow-lg shadow-indigo-600/30 active:scale-95 cursor-pointer"
+              >
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {selectedCountry === "CM" ? "Envoi de la demande de paiement…" : "Redirection vers Mobile Money…"}</>
+                ) : (
+                  <><Zap className="w-4 h-4" /> {selectedTier === "single" ? "Débloquer & Télécharger mon CV (1 000 FCFA)" : selectedTier === "monthly" ? "Souscrire au Pass Pro Mensuel" : "Activer le Pass Annuel"}</>
+                )}
+              </button>
+            )}
 
             <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
               <a

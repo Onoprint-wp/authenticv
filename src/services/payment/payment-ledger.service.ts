@@ -164,7 +164,10 @@ export class PaymentLedgerService {
       // Calcul des frais opérateur estimés (ex: ~3% standard CEMAC)
       const feesOperator = record.fees_operator ?? Math.round(record.amount_xaf * 0.03);
 
-      await supabase.from("transactions").upsert(
+      // NB: plain insert — `transactions.reference_id` has no unique constraint, so an
+      // upsert with onConflict fails (42P10). Idempotency is guaranteed upstream by the
+      // atomic claim on payment_intents.
+      const { error } = await supabase.from("transactions").insert(
         {
           reference_id: record.reference_id,
           user_id: record.user_id || null,
@@ -183,9 +186,11 @@ export class PaymentLedgerService {
           commission_amount_xaf: record.commission_amount_xaf || 0,
           metadata: record.metadata ?? {},
           created_at: record.created_at || new Date().toISOString(),
-        },
-        { onConflict: "reference_id" }
+        }
       );
+      if (error) {
+        console.error("[PaymentLedgerService.recordTransaction] Insert failed:", error.message);
+      }
     } catch (err) {
       console.warn("[PaymentLedgerService.recordTransaction] Warning:", err);
     }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { createPaymentLink, SITE_URL } from "@/lib/campay";
+import { collectPayment, createPaymentLink, SITE_URL } from "@/lib/campay";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
 import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 import { provisionGuestSession } from "@/lib/guest-checkout";
@@ -16,6 +16,11 @@ function normalizeCameroonPhone(rawPhone?: string): string {
   if (cleaned.startsWith("237") && cleaned.length === 12) return cleaned;
   if (cleaned.length === 9 && (cleaned.startsWith("6") || cleaned.startsWith("2"))) return `237${cleaned}`;
   return cleaned;
+}
+
+/** Cameroon mobile money numbers (MTN / Orange): 237 6XX XX XX XX */
+function isValidCollectPhone(phone: string): boolean {
+  return /^2376\d{8}$/.test(phone);
 }
 
 /**
@@ -34,11 +39,15 @@ export async function POST(req: Request) {
   let rawPhone = "";
   let rawEmail = "";
   let cvContent: unknown = undefined;
+  let mode: "link" | "collect" = "link";
 
   try {
     const body = await req.json();
     if (body.tier === "single" || body.tier === "annual" || body.tier === "monthly") {
       tier = body.tier;
+    }
+    if (body.mode === "collect") {
+      mode = "collect";
     }
     if (body.promoCode) {
       promoCode = String(body.promoCode).trim().toUpperCase();
@@ -101,6 +110,12 @@ export async function POST(req: Request) {
   }
 
   const cleanPhone = normalizeCameroonPhone(rawPhone);
+  if (mode === "collect" && !isValidCollectPhone(cleanPhone)) {
+    return NextResponse.json(
+      { error: "Numéro Mobile Money invalide. Format attendu : 6XX XX XX XX (MTN ou Orange).", code: "INVALID_PHONE" },
+      { status: 400 },
+    );
+  }
   let userId: string;
   let userEmail: string;
 
@@ -150,16 +165,61 @@ export async function POST(req: Request) {
       },
     });
 
+    const redirectUrl = `${SITE_URL}/builder?upgraded=true&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`;
+
+    // ── Mode "collect": USSD push straight to the customer's phone, they never leave the site ──
+    if (mode === "collect" && isValidCollectPhone(cleanPhone)) {
+      try {
+        const collect = await collectPayment({
+          amount,
+          phoneNumber: cleanPhone,
+          userId,
+          externalReference: externalRef,
+          description,
+        });
+
+        // Keep the CamPay reference on the intent so the status endpoint can reconcile it
+        const { data: intentRow } = await admin
+          .from("payment_intents")
+          .select("metadata")
+          .eq("external_reference", externalRef)
+          .maybeSingle();
+        await admin
+          .from("payment_intents")
+          .update({
+            metadata: {
+              ...((intentRow?.metadata as Record<string, unknown>) ?? {}),
+              campay_reference: collect.reference,
+              mode: "collect",
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("external_reference", externalRef);
+
+        return NextResponse.json({
+          mode: "collect",
+          externalReference: externalRef,
+          reference: collect.reference,
+          ussdCode: collect.ussd_code,
+          operator: collect.operator,
+          redirectUrl,
+        });
+      } catch (collectErr) {
+        // Fall back to the hosted payment page below
+        console.warn("[CamPay Checkout] Collect failed, falling back to payment link:", collectErr);
+      }
+    }
+
     const result = await createPaymentLink({
       amount,
       userId,
       externalReference: externalRef,
       userEmail,
-      redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`,
+      redirectUrl,
       description,
     });
 
-    return NextResponse.json({ url: result.link, externalReference: externalRef });
+    return NextResponse.json({ url: result.link, externalReference: externalRef, redirectUrl });
   } catch (err) {
     console.error("[CamPay Checkout] Error:", err);
     return NextResponse.json(
