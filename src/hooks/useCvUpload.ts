@@ -25,6 +25,15 @@ export function useCvUpload(options?: UseCvUploadOptions) {
     const isImage = file.type.startsWith("image/") || /\.(jpe?g|png|webp|jfif|heic|bmp)$/i.test(file.name);
 
     if (isImage) {
+      if (file.name.toLowerCase().endsWith(".heic") || file.type.includes("heic")) {
+        const message = "Les fichiers iPhone (.HEIC) ne sont pas supportés. Veuillez convertir en JPG ou PNG.";
+        setErrorMsg(message);
+        setStatus("error");
+        setTimeout(() => setStatus("idle"), 5000);
+        options?.onError?.(message);
+        return null;
+      }
+
       if (file.size > 5 * 1024 * 1024) {
         const message = "La photo ne doit pas dépasser 5 Mo.";
         setErrorMsg(message);
@@ -37,9 +46,26 @@ export function useCvUpload(options?: UseCvUploadOptions) {
       setStatus("uploading");
       setErrorMsg("");
 
+      // 1. Optimistic UI : afficher instantanément en base64 pour un retour visuel immédiat
       try {
+        const localPhotoUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        if (localPhotoUrl) {
+          useCvStore.getState().updatePersonalInfo({ photoUrl: localPhotoUrl });
+        }
+      } catch {}
+
+      try {
+        const { currentResumeId } = useCvStore.getState();
         const formData = new FormData();
         formData.append("photo", file);
+        if (currentResumeId) {
+          formData.append("resumeId", currentResumeId);
+        }
+
         const res = await fetch("/api/upload-photo", {
           method: "POST",
           body: formData,
@@ -51,17 +77,11 @@ export function useCvUpload(options?: UseCvUploadOptions) {
           photoUrl = json.photoUrl || "";
         }
 
-        // Repli Data URL local si pas d'URL serveur
-        if (!photoUrl) {
-          photoUrl = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(file);
-          });
+        if (photoUrl) {
+          useCvStore.getState().updatePersonalInfo({ photoUrl });
         }
 
         saveCheckpoint();
-        useCvStore.getState().updatePersonalInfo({ photoUrl });
         const updated = useCvStore.getState().cvData;
 
         setStatus("success");
@@ -69,28 +89,13 @@ export function useCvUpload(options?: UseCvUploadOptions) {
         options?.onSuccess?.(updated, "image");
         return updated;
       } catch (err) {
-        console.warn("[Upload Photo] Erreur upload, repli Data URL:", err);
-        try {
-          const photoUrl = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(file);
-          });
-          saveCheckpoint();
-          useCvStore.getState().updatePersonalInfo({ photoUrl });
-          const updated = useCvStore.getState().cvData;
-          setStatus("success");
-          setTimeout(() => setStatus("idle"), 3000);
-          options?.onSuccess?.(updated, "image");
-          return updated;
-        } catch {
-          const message = "Impossible de traiter la photo.";
-          setErrorMsg(message);
-          setStatus("error");
-          setTimeout(() => setStatus("idle"), 4000);
-          options?.onError?.(message);
-          return null;
-        }
+        console.warn("[Upload Photo] Erreur serveur, conservation de la version locale:", err);
+        saveCheckpoint();
+        const updated = useCvStore.getState().cvData;
+        setStatus("success");
+        setTimeout(() => setStatus("idle"), 3000);
+        options?.onSuccess?.(updated, "image");
+        return updated;
       }
     }
 

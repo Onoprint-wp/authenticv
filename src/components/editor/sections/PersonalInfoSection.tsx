@@ -19,6 +19,10 @@ const PhotoUpload = () => {
   };
 
   const openCropper = (file: File) => {
+    if (file.name.toLowerCase().endsWith(".heic") || file.type.includes("heic")) {
+      alert("Les fichiers au format iPhone (.HEIC) ne sont pas supportés directement par le navigateur. Veuillez exporter votre photo en JPG ou PNG (ou en faire une capture d'écran).");
+      return;
+    }
     if (!isImageFile(file)) {
       alert("Format d'image non reconnu. Veuillez sélectionner une photo (JPG, PNG ou WebP).");
       return;
@@ -32,46 +36,52 @@ const PhotoUpload = () => {
 
   const handleCropConfirm = async (blob: Blob) => {
     setPendingImageSrc(null);
-    if (blob.size > 5 * 1024 * 1024) {
-      alert("La photo ne doit pas dépasser 5 Mo.");
-      return;
-    }
     setUploading(true);
 
-    const setLocalPhotoBase64 = (): Promise<string> => {
-      return new Promise((resolve) => {
+    // 1. Optimistic UI : affichage IMMÉDIAT de la nouvelle photo recadrée (0 seconde d'attente)
+    let localBase64 = "";
+    try {
+      localBase64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64data = reader.result as string;
-          updatePersonalInfo({ photoUrl: base64data });
-          resolve(base64data);
-        };
+        reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(blob);
       });
-    };
+      if (localBase64) {
+        updatePersonalInfo({ photoUrl: localBase64 });
+      }
+    } catch {
+      // Ignorer
+    }
 
+    // 2. Upload serveur avec cache-busting unique
     try {
+      const { currentResumeId } = useCvStore.getState();
       const formData = new FormData();
       formData.append("photo", blob, "photo.jpg");
-      const res = await fetch("/api/upload-photo", { method: "POST", body: formData });
-      
-      // Mode invité ou stockage indisponible : persistance locale immédiate sans bloquer l'UI
-      if (res.status === 401 || !res.ok) {
-        await setLocalPhotoBase64();
-        return;
+      if (currentResumeId) {
+        formData.append("resumeId", currentResumeId);
       }
 
-      const { photoUrl } = await res.json();
-      if (photoUrl) {
-        updatePersonalInfo({ photoUrl });
-      } else {
-        await setLocalPhotoBase64();
+      const res = await fetch("/api/upload-photo", { method: "POST", body: formData });
+      if (res.ok) {
+        const { photoUrl } = await res.json();
+        if (photoUrl) {
+          updatePersonalInfo({ photoUrl });
+        }
       }
     } catch (err) {
-      console.warn("[Upload Photo] Fallback local base64 suite à erreur réseau:", err);
-      await setLocalPhotoBase64();
+      console.warn("[Upload Photo] Erreur réseau, photo locale conservée:", err);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    updatePersonalInfo({ photoUrl: "" });
+    try {
+      await fetch("/api/upload-photo", { method: "DELETE" });
+    } catch (err) {
+      console.warn("[Delete Photo] Erreur suppression:", err);
     }
   };
 
@@ -109,6 +119,7 @@ const PhotoUpload = () => {
               src={cvData.personalInfo.photoUrl}
               alt="Photo de profil"
               className="w-full h-full object-cover"
+              loading="eager"
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Camera className="w-5 h-5 text-white" />
@@ -142,8 +153,8 @@ const PhotoUpload = () => {
         </p>
         {cvData.personalInfo.photoUrl && (
           <button
-            onClick={() => updatePersonalInfo({ photoUrl: "" })}
-            className="text-xs text-red-400 hover:text-red-300 mt-1 self-start transition-colors"
+            onClick={handleDeletePhoto}
+            className="text-xs text-red-400 hover:text-red-300 mt-1 self-start transition-colors cursor-pointer"
           >
             Supprimer la photo
           </button>

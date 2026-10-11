@@ -40,6 +40,16 @@ export const uploadRateLimit = hasUpstash
     })
   : mockLimiter(5);
 
+// 30 uploads de photo de profil par minute par utilisateur (léger, pas de LLM)
+export const photoRateLimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(30, "1 m"),
+      analytics: true,
+      prefix: "ratelimit:photo",
+    })
+  : mockLimiter(30);
+
 // 10 analyses job-match par minute par utilisateur
 export const optimizeRateLimit = hasUpstash
   ? new Ratelimit({
