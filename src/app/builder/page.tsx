@@ -480,8 +480,8 @@ export default function BuilderPage() {
               </div>
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
-              {viewMode === "preview-web" && <HtmlCvPreview />}
-              {viewMode === "preview-pdf" && (
+              {viewMode === "preview-web" && isDesktop && <HtmlCvPreview />}
+              {viewMode === "preview-pdf" && isDesktop && (
                 <div className="flex-1 flex flex-col overflow-hidden">
                   {plan.plan !== "pro" && (
                     <div className="bg-indigo-950/90 border-b border-indigo-800/50 px-4 py-2 flex items-center justify-between text-xs text-indigo-200 flex-shrink-0">
@@ -502,8 +502,8 @@ export default function BuilderPage() {
                   </div>
                 </div>
               )}
-              {viewMode === "edit" && <CvEditorView />}
-              {viewMode === "letter" && (
+              {viewMode === "edit" && isDesktop && <CvEditorView />}
+              {viewMode === "letter" && isDesktop && (
                 <CoverLetterPanel onUpgradeRequired={() => setUpgradeModal({ open: true, reason: "letter" })} />
               )}
             </div>

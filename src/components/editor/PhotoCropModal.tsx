@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { X, Check, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
@@ -8,16 +9,29 @@ import { X, Check, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
 /** Taille max de la photo exportée (largement suffisant pour un CV, ~40-120 Ko en JPEG). */
 const MAX_OUTPUT_SIZE = 600;
 
-async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> {
+async function getCroppedBlob(imageSrc: string, pixelCrop: Area | null): Promise<Blob> {
   const image = new Image();
   image.src = imageSrc;
-  await new Promise<void>((resolve, reject) => {
-    image.onload = () => resolve();
-    image.onerror = () => reject(new Error("Image illisible"));
-  });
+  if (!image.complete) {
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error("Image illisible"));
+    });
+  }
 
-  // Redimensionnement : les photos de smartphone (12+ Mpx) dépassaient la limite de 2 Mo de l'upload
-  const size = Math.max(1, Math.round(Math.min(pixelCrop.width, pixelCrop.height, MAX_OUTPUT_SIZE)));
+  const naturalW = image.naturalWidth || 600;
+  const naturalH = image.naturalHeight || 600;
+
+  // Si le cropper n'a pas pu mesurer les dimensions (ex: conteneur masqué ou validation rapide),
+  // on calcule un carré centré parfait.
+  const hasValidCrop = pixelCrop && pixelCrop.width > 0 && pixelCrop.height > 0;
+  const cropW = hasValidCrop ? pixelCrop.width : Math.min(naturalW, naturalH);
+  const cropH = hasValidCrop ? pixelCrop.height : Math.min(naturalW, naturalH);
+  const cropX = hasValidCrop ? pixelCrop.x : Math.round((naturalW - cropW) / 2);
+  const cropY = hasValidCrop ? pixelCrop.y : Math.round((naturalH - cropH) / 2);
+
+  // Redimensionnement optimisé pour le CV
+  const size = Math.max(1, Math.round(Math.min(cropW, cropH, MAX_OUTPUT_SIZE)));
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -36,17 +50,36 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
     image,
-    pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height,
+    cropX, cropY, cropW, cropH,
     0, 0, size, size,
   );
 
-  return new Promise<Blob>((resolve, reject) =>
+  return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Export de l'image impossible"))),
+      (blob) => {
+        if (blob) {
+          resolve(blob);
+          return;
+        }
+        // Repli robuste toDataURL -> Blob si toBlob échoue sur certains moteurs mobiles
+        try {
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          const byteString = atob(dataUrl.split(",")[1]);
+          const mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          resolve(new Blob([ab], { type: mimeString }));
+        } catch (e) {
+          reject(e || new Error("Export de l'image impossible"));
+        }
+      },
       "image/jpeg",
       0.85,
-    ),
-  );
+    );
+  });
 }
 
 interface Props {
@@ -60,6 +93,11 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);
@@ -69,30 +107,7 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
     if (isProcessing) return;
     setIsProcessing(true);
     try {
-      let area = croppedArea;
-      if (!area) {
-        // Fallback : si l'utilisateur valide immédiatement sans déplacer le cadre,
-        // on calcule un carré centré à partir des dimensions naturelles de l'image
-        const img = new Image();
-        img.src = imageSrc;
-        await new Promise<void>((res) => {
-          if (img.complete) res();
-          else {
-            img.onload = () => res();
-            img.onerror = () => res();
-          }
-        });
-        const w = img.naturalWidth || 600;
-        const h = img.naturalHeight || 600;
-        const minDim = Math.min(w, h);
-        area = {
-          x: Math.round((w - minDim) / 2),
-          y: Math.round((h - minDim) / 2),
-          width: minDim,
-          height: minDim,
-        };
-      }
-      const blob = await getCroppedBlob(imageSrc, area);
+      const blob = await getCroppedBlob(imageSrc, croppedArea);
       onConfirm(blob);
     } catch (err) {
       console.error("[PhotoCrop] Export error:", err);
@@ -102,8 +117,8 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
@@ -172,4 +187,10 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
       </div>
     </div>
   );
+
+  if (!mounted || typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(modalContent, document.body);
 }
