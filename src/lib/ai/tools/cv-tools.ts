@@ -9,6 +9,7 @@ import {
   type Project,
   type PersonalInfo,
 } from "@/lib/schemas/cv.schema";
+import { ScraperService } from "@/services/scraper.service";
 
 export type CvUpdater = (updater: (content: CvData) => CvData) => Promise<boolean>;
 
@@ -518,6 +519,36 @@ export function createCvTools(applyUpdate: CvUpdater) {
           experiencesCount: args.experiences?.length || 0,
           educationCount: args.education?.length || 0,
           skillsCount: args.skills?.length || 0,
+        };
+      },
+    }),
+
+    // ── Tool: Scrape Public URL (Portfolios, GitHub, personal sites) ─────────
+    scrapePublicUrl: tool({
+      description:
+        "Lit et extrait le contenu textuel d'une URL publique (portfolio, GitHub, site personnel, profil pro) pour pré-remplir le CV.",
+      inputSchema: z.object({
+        url: z.string().describe("L'URL complète de la page web ou du portfolio à analyser"),
+      }),
+      execute: async ({ url }) => {
+        const result = await ScraperService.extractPublicProfile(url);
+        if (result.status === "blocked_platform") {
+          return {
+            status: "blocked_platform",
+            platform: result.platform,
+            guidance: result.guidance,
+          };
+        }
+        if (result.status === "ssrf_rejected" || result.status === "fetch_error") {
+          return {
+            status: "error",
+            error: result.error,
+          };
+        }
+        return {
+          status: "success",
+          url: result.url,
+          textContent: result.textContent,
         };
       },
     }),
