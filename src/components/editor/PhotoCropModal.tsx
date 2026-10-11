@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
-import { X, Check, ZoomIn, ZoomOut } from "lucide-react";
+import { X, Check, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
 
 /** Taille max de la photo exportée (largement suffisant pour un CV, ~40-120 Ko en JPEG). */
 const MAX_OUTPUT_SIZE = 600;
@@ -59,19 +59,46 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedArea(croppedAreaPixels);
   }, []);
 
   const handleConfirm = async () => {
-    if (!croppedArea) return;
+    if (isProcessing) return;
+    setIsProcessing(true);
     try {
-      const blob = await getCroppedBlob(imageSrc, croppedArea);
+      let area = croppedArea;
+      if (!area) {
+        // Fallback : si l'utilisateur valide immédiatement sans déplacer le cadre,
+        // on calcule un carré centré à partir des dimensions naturelles de l'image
+        const img = new Image();
+        img.src = imageSrc;
+        await new Promise<void>((res) => {
+          if (img.complete) res();
+          else {
+            img.onload = () => res();
+            img.onerror = () => res();
+          }
+        });
+        const w = img.naturalWidth || 600;
+        const h = img.naturalHeight || 600;
+        const minDim = Math.min(w, h);
+        area = {
+          x: Math.round((w - minDim) / 2),
+          y: Math.round((h - minDim) / 2),
+          width: minDim,
+          height: minDim,
+        };
+      }
+      const blob = await getCroppedBlob(imageSrc, area);
       onConfirm(blob);
     } catch (err) {
       console.error("[PhotoCrop] Export error:", err);
       alert("Impossible de traiter cette image. Essayez une autre photo (JPG ou PNG).");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -121,15 +148,25 @@ export function PhotoCropModal({ imageSrc, onConfirm, onCancel }: Props) {
         <div className="flex gap-3 px-5 pb-5">
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 text-sm text-slate-300 border border-slate-700 rounded-xl hover:border-slate-500 transition-colors"
+            disabled={isProcessing}
+            className="flex-1 py-2.5 text-sm text-slate-300 border border-slate-700 rounded-xl hover:border-slate-500 disabled:opacity-50 transition-colors"
           >
             Annuler
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors flex items-center justify-center gap-2"
+            disabled={isProcessing}
+            className="flex-1 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors flex items-center justify-center gap-2"
           >
-            <Check className="w-4 h-4" /> Valider
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Traitement…
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" /> Valider
+              </>
+            )}
           </button>
         </div>
       </div>

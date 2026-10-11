@@ -30,9 +30,10 @@ export function HtmlCvPreview() {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, projects } = cvData;
   const hasContent = summary || experiences.length > 0 || education.length > 0 || skills.length > 0
     || languages.length > 0 || certifications.length > 0 || projects.length > 0
-    || personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
+    || personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin
+    || personalInfo.photoUrl;
 
-  if (!hasContent && !personalInfo.firstName && !personalInfo.lastName && !personalInfo.title) {
+  if (!hasContent && !personalInfo.firstName && !personalInfo.lastName && !personalInfo.title && !personalInfo.photoUrl) {
     const handleGoToChat = () => {
       window.dispatchEvent(new CustomEvent("switch-mobile-tab", { detail: "chat" }));
     };

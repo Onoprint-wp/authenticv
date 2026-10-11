@@ -34,44 +34,52 @@ export function CvRendererMinimal({ cvData }: Props) {
     <div className={`flex flex-col bg-white text-slate-800 ${sp.outerPad} ${fontClass}`}>
 
       {/* ── Header ── */}
-      <div className="mb-8">
-        <h1 className="text-5xl font-bold tracking-tight text-slate-900 mb-2 leading-none">
-          {personalInfo.firstName}{" "}
-          <span style={{ color: theme.accentColor }}>{personalInfo.lastName}</span>
-        </h1>
-        {personalInfo.title && (
-          <p className="text-sm font-medium tracking-[0.12em] uppercase text-slate-500 mt-2">{personalInfo.title}</p>
-        )}
-        <div className="w-12 h-0.5 mt-4 mb-5 rounded-full" style={{ backgroundColor: theme.accentColor }} />
-
-        {hasContact && (
-          <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-xs text-slate-500">
-            {personalInfo.email && (
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-3 h-3" style={{ color: theme.accentColor }} />
-                {personalInfo.email}
-              </span>
-            )}
-            {personalInfo.phone && (
-              <span className="flex items-center gap-1.5">
-                <Phone className="w-3 h-3" style={{ color: theme.accentColor }} />
-                {personalInfo.phone}
-              </span>
-            )}
-            {personalInfo.location && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3 h-3" style={{ color: theme.accentColor }} />
-                {personalInfo.location}
-              </span>
-            )}
-            {personalInfo.linkedin && (
-              <span className="flex items-center gap-1.5">
-                <Link className="w-3 h-3" style={{ color: theme.accentColor }} />
-                {personalInfo.linkedin}
-              </span>
-            )}
+      <div className="flex items-start gap-6 mb-8">
+        {personalInfo.photoUrl && (
+          <div className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-2 border-slate-200 shadow-xs">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={personalInfo.photoUrl} alt="" className="w-full h-full object-cover" />
           </div>
         )}
+        <div className="flex-1">
+          <h1 className="text-5xl font-bold tracking-tight text-slate-900 mb-2 leading-none">
+            {personalInfo.firstName}{" "}
+            <span style={{ color: theme.accentColor }}>{personalInfo.lastName}</span>
+          </h1>
+          {personalInfo.title && (
+            <p className="text-sm font-medium tracking-[0.12em] uppercase text-slate-500 mt-2">{personalInfo.title}</p>
+          )}
+          <div className="w-12 h-0.5 mt-4 mb-5 rounded-full" style={{ backgroundColor: theme.accentColor }} />
+
+          {hasContact && (
+            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-xs text-slate-500">
+              {personalInfo.email && (
+                <span className="flex items-center gap-1.5">
+                  <Mail className="w-3 h-3" style={{ color: theme.accentColor }} />
+                  {personalInfo.email}
+                </span>
+              )}
+              {personalInfo.phone && (
+                <span className="flex items-center gap-1.5">
+                  <Phone className="w-3 h-3" style={{ color: theme.accentColor }} />
+                  {personalInfo.phone}
+                </span>
+              )}
+              {personalInfo.location && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3" style={{ color: theme.accentColor }} />
+                  {personalInfo.location}
+                </span>
+              )}
+              {personalInfo.linkedin && (
+                <span className="flex items-center gap-1.5">
+                  <Link className="w-3 h-3" style={{ color: theme.accentColor }} />
+                  {personalInfo.linkedin}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="border-t border-slate-100 mb-8" />

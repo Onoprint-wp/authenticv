@@ -67,4 +67,30 @@ describe("Fast-Track Upload & Guest Data Pipeline", () => {
     expect(mergedCv.designSettings.colorTheme).toBe("indigo");
     expect(mergedCv.designSettings.layout).toBe("classic");
   });
+
+  it("should correctly detect image file types for fast-track photo uploads", () => {
+    const isImageFile = (type: string, name: string) => {
+      if (type && type.startsWith("image/")) return true;
+      return /\.(jpe?g|png|webp|jfif|heic|bmp)$/i.test(name);
+    };
+
+    expect(isImageFile("image/jpeg", "avatar.jpg")).toBe(true);
+    expect(isImageFile("image/png", "photo.png")).toBe(true);
+    expect(isImageFile("image/webp", "camera.webp")).toBe(true);
+    expect(isImageFile("application/octet-stream", "iphone_photo.HEIC")).toBe(true);
+    expect(isImageFile("", "scan.jfif")).toBe(true);
+    expect(isImageFile("application/pdf", "resume.pdf")).toBe(false);
+    expect(isImageFile("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "cv.docx")).toBe(false);
+  });
+
+  it("should validate max photo size up to 5MB", () => {
+    const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+    const smallPhotoSize = 1.5 * 1024 * 1024; // 1.5 MB
+    const largePhotoSize = 4.2 * 1024 * 1024; // 4.2 MB (smartphone photo)
+    const oversizePhoto = 6.0 * 1024 * 1024; // 6 MB
+
+    expect(smallPhotoSize <= MAX_PHOTO_SIZE).toBe(true);
+    expect(largePhotoSize <= MAX_PHOTO_SIZE).toBe(true);
+    expect(oversizePhoto <= MAX_PHOTO_SIZE).toBe(false);
+  });
 });

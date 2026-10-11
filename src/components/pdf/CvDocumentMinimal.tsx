@@ -1,5 +1,5 @@
 import {
-  Document, Page, Text, View, StyleSheet, Link,
+  Document, Page, Text, View, Image, StyleSheet, Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
 import { getTheme, PDF_SPACING } from "@/lib/themes";
@@ -22,6 +22,23 @@ function createStyles(
     },
 
     // ── Header ────────────────────────────────────────────────
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 16,
+      marginBottom: 4,
+    },
+    headerTextCol: {
+      flex: 1,
+    },
+    photo: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      objectFit: "cover",
+      borderWidth: 1.5,
+      borderColor: "#e2e8f0",
+    },
     headerName: {
       flexDirection: "row",
       flexWrap: "wrap",
@@ -157,25 +174,32 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
       <Page size="A4" style={styles.page}>
 
         {/* ── Header ── */}
-        <View style={styles.headerName}>
-          <Text style={styles.firstName}>{personalInfo.firstName}</Text>
-          <Text style={styles.lastName}>{personalInfo.lastName}</Text>
-        </View>
+        <View style={styles.headerRow}>
+          {personalInfo.photoUrl ? (
+            <Image src={personalInfo.photoUrl} style={styles.photo} />
+          ) : null}
+          <View style={styles.headerTextCol}>
+            <View style={styles.headerName}>
+              <Text style={styles.firstName}>{personalInfo.firstName}</Text>
+              <Text style={styles.lastName}>{personalInfo.lastName}</Text>
+            </View>
 
-        {personalInfo.title
-          ? <Text style={styles.jobTitle}>{personalInfo.title.toUpperCase()}</Text>
-          : null}
+            {personalInfo.title
+              ? <Text style={styles.jobTitle}>{personalInfo.title.toUpperCase()}</Text>
+              : null}
 
-        <View style={styles.accentBar} />
+            <View style={styles.accentBar} />
 
-        {hasContact && (
-          <View style={styles.contactRow}>
-            {personalInfo.email ? <Text style={styles.contactItem}>{personalInfo.email}</Text> : null}
-            {personalInfo.phone ? <Text style={styles.contactItem}>{personalInfo.phone}</Text> : null}
-            {personalInfo.location ? <Text style={styles.contactItem}>{personalInfo.location}</Text> : null}
-            {personalInfo.linkedin ? <Text style={styles.contactItem}>{personalInfo.linkedin}</Text> : null}
+            {hasContact && (
+              <View style={styles.contactRow}>
+                {personalInfo.email ? <Text style={styles.contactItem}>{personalInfo.email}</Text> : null}
+                {personalInfo.phone ? <Text style={styles.contactItem}>{personalInfo.phone}</Text> : null}
+                {personalInfo.location ? <Text style={styles.contactItem}>{personalInfo.location}</Text> : null}
+                {personalInfo.linkedin ? <Text style={styles.contactItem}>{personalInfo.linkedin}</Text> : null}
+              </View>
+            )}
           </View>
-        )}
+        </View>
 
         <View style={styles.divider} />
 

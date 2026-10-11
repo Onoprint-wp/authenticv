@@ -172,9 +172,17 @@ export const ChatPanel = forwardRef<
   const isLoading = status === "streaming" || status === "submitted";
 
   const { uploadCvFile, isUploading: isUploadingCv } = useCvUpload({
-    onSuccess: (importedData) => {
+    onSuccess: (importedData, fileType) => {
       onToolFinish?.();
       onCheckpoint?.();
+      if (fileType === "image") {
+        const prompt =
+          coachLanguage === "en"
+            ? "I just added my profile photo to my resume. How does it look and what advice do you have for an impactful photo?"
+            : "Je viens d'ajouter ma photo de profil à mon CV. Comment s'intègre-t-elle et quels sont tes conseils pour une photo professionnelle percutante ?";
+        sendMessage({ text: prompt }, chatRequestOptions());
+        return;
+      }
       const expCount = importedData.experiences?.length || 0;
       const skillsCount = importedData.skills?.length || 0;
       const prompt =

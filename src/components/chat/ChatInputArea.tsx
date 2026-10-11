@@ -57,14 +57,14 @@ export function ChatInputArea({
           {coachLanguage === "fr" ? "🇫🇷" : "🇬🇧"}
         </button>
 
-        {/* File Upload Button (LinkedIn PDF / Resume) */}
+        {/* File Upload Button (LinkedIn PDF / Resume / Photo) */}
         {onFileUpload && (
           <>
             <input
               ref={fileInputRef}
               id="chat-file-input"
               type="file"
-              accept=".pdf,.docx,.doc"
+              accept=".pdf,.docx,.doc,image/*,image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={handleFileChange}
               disabled={isUploadingFile || isLoading}
@@ -76,8 +76,8 @@ export function ChatInputArea({
               disabled={isUploadingFile || isLoading}
               title={
                 coachLanguage === "en"
-                  ? "Import resume or LinkedIn PDF export"
-                  : "Importer un CV ou export LinkedIn (PDF, Word)"
+                  ? "Import resume, LinkedIn PDF or profile photo"
+                  : "Importer un CV, export LinkedIn ou photo de profil"
               }
               className="shrink-0 w-9 h-9 rounded-[10px] bg-muted hover:bg-muted/80 border border-border flex items-center justify-center text-muted-foreground hover:text-[#3667F0] transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs cursor-pointer"
             >

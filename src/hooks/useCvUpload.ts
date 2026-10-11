@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useCvStore, type CvData } from "@/store/useCvStore";
 
 export type UploadStatus = "idle" | "uploading" | "success" | "error";
+export type UploadFileType = "document" | "image";
 
 const UPLOAD_TIMEOUT_MS = 55_000;
 
 interface UseCvUploadOptions {
-  onSuccess?: (cvData: CvData) => void;
+  onSuccess?: (cvData: CvData, fileType?: UploadFileType) => void;
   onError?: (errorMessage: string) => void;
 }
 
@@ -20,6 +21,78 @@ export function useCvUpload(options?: UseCvUploadOptions) {
 
   const uploadCvFile = async (file: File): Promise<CvData | null> => {
     if (!file) return null;
+
+    const isImage = file.type.startsWith("image/") || /\.(jpe?g|png|webp|jfif|heic|bmp)$/i.test(file.name);
+
+    if (isImage) {
+      if (file.size > 5 * 1024 * 1024) {
+        const message = "La photo ne doit pas dépasser 5 Mo.";
+        setErrorMsg(message);
+        setStatus("error");
+        setTimeout(() => setStatus("idle"), 4000);
+        options?.onError?.(message);
+        return null;
+      }
+
+      setStatus("uploading");
+      setErrorMsg("");
+
+      try {
+        const formData = new FormData();
+        formData.append("photo", file);
+        const res = await fetch("/api/upload-photo", {
+          method: "POST",
+          body: formData,
+        });
+
+        let photoUrl = "";
+        if (res.ok) {
+          const json = await res.json();
+          photoUrl = json.photoUrl || "";
+        }
+
+        // Repli Data URL local si pas d'URL serveur
+        if (!photoUrl) {
+          photoUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        saveCheckpoint();
+        useCvStore.getState().updatePersonalInfo({ photoUrl });
+        const updated = useCvStore.getState().cvData;
+
+        setStatus("success");
+        setTimeout(() => setStatus("idle"), 3000);
+        options?.onSuccess?.(updated, "image");
+        return updated;
+      } catch (err) {
+        console.warn("[Upload Photo] Erreur upload, repli Data URL:", err);
+        try {
+          const photoUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+          saveCheckpoint();
+          useCvStore.getState().updatePersonalInfo({ photoUrl });
+          const updated = useCvStore.getState().cvData;
+          setStatus("success");
+          setTimeout(() => setStatus("idle"), 3000);
+          options?.onSuccess?.(updated, "image");
+          return updated;
+        } catch {
+          const message = "Impossible de traiter la photo.";
+          setErrorMsg(message);
+          setStatus("error");
+          setTimeout(() => setStatus("idle"), 4000);
+          options?.onError?.(message);
+          return null;
+        }
+      }
+    }
 
     setStatus("uploading");
     setErrorMsg("");

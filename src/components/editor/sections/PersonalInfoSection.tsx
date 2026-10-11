@@ -13,29 +13,41 @@ const PhotoUpload = () => {
   const [dragOver, setDragOver] = useState(false);
   const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
 
+  const isImageFile = (file: File) => {
+    if (file.type && file.type.startsWith("image/")) return true;
+    return /\.(jpe?g|png|webp|jfif|heic|bmp)$/i.test(file.name);
+  };
+
   const openCropper = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
+    if (!isImageFile(file)) {
+      alert("Format d'image non reconnu. Veuillez sélectionner une photo (JPG, PNG ou WebP).");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setPendingImageSrc(reader.result as string);
+    reader.onerror = () => alert("Impossible de lire ce fichier.");
     reader.readAsDataURL(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleCropConfirm = async (blob: Blob) => {
     setPendingImageSrc(null);
-    if (blob.size > 2 * 1024 * 1024) {
-      alert("La photo ne doit pas dépasser 2 Mo.");
+    if (blob.size > 5 * 1024 * 1024) {
+      alert("La photo ne doit pas dépasser 5 Mo.");
       return;
     }
     setUploading(true);
 
-    const setLocalPhotoBase64 = () => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64data = reader.result as string;
-        updatePersonalInfo({ photoUrl: base64data });
-      };
-      reader.readAsDataURL(blob);
+    const setLocalPhotoBase64 = (): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          updatePersonalInfo({ photoUrl: base64data });
+          resolve(base64data);
+        };
+        reader.readAsDataURL(blob);
+      });
     };
 
     try {
@@ -43,15 +55,9 @@ const PhotoUpload = () => {
       formData.append("photo", blob, "photo.jpg");
       const res = await fetch("/api/upload-photo", { method: "POST", body: formData });
       
-      // Mode invité / non connecté : persistance locale immédiate sans erreur
-      if (res.status === 401) {
-        setLocalPhotoBase64();
-        return;
-      }
-
-      if (!res.ok) {
-        console.warn("[Upload Photo] Fallback local base64 suite à réponse:", res.status);
-        setLocalPhotoBase64();
+      // Mode invité ou stockage indisponible : persistance locale immédiate sans bloquer l'UI
+      if (res.status === 401 || !res.ok) {
+        await setLocalPhotoBase64();
         return;
       }
 
@@ -59,11 +65,11 @@ const PhotoUpload = () => {
       if (photoUrl) {
         updatePersonalInfo({ photoUrl });
       } else {
-        setLocalPhotoBase64();
+        await setLocalPhotoBase64();
       }
     } catch (err) {
       console.warn("[Upload Photo] Fallback local base64 suite à erreur réseau:", err);
-      setLocalPhotoBase64();
+      await setLocalPhotoBase64();
     } finally {
       setUploading(false);
     }
@@ -123,7 +129,7 @@ const PhotoUpload = () => {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*,image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -132,7 +138,7 @@ const PhotoUpload = () => {
         <Label>Photo de profil</Label>
         <p className="text-xs text-slate-500 leading-relaxed">
           Cliquez ou glissez-déposez une photo.<br />
-          JPG, PNG ou WebP · Max 2 Mo
+          JPG, PNG ou WebP · Max 5 Mo
         </p>
         {cvData.personalInfo.photoUrl && (
           <button
