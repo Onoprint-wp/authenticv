@@ -33,6 +33,16 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
   const [selectedCountry, setSelectedCountry] = useState<"CM" | "GA" | "TD" | "CG" | "CF">("CM");
   const [phoneNumber, setPhoneNumber] = useState(personalInfo?.phone || "");
   const [loading, setLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<{ message: string; loginUrl?: string } | null>(null);
+
+  // Back button from the payment page restores this page from bfcache with the spinner still on.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setLoading(false);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
 
   useEffect(() => {
     if (personalInfo?.phone && !phoneNumber) {
@@ -88,6 +98,7 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
 
   const handleUpgrade = async () => {
     setLoading(true);
+    setCheckoutError(null);
     trackEvent("checkout_started", {
       plan: selectedTier,
       value: getCalculatedPrice(selectedTier),
@@ -109,12 +120,36 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
           promoCode: appliedPromo?.code || undefined,
           phoneNumber: phoneNumber.trim() || personalInfo?.phone || undefined,
           email: personalInfo?.email || undefined,
+          // Guest mode: the CV lives in the browser — sent so it is saved on the account created at checkout.
+          cvData: useCvStore.getState().cvData,
         }),
       });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      const data = await res.json().catch(() => ({} as Record<string, string>));
+
+      if (res.ok && data.url) {
+        try {
+          localStorage.setItem(
+            "acv_pending_payment",
+            JSON.stringify({ ref: data.externalReference, tier: selectedTier, ts: Date.now() }),
+          );
+        } catch {}
+        window.location.href = data.url;
+        return;
+      }
+
+      setLoading(false);
+      if (data.code === "ACCOUNT_EXISTS") {
+        setCheckoutError({ message: data.error, loginUrl: "/login?next=/builder" });
+      } else if (res.status === 400 && typeof data.error === "string" && data.error.includes("Déjà abonné")) {
+        setCheckoutError({ message: "Vous avez déjà un abonnement Pro actif : toutes les fonctionnalités sont débloquées." });
+      } else {
+        setCheckoutError({
+          message: data.error || "Le paiement n'a pas pu être initialisé. Réessayez dans un instant ou contactez-nous sur WhatsApp.",
+        });
+      }
     } catch {
       setLoading(false);
+      setCheckoutError({ message: "Connexion internet instable : le paiement n'a pas pu démarrer. Vérifiez votre réseau et réessayez." });
     }
   };
 
@@ -313,6 +348,17 @@ export function UpgradeModal({ isOpen, onClose, reason = "pdf" }: UpgradeModalPr
                 {selectedTier === "single" ? " / 24 heures" : selectedTier === "monthly" ? " / mois" : " / an"}
               </span>
             </div>
+
+            {checkoutError && (
+              <div role="alert" className="bg-red-950/60 border border-red-800/60 rounded-xl px-3 py-2 text-xs text-red-200 leading-relaxed">
+                <p>{checkoutError.message}</p>
+                {checkoutError.loginUrl && (
+                  <a href={checkoutError.loginUrl} className="inline-block mt-1.5 font-semibold text-white underline">
+                    Me connecter et finaliser le paiement →
+                  </a>
+                )}
+              </div>
+            )}
 
             <button
               onClick={handleUpgrade}

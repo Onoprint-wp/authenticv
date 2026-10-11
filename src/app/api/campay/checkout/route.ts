@@ -5,6 +5,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { createPaymentLink, SITE_URL } from "@/lib/campay";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
 import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
+import { provisionGuestSession } from "@/lib/guest-checkout";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,9 +21,9 @@ function normalizeCameroonPhone(rawPhone?: string): string {
 /**
  * POST /api/campay/checkout
  *
- * Body: { tier?: "single" | "monthly" | "annual", promoCode?: string, phoneNumber?: string, email?: string }
+ * Body: { tier?: "single" | "monthly" | "annual", promoCode?: string, phoneNumber?: string, email?: string, cvData?: object }
  * Creates a CamPay payment link for the chosen AuthenticV tier with deterministic intent registration.
- * Supports zero-friction guest checkouts with automatic JIT account provisioning.
+ * Supports zero-friction guest checkouts: account created, session opened and guest CV saved before redirect.
  */
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
   let promoCode = "";
   let rawPhone = "";
   let rawEmail = "";
+  let cvContent: unknown = undefined;
 
   try {
     const body = await req.json();
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
     if (body.email) {
       rawEmail = String(body.email).trim().toLowerCase();
     }
+    cvContent = body.cvData;
   } catch {
     // default to single if no json body
   }
@@ -105,33 +108,20 @@ export async function POST(req: Request) {
     userId = user.id;
     userEmail = user.email ?? (cleanPhone ? `candidat_${cleanPhone}@authenticv.app` : "client@authenticv.app");
   } else {
-    // Mode Fast-Track Invité (Zéro-Login) : création de compte silencieuse / just-in-time
-    userEmail = rawEmail && rawEmail.includes("@")
-      ? rawEmail
-      : (cleanPhone ? `candidat_${cleanPhone}@authenticv.app` : `guest_${crypto.randomUUID().slice(0, 8)}@authenticv.app`);
-
-    try {
-      const admin = createAdminClient();
-      const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
-        email: userEmail,
-        password: crypto.randomUUID(),
-        email_confirm: true,
-        user_metadata: {
-          created_via: "guest_fast_track",
-          phone: cleanPhone || undefined,
-        },
-      });
-
-      if (!createErr && newUser?.user) {
-        userId = newUser.user.id;
-      } else {
-        const { data: usersList } = await admin.auth.admin.listUsers();
-        const existing = usersList?.users?.find((u) => u.email === userEmail);
-        userId = existing ? existing.id : crypto.randomUUID();
-      }
-    } catch {
-      userId = crypto.randomUUID();
+    // Mode Fast-Track Invité (Zéro-Login) : compte créé à la volée + session ouverte sur ce navigateur
+    // + CV invité sauvegardé, pour que le crédit et l'export PDF soient accessibles au retour de CamPay.
+    const guest = await provisionGuestSession({
+      supabase,
+      rawEmail,
+      cleanPhone,
+      createdVia: "guest_fast_track",
+      cvContent,
+    });
+    if (!guest.ok) {
+      return NextResponse.json({ error: guest.error, code: guest.code }, { status: guest.status });
     }
+    userId = guest.userId;
+    userEmail = guest.userEmail;
   }
 
   // Generate unique intent external reference: b2c:{userId}:{tier}:{randomId}
@@ -165,7 +155,7 @@ export async function POST(req: Request) {
       userId,
       externalReference: externalRef,
       userEmail,
-      redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}${promoCode ? `&promo=${promoCode}` : ""}`,
+      redirectUrl: `${SITE_URL}/builder?upgraded=true&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`,
       description,
     });
 

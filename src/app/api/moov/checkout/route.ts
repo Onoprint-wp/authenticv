@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { createMoovPaymentLink, SITE_URL } from "@/lib/moov";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
 import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
+import { provisionGuestSession } from "@/lib/guest-checkout";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,20 +13,20 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/moov/checkout
  *
- * Body: { tier?: "single" | "monthly" | "annual", countryCode?: string, promoCode?: string }
+ * Body: { tier?: "single" | "monthly" | "annual", countryCode?: string, promoCode?: string, phoneNumber?: string, email?: string, cvData?: object }
  * Creates a Moov Money payment link for Gabon (GA), Tchad (TD), CI or CEMAC region with deterministic intent registration.
+ * Supports zero-friction guest checkouts: account created, session opened and guest CV saved before redirect.
  */
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  let tier: "single" | "monthly" | "annual" = "monthly";
+  let tier: "single" | "monthly" | "annual" = "single";
   let countryCode = "GA";
   let promoCode = "";
+  let rawPhone = "";
+  let rawEmail = "";
+  let cvContent: unknown = undefined;
 
   try {
     const body = await req.json();
@@ -37,19 +39,28 @@ export async function POST(req: Request) {
     if (body.promoCode) {
       promoCode = String(body.promoCode).trim().toUpperCase();
     }
+    if (body.phoneNumber || body.phone) {
+      rawPhone = String(body.phoneNumber || body.phone).trim();
+    }
+    if (body.email) {
+      rawEmail = String(body.email).trim().toLowerCase();
+    }
+    cvContent = body.cvData;
   } catch {
     // default options
   }
 
   // Check if already active Pro (only block if trying to buy monthly/annual again)
-  const { data: sub } = await supabase
-    .from("user_subscriptions")
-    .select("status")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  if (user) {
+    const { data: sub } = await supabase
+      .from("user_subscriptions")
+      .select("status")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-  if (sub?.status === "active" && tier !== "single") {
-    return NextResponse.json({ error: "Déjà abonné Pro illimité" }, { status: 400 });
+    if (sub?.status === "active" && tier !== "single") {
+      return NextResponse.json({ error: "Déjà abonné Pro illimité" }, { status: 400 });
+    }
   }
 
   let amount = PRICE_MONTHLY_XAF;
@@ -77,6 +88,7 @@ export async function POST(req: Request) {
       GABON2026: 25,
       TCHAD2026: 25,
       AUTHVIP: 25,
+      LAUNCH2026: 20,
     };
     const discount = PROMOS[promoCode];
     if (discount) {
@@ -86,14 +98,39 @@ export async function POST(req: Request) {
     }
   }
 
+  const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
+  let userId: string;
+  let userEmail: string;
+
+  if (user) {
+    userId = user.id;
+    userEmail = user.email ?? (cleanPhone ? `candidat_${cleanPhone}@authenticv.app` : "client@authenticv.app");
+  } else {
+    // Mode Fast-Track Invité (Zéro-Login) : compte + session sur ce navigateur + CV invité sauvegardé
+    const guest = await provisionGuestSession({
+      supabase,
+      rawEmail,
+      cleanPhone,
+      createdVia: "guest_fast_track_moov",
+      extraMetadata: { country: countryCode },
+      cvContent,
+    });
+    if (!guest.ok) {
+      return NextResponse.json({ error: guest.error, code: guest.code }, { status: guest.status });
+    }
+    userId = guest.userId;
+    userEmail = guest.userEmail;
+  }
+
   const intentNonce = crypto.randomUUID().slice(0, 8);
-  const externalRef = `b2c:${user.id}:${tier}:${intentNonce}`;
+  const externalRef = `b2c:${userId}:${tier}:${intentNonce}`;
   const targetType = `b2c_${tier}` as PaymentTargetType;
 
   try {
-    // Pre-register payment intent
-    await PaymentLedgerService.createPaymentIntent(supabase, {
-      user_id: user.id,
+    const admin = createAdminClient();
+    // Pre-register payment intent via admin client
+    await PaymentLedgerService.createPaymentIntent(admin, {
+      user_id: userId,
       external_reference: externalRef,
       provider: "moov",
       target_type: targetType,
@@ -104,7 +141,8 @@ export async function POST(req: Request) {
       metadata: {
         tier,
         countryCode,
-        user_email: user.email,
+        user_email: userEmail,
+        phone: cleanPhone || undefined,
         description,
       },
     });
@@ -112,9 +150,9 @@ export async function POST(req: Request) {
     const result = await createMoovPaymentLink({
       amount,
       userId: externalRef,
-      userEmail: user.email ?? "",
+      userEmail,
       countryCode,
-      redirectUrl: `${SITE_URL}/builder?upgraded=true&gateway=moov&tier=${tier}${promoCode ? `&promo=${promoCode}` : ""}`,
+      redirectUrl: `${SITE_URL}/builder?upgraded=true&gateway=moov&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`,
       description,
     });
 

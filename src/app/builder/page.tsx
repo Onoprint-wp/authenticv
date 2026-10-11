@@ -35,22 +35,113 @@ import { ReferralTracker } from "@/components/ReferralTracker";
 
 type MobileTab = "chat" | "preview" | "edit" | "letter";
 
-/** Detects ?upgraded=true / ?signup=true and triggers callbacks — must be inside <Suspense> */
-function UpgradeToastDetector({ onUpgraded }: { onUpgraded: () => void }) {
+type PaymentToastState =
+  | { kind: "verifying" }
+  | { kind: "success"; tier: string }
+  | { kind: "pending" }
+  | { kind: "failed" }
+  | null;
+
+const PENDING_PAYMENT_KEY = "acv_pending_payment";
+const SUPPORT_WHATSAPP_URL =
+  "https://wa.me/237688114491?text=Bonjour%2C%20j%27ai%20pay%C3%A9%20sur%20AuthentiCV%20mais%20mon%20CV%20n%27est%20pas%20d%C3%A9bloqu%C3%A9";
+
+/**
+ * Handles the return from CamPay / Moov (?upgraded=true&ref=… or ?payment=failed) and ?signup=true.
+ * The success message and the Meta `Purchase` event are only triggered once the webhook has
+ * confirmed the payment (polls /api/campay/status). Must be inside <Suspense>.
+ */
+function PaymentReturnDetector({
+  onState,
+  onConfirmed,
+}: {
+  onState: (state: PaymentToastState) => void;
+  onConfirmed: () => void;
+}) {
   const searchParams = useSearchParams();
+
   useEffect(() => {
-    if (searchParams.get("upgraded") === "true") {
-      const tier = searchParams.get("tier") || "single";
-      const value = tier === "single" ? 1000 : tier === "annual" ? 18000 : 5000;
-      trackEvent("payment_momo_completed", { value, currency: "XAF", plan: tier });
-      onUpgraded();
-      window.history.replaceState({}, "", "/builder");
-    }
+    // Read the params once: replaceState below updates useSearchParams and must not cancel polling.
     if (searchParams.get("signup") === "true") {
       trackEvent("signup_completed", { plan: "free", source: "signup_form" });
       window.history.replaceState({}, "", "/builder");
     }
-  }, [searchParams, onUpgraded]);
+
+    if (searchParams.get("payment") === "failed") {
+      try { localStorage.removeItem(PENDING_PAYMENT_KEY); } catch {}
+      onState({ kind: "failed" });
+      window.history.replaceState({}, "", "/builder");
+      return;
+    }
+
+    if (searchParams.get("upgraded") !== "true") return;
+
+    let stored: { ref?: string; tier?: string } | null = null;
+    try { stored = JSON.parse(localStorage.getItem(PENDING_PAYMENT_KEY) || "null"); } catch {}
+    const ref = searchParams.get("ref") || stored?.ref || "";
+    const tier = searchParams.get("tier") || stored?.tier || "single";
+    window.history.replaceState({}, "", "/builder");
+
+    if (!ref) {
+      // Old payment link (created before this release): we can't verify, just refresh credits.
+      onState({ kind: "pending" });
+      onConfirmed();
+      return;
+    }
+
+    onState({ kind: "verifying" });
+    let cancelled = false;
+    let attempt = 0;
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempt++;
+      try {
+        const res = await fetch(`/api/campay/status?ref=${encodeURIComponent(ref)}`, { cache: "no-store" });
+        if (res.status === 401 || res.status === 404) {
+          onState({ kind: "pending" });
+          return;
+        }
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === "successful") {
+            const trackedKey = `acv_purchase_tracked_${ref}`;
+            try {
+              if (!localStorage.getItem(trackedKey)) {
+                trackEvent("payment_momo_completed", {
+                  value: Number(data.amount) || (tier === "single" ? 1000 : tier === "annual" ? 18000 : 5000),
+                  currency: "XAF",
+                  plan: tier,
+                  eventId: `purchase_${ref}`,
+                });
+                posthog.capture("subscribed_pro", { tier });
+                localStorage.setItem(trackedKey, "1");
+              }
+              localStorage.removeItem(PENDING_PAYMENT_KEY);
+            } catch {}
+            onState({ kind: "success", tier });
+            onConfirmed();
+            return;
+          }
+          if (data.status === "failed") {
+            try { localStorage.removeItem(PENDING_PAYMENT_KEY); } catch {}
+            onState({ kind: "failed" });
+            return;
+          }
+        }
+      } catch {
+        // network hiccup (mobile data) → retry
+      }
+      if (attempt === 20) onState({ kind: "pending" });
+      // ~1 min of fast polling, then every 10 s for ~5 more minutes
+      if (attempt < 50) setTimeout(poll, attempt < 20 ? 3000 : 10000);
+    };
+
+    void poll();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return null;
 }
 
@@ -65,7 +156,7 @@ export default function BuilderPage() {
   const [viewMode, setViewMode] = useState<"preview-web" | "preview-pdf" | "edit" | "letter">("preview-web");
   const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [upgradeModal, setUpgradeModal] = useState<{ open: boolean; reason: "pdf" | "jobmatch" | "quota" | "letter" | "multi-cv" }>({ open: false, reason: "pdf" });
-  const [showUpgradeToast, setShowUpgradeToast] = useState(false);
+  const [paymentToast, setPaymentToast] = useState<PaymentToastState>(null);
   const [isPdfDownloading, setIsPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
@@ -80,14 +171,21 @@ export default function BuilderPage() {
     return () => window.removeEventListener("switch-mobile-tab", handleSwitchMobileTab);
   }, []);
 
-  const handleUpgraded = useCallback(() => {
-    posthog.capture("subscribed_pro");
-    setShowUpgradeToast(true);
-    const timer = setTimeout(() => setShowUpgradeToast(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
   const plan = usePlan();
   const { refetch, saveCheckpoint, switchResume } = useSyncCv();
+  const refreshPlan = plan.refresh;
+
+  /** Payment confirmed by the webhook → reload credits (unlocks the PDF) and the CV saved on the account. */
+  const handlePaymentConfirmed = useCallback(() => {
+    refreshPlan();
+    void refetch();
+  }, [refreshPlan, refetch]);
+
+  useEffect(() => {
+    if (paymentToast?.kind !== "success") return;
+    const timer = setTimeout(() => setPaymentToast(null), 10000);
+    return () => clearTimeout(timer);
+  }, [paymentToast]);
 
   const cvData = useCvStore((s) => s.cvData);
   const lastAiUpdateTs = useCvStore((s) => s.lastAiUpdateTs);
@@ -172,7 +270,7 @@ export default function BuilderPage() {
   return (
     <div className="h-screen h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden">
       <Suspense fallback={null}>
-        <UpgradeToastDetector onUpgraded={handleUpgraded} />
+        <PaymentReturnDetector onState={setPaymentToast} onConfirmed={handlePaymentConfirmed} />
         <ReferralTracker />
       </Suspense>
 
@@ -608,22 +706,82 @@ export default function BuilderPage() {
         </div>
       )}
 
-      {/* ── Upgrade Success Toast ── */}
-      {showUpgradeToast && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
-          <div className="flex items-center gap-3 bg-emerald-950/90 border border-emerald-700/50 backdrop-blur-sm
-            text-emerald-200 px-5 py-3.5 rounded-xl shadow-2xl shadow-emerald-900/40">
-            <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-emerald-100">Bienvenue dans AuthenticV Pro !</p>
-              <p className="text-xs text-emerald-400/80 mt-0.5">Toutes les fonctionnalités sont débloquées.</p>
+      {/* ── Payment status toast (verified against the webhook) ── */}
+      {paymentToast && (
+        <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <div
+            role="status"
+            aria-live="polite"
+            className={`flex items-start gap-3 backdrop-blur-sm px-5 py-3.5 rounded-xl shadow-2xl border ${
+              paymentToast.kind === "success"
+                ? "bg-emerald-950/95 border-emerald-700/50 text-emerald-200 shadow-emerald-900/40"
+                : paymentToast.kind === "failed"
+                ? "bg-red-950/95 border-red-700/50 text-red-200 shadow-red-900/40"
+                : "bg-slate-900/95 border-indigo-700/50 text-slate-200 shadow-indigo-900/40"
+            }`}
+          >
+            {paymentToast.kind === "verifying" ? (
+              <Loader2 className="w-5 h-5 text-indigo-400 flex-shrink-0 animate-spin mt-0.5" />
+            ) : paymentToast.kind === "success" ? (
+              <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            ) : (
+              <X className={`w-5 h-5 flex-shrink-0 mt-0.5 ${paymentToast.kind === "failed" ? "text-red-400" : "text-amber-400"}`} />
+            )}
+            <div className="flex-1 text-sm">
+              {paymentToast.kind === "verifying" && (
+                <>
+                  <p className="font-semibold text-white">Vérification de votre paiement…</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Validez la demande sur votre téléphone si ce n&apos;est pas déjà fait.</p>
+                </>
+              )}
+              {paymentToast.kind === "success" && (
+                <>
+                  <p className="font-semibold text-emerald-100">
+                    {paymentToast.tier === "single" ? "Paiement confirmé : votre CV est débloqué" : "Bienvenue dans AuthenticV Pro !"}
+                  </p>
+                  <p className="text-xs text-emerald-400/80 mt-0.5">
+                    {paymentToast.tier === "single"
+                      ? "Cliquez sur « Télécharger PDF » pour récupérer votre CV sans filigrane."
+                      : "Toutes les fonctionnalités sont débloquées."}
+                  </p>
+                </>
+              )}
+              {paymentToast.kind === "pending" && (
+                <>
+                  <p className="font-semibold text-white">Paiement en attente de confirmation</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    L&apos;opérateur n&apos;a pas encore confirmé. Votre crédit s&apos;affichera automatiquement.
+                    Débité mais rien ne se passe ?{" "}
+                    <a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline font-medium">
+                      Écrivez-nous sur WhatsApp
+                    </a>
+                  </p>
+                </>
+              )}
+              {paymentToast.kind === "failed" && (
+                <>
+                  <p className="font-semibold text-red-100">Le paiement n&apos;a pas abouti</p>
+                  <p className="text-xs text-red-300/80 mt-0.5">
+                    Annulé ou refusé par l&apos;opérateur (solde, code PIN, délai).{" "}
+                    <button
+                      onClick={() => { setPaymentToast(null); setUpgradeModal({ open: true, reason: "pdf" }); }}
+                      className="underline font-medium text-white"
+                    >
+                      Réessayer
+                    </button>
+                  </p>
+                </>
+              )}
             </div>
-            <button
-              onClick={() => setShowUpgradeToast(false)}
-              className="text-emerald-500 hover:text-emerald-200 transition-colors ml-2"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {paymentToast.kind !== "verifying" && (
+              <button
+                onClick={() => setPaymentToast(null)}
+                className="text-slate-400 hover:text-white transition-colors ml-1"
+                aria-label="Fermer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}

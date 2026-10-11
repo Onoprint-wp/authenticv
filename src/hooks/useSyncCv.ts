@@ -122,7 +122,20 @@ export function useSyncCv() {
         // Charger le contenu du CV le plus récent
         const response = await fetch("/api/resumes");
         if (response.status === 401) {
-          window.location.href = "/login";
+          // Mode invité / non connecté : rester sur la session locale sans redirection
+          if (typeof window !== "undefined") {
+            try {
+              const localSaved = localStorage.getItem("acv_guest_cv");
+              if (localSaved) {
+                const parsed = JSON.parse(localSaved);
+                if (parsed && typeof parsed === "object") {
+                  isSavingFromServer.current = true;
+                  setCvData(parsed);
+                }
+              }
+            } catch {}
+          }
+          setIsHydrated(true);
           return;
         }
         if (!response.ok) throw new Error(`Failed to fetch resume: ${response.status}`);
@@ -136,19 +149,34 @@ export function useSyncCv() {
             setCvData(data.content);
           }
         } else {
+          // Nouveau compte (ex-invité) : reprendre le CV construit en mode invité plutôt qu'un CV vide
+          let guestCv: CvData | null = null;
+          if (typeof window !== "undefined") {
+            try {
+              const localSaved = localStorage.getItem("acv_guest_cv");
+              const parsed = localSaved ? JSON.parse(localSaved) : null;
+              if (parsed && typeof parsed === "object" && hasMeaningfulContent(parsed)) guestCv = parsed;
+            } catch {}
+          }
           const createResponse = await fetch("/api/resumes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: {} }),
+            body: JSON.stringify({ content: guestCv ?? {} }),
           });
           if (createResponse.status === 401) {
-            window.location.href = "/login";
+            // Mode invité sans redirection
+            setIsHydrated(true);
             return;
           }
           if (createResponse.ok) {
             const newResume = await createResponse.json();
             resumeIdRef.current = newResume.id;
             setCurrentResumeId(newResume.id);
+            if (guestCv) {
+              isSavingFromServer.current = true;
+              setCvData(guestCv);
+              try { localStorage.removeItem("acv_guest_cv"); } catch {}
+            }
           }
         }
       } catch (err) {
