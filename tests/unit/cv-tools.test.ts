@@ -105,4 +105,86 @@ describe("AI CV Tools & State Mutators", () => {
     expect(state.experiences).toHaveLength(1);
     expect(state.experiences[0].id).toBe("keep-exp-id");
   });
+
+  it("should execute importFullCvProfile tool and batch populate complete CV atomically", async () => {
+    let state: CvData = {
+      ...DEFAULT_CV_DATA,
+      designSettings: {
+        colorTheme: "emerald",
+        fontFamily: "serif",
+        layout: "modern",
+        spacing: "compact",
+        recruiterVisible: true,
+      },
+    };
+
+    const applyUpdate = async (updater: (content: CvData) => CvData) => {
+      state = updater(state);
+      return true;
+    };
+
+    const tools = createCvTools(applyUpdate);
+
+    const rawResult = await tools.importFullCvProfile.execute!(
+      {
+        personalInfo: {
+          firstName: "Jean",
+          lastName: "Kuate",
+          title: "Directeur Commercial CEMAC",
+          email: "j.kuate@business.cm",
+          phone: "+237677889900",
+          location: "Yaoundé, Cameroun",
+        },
+        summary: "Cadre dirigeant chevronné avec 12 ans de succès dans l'agroalimentaire.",
+        skills: ["Négociation Grands Comptes", "Management d'Équipe", "Stratégie B2B", "KPIs"],
+        experiences: [
+          {
+            company: "Groupe SABC",
+            position: "Chef des Ventes Régional",
+            startDate: "2018-03",
+            endDate: "",
+            current: true,
+            description: "Supervision d'une équipe de 25 commerciaux, croissance de +30% du CA.",
+          },
+          {
+            company: "Brasseries du Cameroun",
+            position: "Attaché Commercial",
+            startDate: "2014-01",
+            endDate: "2018-02",
+            current: false,
+            description: "Développement du réseau de distribution CHR sur le Littoral.",
+          },
+        ],
+        education: [
+          {
+            institution: "ESSEC Douala",
+            degree: "Master en Marketing & Commerce International",
+            field: "Commerce",
+            startDate: "2009",
+            endDate: "2013",
+          },
+        ],
+        languages: [
+          { name: "Français", level: "Natif" },
+          { name: "Anglais", level: "Professionnel" },
+        ],
+      },
+      { toolCallId: "test-batch-1", messages: [] }
+    );
+    const result = rawResult as { success: boolean; experiencesCount: number; skillsCount: number };
+
+    expect(result.success).toBe(true);
+    expect(result.experiencesCount).toBe(2);
+    expect(result.skillsCount).toBe(4);
+    expect(state.personalInfo.firstName).toBe("Jean");
+    expect(state.personalInfo.title).toBe("Directeur Commercial CEMAC");
+    expect(state.experiences).toHaveLength(2);
+    expect(state.experiences[0].id).toBeDefined();
+    expect(state.experiences[1].id).toBeDefined();
+    expect(state.education).toHaveLength(1);
+    expect(state.languages).toHaveLength(2);
+    // Vérifier que le thème / design existant est préservé
+    expect(state.designSettings.colorTheme).toBe("emerald");
+    expect(state.designSettings.layout).toBe("modern");
+  });
 });

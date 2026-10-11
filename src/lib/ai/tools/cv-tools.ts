@@ -382,5 +382,144 @@ export function createCvTools(applyUpdate: CvUpdater) {
         return { success: true };
       },
     }),
+
+    // ── Tool: Import Full CV Profile (Batch atomic populate) ────────────────
+    importFullCvProfile: tool({
+      description:
+        "Remplit l'intégralité du CV en une seule passe à partir d'un profil complet, d'un parcours ou d'un texte collé par l'utilisateur.",
+      inputSchema: z.object({
+        personalInfo: z
+          .object({
+            firstName: z.string().optional(),
+            lastName: z.string().optional(),
+            email: z.string().optional(),
+            phone: z.string().optional(),
+            location: z.string().optional(),
+            linkedin: z.string().optional(),
+            title: z.string().optional(),
+          })
+          .optional(),
+        summary: z.string().optional(),
+        experiences: z
+          .array(
+            z.object({
+              company: z.string(),
+              position: z.string(),
+              startDate: z.string(),
+              endDate: z.string().optional(),
+              current: z.boolean().optional(),
+              description: z.string(),
+            })
+          )
+          .optional(),
+        education: z
+          .array(
+            z.object({
+              institution: z.string(),
+              degree: z.string(),
+              field: z.string().optional(),
+              startDate: z.string(),
+              endDate: z.string().optional(),
+            })
+          )
+          .optional(),
+        skills: z.array(z.string()).optional(),
+        languages: z
+          .array(
+            z.object({
+              name: z.string(),
+              level: z.string().optional(),
+            })
+          )
+          .optional(),
+        certifications: z
+          .array(
+            z.object({
+              name: z.string(),
+              issuer: z.string().optional(),
+              date: z.string().optional(),
+            })
+          )
+          .optional(),
+        projects: z
+          .array(
+            z.object({
+              name: z.string(),
+              description: z.string(),
+              link: z.string().optional(),
+            })
+          )
+          .optional(),
+      }),
+      execute: async (args) => {
+        await applyUpdate((content) => {
+          const genId = () => crypto.randomUUID();
+          return {
+            ...content,
+            personalInfo: {
+              ...content.personalInfo,
+              ...(args.personalInfo || {}),
+            },
+            summary: args.summary !== undefined ? args.summary : content.summary,
+            skills: args.skills && args.skills.length > 0 ? args.skills : content.skills,
+            experiences:
+              args.experiences && args.experiences.length > 0
+                ? args.experiences.map((exp) => ({
+                    id: genId(),
+                    company: exp.company,
+                    position: exp.position,
+                    startDate: exp.startDate,
+                    endDate: exp.endDate || "",
+                    current: exp.current ?? false,
+                    description: exp.description || "",
+                  }))
+                : content.experiences,
+            education:
+              args.education && args.education.length > 0
+                ? args.education.map((edu) => ({
+                    id: genId(),
+                    institution: edu.institution,
+                    degree: edu.degree,
+                    field: edu.field || "",
+                    startDate: edu.startDate,
+                    endDate: edu.endDate || "",
+                  }))
+                : content.education,
+            languages:
+              args.languages && args.languages.length > 0
+                ? args.languages.map((lang) => ({
+                    id: genId(),
+                    name: lang.name,
+                    level: lang.level || "",
+                  }))
+                : content.languages,
+            certifications:
+              args.certifications && args.certifications.length > 0
+                ? args.certifications.map((cert) => ({
+                    id: genId(),
+                    name: cert.name,
+                    issuer: cert.issuer || "",
+                    date: cert.date || "",
+                  }))
+                : content.certifications,
+            projects:
+              args.projects && args.projects.length > 0
+                ? args.projects.map((proj) => ({
+                    id: genId(),
+                    name: proj.name,
+                    description: proj.description || "",
+                    link: proj.link,
+                  }))
+                : content.projects,
+          };
+        });
+        return {
+          success: true,
+          experiencesCount: args.experiences?.length || 0,
+          educationCount: args.education?.length || 0,
+          skillsCount: args.skills?.length || 0,
+        };
+      },
+    }),
   };
 }

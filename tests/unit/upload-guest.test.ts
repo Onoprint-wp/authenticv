@@ -6,10 +6,11 @@ describe("Fast-Track Upload & Guest Data Pipeline", () => {
     const currentCv: CvData = {
       ...DEFAULT_CV_DATA,
       designSettings: {
-        theme: "classic",
-        fontFamily: "Inter",
-        primaryColor: "#0F223D",
-        accentColor: "#3667F0",
+        colorTheme: "indigo",
+        fontFamily: "sans",
+        layout: "classic",
+        spacing: "normal",
+        recruiterVisible: true,
       },
     };
 
@@ -63,7 +64,7 @@ describe("Fast-Track Upload & Guest Data Pipeline", () => {
     expect(mergedCv.education).toHaveLength(1);
     expect(mergedCv.skills).toContain("React");
     // Vérifier que le thème graphique n'a pas été écrasé
-    expect(mergedCv.designSettings.theme).toBe("classic");
-    expect(mergedCv.designSettings.primaryColor).toBe("#0F223D");
+    expect(mergedCv.designSettings.colorTheme).toBe("indigo");
+    expect(mergedCv.designSettings.layout).toBe("classic");
   });
 });

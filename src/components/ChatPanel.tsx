@@ -43,6 +43,72 @@ function applyOptimisticUpdate(toolName: string, args: Record<string, any>) {
       store.setSkills(store.cvData.skills.filter((s) => s.toLowerCase() !== skill.toLowerCase()));
       break;
     }
+    case "importFullCvProfile": {
+      const genId = () =>
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2, 9);
+      const current = store.cvData;
+      store.setCvData({
+        ...current,
+        personalInfo: {
+          ...current.personalInfo,
+          ...(args.personalInfo || {}),
+        },
+        summary: args.summary !== undefined ? args.summary : current.summary,
+        skills: args.skills && args.skills.length > 0 ? args.skills : current.skills,
+        experiences:
+          args.experiences && args.experiences.length > 0
+            ? args.experiences.map((exp: any) => ({
+                id: genId(),
+                company: exp.company,
+                position: exp.position,
+                startDate: exp.startDate,
+                endDate: exp.endDate || "",
+                current: exp.current ?? false,
+                description: exp.description || "",
+              }))
+            : current.experiences,
+        education:
+          args.education && args.education.length > 0
+            ? args.education.map((edu: any) => ({
+                id: genId(),
+                institution: edu.institution,
+                degree: edu.degree,
+                field: edu.field || "",
+                startDate: edu.startDate,
+                endDate: edu.endDate || "",
+              }))
+            : current.education,
+        languages:
+          args.languages && args.languages.length > 0
+            ? args.languages.map((l: any) => ({
+                id: genId(),
+                name: l.name,
+                level: l.level || "",
+              }))
+            : current.languages,
+        certifications:
+          args.certifications && args.certifications.length > 0
+            ? args.certifications.map((c: any) => ({
+                id: genId(),
+                name: c.name,
+                issuer: c.issuer || "",
+                date: c.date || "",
+              }))
+            : current.certifications,
+        projects:
+          args.projects && args.projects.length > 0
+            ? args.projects.map((p: any) => ({
+                id: genId(),
+                name: p.name,
+                description: p.description || "",
+                link: p.link,
+              }))
+            : current.projects,
+      });
+      break;
+    }
   }
 }
 
@@ -161,7 +227,7 @@ export const ChatPanel = forwardRef<
     sendMessage({ text }, chatRequestOptions());
   };
 
-  const quickPrompts =
+  const quickPrompts: { label: string; prompt: string; isTemplate?: boolean }[] =
     chatMode === "interview"
       ? coachLanguage === "en"
         ? [
@@ -178,6 +244,7 @@ export const ChatPanel = forwardRef<
           ]
       : coachLanguage === "en"
       ? [
+          { label: "📋 Paste my bio / profile", prompt: "Here is my full background: ", isTemplate: true },
           { label: "🚀 Student / Internship", prompt: "I am a student looking for an internship. Please generate a full structured resume with key skills, education, and an engaging summary." },
           { label: "💼 Sales & Marketing", prompt: "I work in sales and business development. Build an impactful resume with negotiation, lead generation, and client management skills." },
           { label: "💻 IT & Software / Network", prompt: "I work in IT and networking. Build a technical resume highlighting my key tools, systems expertise, and project experiences." },
@@ -185,6 +252,7 @@ export const ChatPanel = forwardRef<
           { label: "✨ Generate Pro Summary", prompt: "Generate a strong 3-line professional summary tailored to international recruiter standards." },
         ]
       : [
+          { label: "📋 Coller mon parcours / bio", prompt: "Voici mon parcours complet : ", isTemplate: true },
           { label: "🚀 Étudiant / Stage", prompt: "Je suis étudiant et je recherche un stage. Peux-tu structurer mon CV avec un résumé professionnel accrocheur, des compétences clés et mes formations ?" },
           { label: "💼 Commercial & Vente", prompt: "Je travaille dans le commerce et la vente. Rédige un CV percutant avec mes compétences en négociation, prospection et relation client." },
           { label: "💻 Informatique & Réseaux", prompt: "Je suis dans l'informatique et les réseaux. Rédige un CV technique avec mes compétences clés (systèmes, support, outils) et mes missions." },
@@ -249,11 +317,26 @@ export const ChatPanel = forwardRef<
               <button
                 key={item.label}
                 onClick={() => {
+                  if (item.isTemplate) {
+                    setInputValue(item.prompt);
+                    setTimeout(() => {
+                      const el = document.getElementById("chat-input") as HTMLInputElement | null;
+                      if (el) {
+                        el.focus();
+                        el.setSelectionRange(el.value.length, el.value.length);
+                      }
+                    }, 50);
+                    return;
+                  }
                   if (isLoading || !isHydrated) return;
                   sendMessage({ text: item.prompt }, chatRequestOptions());
                 }}
                 disabled={isLoading || !isHydrated}
-                className="text-xs px-3 py-1.5 rounded-[10px] bg-[#F3F4F6] hover:bg-[#E5E7EB] dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#D1D5DB] dark:border-slate-700 text-[#111827] dark:text-slate-200 transition-all font-medium active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                className={`text-xs px-3 py-1.5 rounded-[10px] border transition-all font-medium active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs ${
+                  item.isTemplate
+                    ? "bg-blue-50/90 hover:bg-blue-100/90 dark:bg-blue-950/50 dark:hover:bg-blue-900/50 border-[#3667F0]/40 text-[#3667F0] dark:text-[#5D82FF] font-semibold"
+                    : "bg-[#F3F4F6] hover:bg-[#E5E7EB] dark:bg-slate-800 dark:hover:bg-slate-700 border-[#D1D5DB] dark:border-slate-700 text-[#111827] dark:text-slate-200"
+                }`}
               >
                 {item.label}
               </button>
