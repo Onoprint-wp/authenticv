@@ -1,6 +1,7 @@
 "use client";
 
-import { Send, Loader2, Mic, MicOff } from "lucide-react";
+import { useRef } from "react";
+import { Send, Loader2, Mic, MicOff, Paperclip } from "lucide-react";
 
 interface ChatInputAreaProps {
   inputValue: string;
@@ -14,6 +15,8 @@ interface ChatInputAreaProps {
   speechError?: string | null;
   toggleMic: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  onFileUpload?: (file: File) => void;
+  isUploadingFile?: boolean;
 }
 
 export function ChatInputArea({
@@ -28,7 +31,18 @@ export function ChatInputArea({
   speechError,
   toggleMic,
   onSubmit,
+  onFileUpload,
+  isUploadingFile = false,
 }: ChatInputAreaProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    onFileUpload?.(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <div className="p-4 border-t border-border bg-card shadow-xs">
       <form onSubmit={onSubmit} className="flex gap-2 items-center">
@@ -42,6 +56,39 @@ export function ChatInputArea({
         >
           {coachLanguage === "fr" ? "🇫🇷" : "🇬🇧"}
         </button>
+
+        {/* File Upload Button (LinkedIn PDF / Resume) */}
+        {onFileUpload && (
+          <>
+            <input
+              ref={fileInputRef}
+              id="chat-file-input"
+              type="file"
+              accept=".pdf,.docx,.doc"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isUploadingFile || isLoading}
+            />
+            <button
+              id="chat-upload-file-btn"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploadingFile || isLoading}
+              title={
+                coachLanguage === "en"
+                  ? "Import resume or LinkedIn PDF export"
+                  : "Importer un CV ou export LinkedIn (PDF, Word)"
+              }
+              className="shrink-0 w-9 h-9 rounded-[10px] bg-muted hover:bg-muted/80 border border-border flex items-center justify-center text-muted-foreground hover:text-[#3667F0] transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+            >
+              {isUploadingFile ? (
+                <Loader2 className="w-4 h-4 text-brand-blue animate-spin" />
+              ) : (
+                <Paperclip className="w-4 h-4" />
+              )}
+            </button>
+          </>
+        )}
 
         <input
           id="chat-input"

@@ -1,82 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Upload, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { useCvStore } from "@/store/useCvStore";
-import type { CvData } from "@/store/useCvStore";
-
-type UploadStatus = "idle" | "uploading" | "success" | "error";
-
-const UPLOAD_TIMEOUT_MS = 55_000;
+import { useCvUpload, type UploadStatus } from "@/hooks/useCvUpload";
 
 export function UploadCvButton() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [status, setStatus] = useState<UploadStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState<string>("");
-  const setCvData = useCvStore((s) => s.setCvData);
-  const saveCheckpoint = useCvStore((s) => s.saveCheckpoint);
+  const { uploadCvFile, status, isUploading, errorMsg } = useCvUpload();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setStatus("uploading");
-    setErrorMsg("");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
-
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Erreur lors de l'import");
-      }
-
-      // Sauvegarder l'état actuel avant d'écraser (permet l'undo via VersionHistoryPanel)
-      saveCheckpoint();
-
-      // Préserver le thème/layout actuel — l'import ne doit pas réinitialiser le design
-      const { cvData: current } = useCvStore.getState();
-      const merged: CvData = {
-        ...(data.cvData as CvData),
-        designSettings: current.designSettings,
-      };
-
-      setCvData(merged);
-
-      // Persister immédiatement en DB pour éviter la race condition avec les tool calls du coach
-      await fetch("/api/resumes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: merged }),
-      });
-
-      setStatus("success");
-      setTimeout(() => setStatus("idle"), 3000);
-    } catch (err) {
-      let message = "Une erreur est survenue";
-      if (err instanceof Error) {
-        message = err.name === "AbortError"
-          ? "Délai dépassé — le fichier est peut-être trop volumineux. Réessayez."
-          : err.message;
-      }
-      setErrorMsg(message);
-      setStatus("error");
-      setTimeout(() => setStatus("idle"), 5000);
-    } finally {
-      clearTimeout(timeoutId);
-      if (inputRef.current) inputRef.current.value = "";
-    }
+    await uploadCvFile(file);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const icons: Record<UploadStatus, React.ReactNode> = {

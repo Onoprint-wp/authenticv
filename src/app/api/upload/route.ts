@@ -107,19 +107,19 @@ async function extractTextFromDocx(buffer: Buffer): Promise<string> {
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
-  // Auth guard
+  // Auth guard (optionnel pour permettre aux invités d'importer leur profil/CV)
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
-  const { success: uploadOk } = await uploadRateLimit.limit(user.id);
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "guest_ip";
+  const rateLimitKey = user ? user.id : `guest:${clientIp}`;
+
+  const { success: uploadOk } = await uploadRateLimit.limit(rateLimitKey);
   if (!uploadOk) {
     return NextResponse.json(
-      { error: "Trop de fichiers envoyés. Patientez une minute." },
+      { error: "Limite de téléchargements atteinte. Veuillez patienter une minute." },
       { status: 429 }
     );
   }

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Bot, Sparkles, ArrowRight, X, GraduationCap, Briefcase, Cpu, Wrench, HeartPulse, Calculator } from "lucide-react";
+import { useState, useRef } from "react";
+import { Bot, Sparkles, ArrowRight, X, GraduationCap, Briefcase, Cpu, Wrench, HeartPulse, Calculator, Upload, Loader2 } from "lucide-react";
 import { useCvStore } from "@/store/useCvStore";
+import { useCvUpload } from "@/hooks/useCvUpload";
 
 interface OnboardingModalProps {
   onStart: (initialPrompt?: string) => void;
@@ -57,6 +58,24 @@ export function OnboardingModal({ onStart }: OnboardingModalProps) {
   const [customJob, setCustomJob] = useState("");
   const cvData = useCvStore((s) => s.cvData);
   const firstName = cvData.personalInfo?.firstName?.trim() || "";
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { uploadCvFile, isUploading } = useCvUpload({
+    onSuccess: (importedData) => {
+      const expCount = importedData.experiences?.length || 0;
+      const skillsCount = importedData.skills?.length || 0;
+      onStart(
+        `J'ai importé mon profil avec succès (${expCount} expériences, ${skillsCount} compétences). Analyse mon profil et propose-moi des améliorations percutantes !`
+      );
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadCvFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSelectPreset = (prompt: string) => {
     onStart(prompt);
@@ -88,6 +107,63 @@ export function OnboardingModal({ onStart }: OnboardingModalProps) {
 
         {/* Scrollable Presets Grid & Form */}
         <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4">
+          
+          {/* Fast-Track Import Banner (LinkedIn / CV Existant) */}
+          <div className="p-3 sm:p-3.5 rounded-[14px] bg-gradient-to-r from-blue-50/90 to-indigo-50/70 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-800/60 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#0F223D] dark:text-white">
+                  <span className="text-amber-500">⚡</span>
+                  <span>Déjà un profil LinkedIn ou un ancien CV ?</span>
+                </div>
+                <p className="text-[11px] text-[#6B7280] dark:text-slate-400 mt-0.5 leading-relaxed">
+                  Importez-le en 1 clic pour pré-remplir instantanément toutes vos expériences.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <input
+                  ref={fileInputRef}
+                  id="onboarding-upload-input"
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-[10px] bg-[#3667F0] hover:bg-[#2b55cb] text-white text-xs font-semibold shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Analyse…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Importer (PDF, Word)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1 pt-1.5 border-t border-blue-200/40 dark:border-blue-800/30">
+              <span className="font-semibold text-[#3667F0] dark:text-[#5D82FF]">💡 Astuce LinkedIn :</span>
+              <span>Sur votre profil &gt; Plus (...) &gt; Enregistrer au format PDF.</span>
+            </div>
+          </div>
+
+          {/* Séparateur élégant "OU" */}
+          <div className="flex items-center gap-3 py-1">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Ou choisissez un métier
+            </span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
             {PRESET_PROFILES.map((preset) => {
               const Icon = preset.icon;

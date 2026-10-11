@@ -7,6 +7,7 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatInputArea } from "@/components/chat/ChatInputArea";
 import { computeAtsScore } from "@/lib/ats-score";
+import { useCvUpload } from "@/hooks/useCvUpload";
 
 // Applies a single AI tool call directly to the Zustand store for immediate re-render,
 // before the background Supabase refetch confirms the canonical data.
@@ -103,6 +104,20 @@ export const ChatPanel = forwardRef<
   });
 
   const isLoading = status === "streaming" || status === "submitted";
+
+  const { uploadCvFile, isUploading: isUploadingCv } = useCvUpload({
+    onSuccess: (importedData) => {
+      onToolFinish?.();
+      onCheckpoint?.();
+      const expCount = importedData.experiences?.length || 0;
+      const skillsCount = importedData.skills?.length || 0;
+      const prompt =
+        coachLanguage === "en"
+          ? `I have just uploaded my resume with ${expCount} experiences and ${skillsCount} skills. Please analyze my profile and suggest high-impact improvements!`
+          : `J'ai déposé mon CV / profil (${expCount} expériences, ${skillsCount} compétences détectées). Analyse mon profil et propose-moi des améliorations percutantes !`;
+      sendMessage({ text: prompt }, chatRequestOptions());
+    },
+  });
 
   useImperativeHandle(ref, () => ({
     sendExternalMessage: (text: string) => {
@@ -251,7 +266,7 @@ export const ChatPanel = forwardRef<
       <ChatInputArea
         inputValue={inputValue}
         setInputValue={setInputValue}
-        isLoading={isLoading}
+        isLoading={isLoading || isUploadingCv}
         isHydrated={isHydrated}
         coachLanguage={coachLanguage}
         setCoachLanguage={setCoachLanguage}
@@ -260,6 +275,8 @@ export const ChatPanel = forwardRef<
         speechError={speechError}
         toggleMic={toggleMic}
         onSubmit={handleSubmit}
+        onFileUpload={uploadCvFile}
+        isUploadingFile={isUploadingCv}
       />
     </div>
   );
