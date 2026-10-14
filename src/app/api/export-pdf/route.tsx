@@ -72,7 +72,7 @@ export async function GET(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.redirect(new URL("/login?next=/builder", request.url));
+      return Response.redirect(new URL("/login?next=/builder", request.url), 302);
     }
 
     const plan = await getUserPlan(user.id);
