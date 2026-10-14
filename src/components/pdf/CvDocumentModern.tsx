@@ -2,7 +2,7 @@ import {
   Document, Page, Text, View, Image, StyleSheet, Link, Svg, Path, Rect,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme, PDF_SPACING } from "@/lib/themes";
+import { getTheme, PDF_SPACING, normalizeCvText } from "@/lib/themes";
 
 // Mirrors Lucide icons used in CvRendererModern — react-pdf cannot use SVG components directly
 function PdfSectionIcon({ type, color }: { type: "briefcase" | "graduation" | "folder"; color: string }) {
@@ -36,18 +36,20 @@ function createStyles(
   fontBold: string,
   sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
+  const s = (pt: number) => Number((pt * sp.scale).toFixed(2));
+
   return StyleSheet.create({
     page: {
       flexDirection: "row",
       backgroundColor: "#ffffff",
       fontFamily: fontBase,
-      fontSize: 10,
+      fontSize: s(10),
       color: "#1e293b",
     },
 
     // ── Sidebar ───────────────────────────────────────────────
     sidebar: {
-      width: 175,
+      width: 188,
       backgroundColor: headerBg,
       paddingHorizontal: sp.sidebarPadH,
       paddingVertical: sp.sidebarPadV,
@@ -56,58 +58,72 @@ function createStyles(
     },
     photoWrap: { alignItems: "center", marginBottom: 4 },
     photo: {
-      width: 72,
-      height: 72,
-      borderRadius: 36,
+      width: 74,
+      height: 74,
+      borderRadius: 37,
       objectFit: "cover",
       borderWidth: 3,
-      borderColor: "rgba(255,255,255,0.2)",
+      borderColor: "rgba(255,255,255,0.28)",
     },
     nameBlock: { alignItems: "center" },
-    firstName: { fontSize: 13, fontFamily: fontBold, color: "#ffffff", textAlign: "center" },
-    lastName: { fontSize: 13, fontFamily: fontBold, color: accentLight, textAlign: "center" },
+    firstName: { fontSize: s(15.5), fontFamily: fontBold, color: "#ffffff", textAlign: "center" },
+    lastName: { fontSize: s(15.5), fontFamily: fontBold, color: accentLight, textAlign: "center" },
     jobTitle: {
-      fontSize: 8,
-      color: "rgba(255,255,255,0.6)",
+      fontSize: s(9.2),
+      fontFamily: fontBold,
+      color: "rgba(255,255,255,0.92)",
+      textAlign: "center",
+      textTransform: "uppercase",
+      letterSpacing: 0.7,
+      marginTop: 4,
+      lineHeight: 1.35,
+    },
+    jobTitleStandalone: {
+      fontSize: s(11.5),
+      fontFamily: fontBold,
+      color: "#ffffff",
       textAlign: "center",
       textTransform: "uppercase",
       letterSpacing: 0.8,
-      marginTop: 3,
+      lineHeight: 1.35,
     },
 
     sideLabel: {
-      fontSize: 7.5,
+      fontSize: s(8.8),
       fontFamily: fontBold,
-      color: "rgba(255,255,255,0.45)",
+      color: "rgba(255,255,255,0.75)",
       textTransform: "uppercase",
-      letterSpacing: 0.8,
+      letterSpacing: 0.9,
       paddingBottom: 4,
-      borderBottomWidth: 0.5,
-      borderBottomColor: "rgba(255,255,255,0.2)",
-      marginBottom: 6,
+      borderBottomWidth: 0.75,
+      borderBottomColor: "rgba(255,255,255,0.28)",
+      marginBottom: 7,
     },
     contactItem: {
-      fontSize: 8.5,
-      color: "rgba(255,255,255,0.8)",
-      marginBottom: 4,
+      fontSize: s(9.2),
+      color: "rgba(255,255,255,0.92)",
+      marginBottom: 5,
+      lineHeight: 1.35,
     },
-    skillsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 4 },
+    skillsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 4.5 },
     skillChip: {
-      fontSize: 7.5,
-      color: "rgba(255,255,255,0.85)",
-      borderWidth: 0.5,
-      borderColor: "rgba(255,255,255,0.25)",
-      paddingHorizontal: 5,
-      paddingVertical: 2,
-      borderRadius: 3,
+      fontSize: s(8.5),
+      fontFamily: fontBold,
+      color: "#ffffff",
+      backgroundColor: "rgba(255,255,255,0.12)",
+      borderWidth: 0.75,
+      borderColor: "rgba(255,255,255,0.32)",
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 4,
     },
-    langItem: { flexDirection: "row", justifyContent: "space-between", marginBottom: 5 },
-    langName: { fontSize: 8.5, fontFamily: fontBold, color: "rgba(255,255,255,0.9)" },
-    langLevel: { fontSize: 8, color: "rgba(255,255,255,0.5)" },
+    langItem: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+    langName: { fontSize: s(9.2), fontFamily: fontBold, color: "#ffffff" },
+    langLevel: { fontSize: s(8.8), color: "rgba(255,255,255,0.8)" },
     certItem: { marginBottom: 8 },
-    certName: { fontSize: 8.5, fontFamily: fontBold, color: "rgba(255,255,255,0.9)", lineHeight: 1.3 },
-    certIssuer: { fontSize: 7.5, color: "rgba(255,255,255,0.55)", marginTop: 1 },
-    certDate: { fontSize: 7, color: "rgba(255,255,255,0.4)", marginTop: 1 },
+    certName: { fontSize: s(9.2), fontFamily: fontBold, color: "#ffffff", lineHeight: 1.3 },
+    certIssuer: { fontSize: s(8.5), color: "rgba(255,255,255,0.78)", marginTop: 1.5 },
+    certDate: { fontSize: s(8), color: "rgba(255,255,255,0.65)", marginTop: 1 },
 
     // ── Main content ──────────────────────────────────────────
     main: {
@@ -116,23 +132,23 @@ function createStyles(
       paddingVertical: sp.mainPadV,
     },
     mainSection: { marginBottom: sp.sectionMb },
-    sectionHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 10 },
-    sectionDot: { width: 7, height: 7, borderRadius: 1, backgroundColor: accent },
+    sectionHeader: { flexDirection: "row", alignItems: "center", gap: 7, marginBottom: 10 },
+    sectionDot: { width: 7.5, height: 7.5, borderRadius: 1.5, backgroundColor: accent },
     sectionTitle: {
-      fontSize: 9.5,
+      fontSize: s(11),
       fontFamily: fontBold,
       color: "#0f172a",
       textTransform: "uppercase",
       letterSpacing: 1,
     },
-    summaryText: { fontSize: 9.5, lineHeight: 1.6, color: "#475569" },
+    summaryText: { fontSize: s(10), lineHeight: 1.58, color: "#334155" },
 
-    expItem: { flexDirection: "row", gap: 8, marginBottom: sp.itemMb },
+    expItem: { flexDirection: "row", gap: 9, marginBottom: sp.itemMb },
     timelineCol: { width: 12, alignItems: "center", paddingTop: 3 },
     timelineDot: {
-      width: 7,
-      height: 7,
-      borderRadius: 3.5,
+      width: 7.5,
+      height: 7.5,
+      borderRadius: 4,
       borderWidth: 2,
       borderColor: accent,
       backgroundColor: "#ffffff",
@@ -140,37 +156,38 @@ function createStyles(
     timelineLine: { flex: 1, width: 1, backgroundColor: "#e2e8f0", marginTop: 2 },
     expContent: { flex: 1 },
     expHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-    expPosition: { fontSize: 10, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 6 },
+    expPosition: { fontSize: s(11), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 6 },
     expDateBadge: {
-      fontSize: 7.5,
+      fontSize: s(8.5),
+      fontFamily: fontBold,
       color: accent,
       backgroundColor: accentBg,
-      paddingHorizontal: 5,
-      paddingVertical: 2,
+      paddingHorizontal: 6,
+      paddingVertical: 2.5,
       borderRadius: 8,
     },
-    expCompany: { fontSize: 8.5, color: accent, marginTop: 2, marginBottom: 2 },
-    expDesc: { fontSize: 8.5, lineHeight: 1.5, color: "#475569" },
+    expCompany: { fontSize: s(9.5), fontFamily: fontBold, color: accent, marginTop: 2, marginBottom: 3.5 },
+    expDesc: { fontSize: s(9.8), lineHeight: 1.52, color: "#334155" },
 
     eduItem: { marginBottom: 10 },
     eduHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-    eduDegree: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a", flex: 1 },
-    eduDate: { fontSize: 8, color: "#94a3b8" },
-    eduField: { fontSize: 8.5, color: accent, marginTop: 1 },
-    eduInstitution: { fontSize: 8.5, color: "#64748b", marginTop: 1 },
+    eduDegree: { fontSize: s(10.5), fontFamily: fontBold, color: "#0f172a", flex: 1 },
+    eduDate: { fontSize: s(8.8), color: "#64748b" },
+    eduField: { fontSize: s(9.2), fontFamily: fontBold, color: accent, marginTop: 1.5 },
+    eduInstitution: { fontSize: s(9.2), color: "#475569", marginTop: 1.5 },
 
     projItem: {
       backgroundColor: "#f8fafc",
       borderWidth: 1,
-      borderColor: "#f1f5f9",
-      borderRadius: 4,
-      padding: 8,
-      marginBottom: 7,
+      borderColor: "#e2e8f0",
+      borderRadius: 5,
+      padding: 9,
+      marginBottom: 8,
     },
     projHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 },
-    projName: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 5 },
-    projLink: { fontSize: 8, color: accent, textDecoration: "none" },
-    projDesc: { fontSize: 8.5, lineHeight: 1.5, color: "#475569" },
+    projName: { fontSize: s(10.5), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 5 },
+    projLink: { fontSize: s(8.8), color: accent, textDecoration: "none" },
+    projDesc: { fontSize: s(9.5), lineHeight: 1.5, color: "#334155" },
 
     // Watermark
     watermarkFooter: {
@@ -228,6 +245,7 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
   );
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";
+  const hasName = Boolean(personalInfo.firstName || personalInfo.lastName);
 
   return (
     <Document title={fullName} author={fullName} subject="Curriculum Vitae" creator="AuthentiCV">
@@ -243,10 +261,14 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
           )}
 
           <View style={styles.nameBlock}>
-            <Text style={styles.firstName}>{personalInfo.firstName}</Text>
-            <Text style={styles.lastName}>{personalInfo.lastName}</Text>
+            {hasName && (
+              <>
+                {personalInfo.firstName ? <Text style={styles.firstName}>{personalInfo.firstName}</Text> : null}
+                {personalInfo.lastName ? <Text style={styles.lastName}>{personalInfo.lastName}</Text> : null}
+              </>
+            )}
             {personalInfo.title
-              ? <Text style={styles.jobTitle}>{personalInfo.title}</Text>
+              ? <Text style={hasName ? styles.jobTitle : styles.jobTitleStandalone}>{personalInfo.title}</Text>
               : null}
           </View>
 
@@ -306,7 +328,7 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
                 <View style={styles.sectionDot} />
                 <Text style={styles.sectionTitle}>Profil</Text>
               </View>
-              <Text style={styles.summaryText}>{summary}</Text>
+              <Text style={styles.summaryText}>{normalizeCvText(summary)}</Text>
             </View>
           ) : null}
 
@@ -331,7 +353,7 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
                       </Text>
                     </View>
                     <Text style={styles.expCompany}>{exp.company}</Text>
-                    {exp.description ? <Text style={styles.expDesc}>{exp.description}</Text> : null}
+                    {exp.description ? <Text style={styles.expDesc}>{normalizeCvText(exp.description)}</Text> : null}
                   </View>
                 </View>
               ))}
@@ -371,7 +393,7 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
                     <Text style={styles.projName}>{proj.name}</Text>
                     {proj.link ? <Link src={proj.link} style={styles.projLink}>Voir ↗</Link> : null}
                   </View>
-                  {proj.description ? <Text style={styles.projDesc}>{proj.description}</Text> : null}
+                  {proj.description ? <Text style={styles.projDesc}>{normalizeCvText(proj.description)}</Text> : null}
                 </View>
               ))}
             </View>

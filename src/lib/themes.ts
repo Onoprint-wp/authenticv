@@ -10,10 +10,18 @@ export interface ColorTheme {
   pdfHeaderBg: string;
 }
 
+export type CvLayout =
+  | "classic"
+  | "modern"
+  | "minimal"
+  | "executive"
+  | "split"
+  | "compact-grid";
+
 export interface DesignSettings {
   colorTheme: string;
   fontFamily: "sans" | "serif";
-  layout: "classic" | "modern" | "minimal";
+  layout: CvLayout;
   spacing: "compact" | "normal" | "spacious";
   recruiterVisible: boolean;
 }
@@ -27,10 +35,47 @@ export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
 };
 
 export const PDF_SPACING = {
-  compact:  { headerPadH: 26, headerPadV: 18, mainPadH: 18, mainPadV: 16, sidebarPadH: 12, sidebarPadV: 16, sidebarGap: 10, sectionMb: 12, itemMb: 6,  pagePadH: 30, pagePadV: 26 },
-  normal:   { headerPadH: 36, headerPadV: 28, mainPadH: 26, mainPadV: 24, sidebarPadH: 16, sidebarPadV: 24, sidebarGap: 16, sectionMb: 20, itemMb: 10, pagePadH: 44, pagePadV: 40 },
-  spacious: { headerPadH: 48, headerPadV: 40, mainPadH: 34, mainPadV: 32, sidebarPadH: 22, sidebarPadV: 32, sidebarGap: 22, sectionMb: 28, itemMb: 14, pagePadH: 58, pagePadV: 52 },
+  compact:  { scale: 0.94, headerPadH: 28, headerPadV: 20, mainPadH: 22, mainPadV: 18, sidebarPadH: 14, sidebarPadV: 18, sidebarGap: 12, sectionMb: 14, itemMb: 8,  pagePadH: 32, pagePadV: 28 },
+  normal:   { scale: 1.0,  headerPadH: 36, headerPadV: 26, mainPadH: 28, mainPadV: 24, sidebarPadH: 18, sidebarPadV: 24, sidebarGap: 16, sectionMb: 18, itemMb: 11, pagePadH: 42, pagePadV: 36 },
+  spacious: { scale: 1.08, headerPadH: 44, headerPadV: 34, mainPadH: 34, mainPadV: 30, sidebarPadH: 22, sidebarPadV: 30, sidebarGap: 20, sectionMb: 24, itemMb: 14, pagePadH: 50, pagePadV: 44 },
 } as const;
+
+export const WEB_FONT_SCALE = {
+  compact: 0.93,
+  normal: 1,
+  spacious: 1.08,
+} as const;
+
+/**
+ * Normalise les séquences échappées ("\\n") ou retours chariot en vrais sauts de ligne
+ * et harmonise les listes à puces pour un rendu propre Web & PDF.
+ */
+export function normalizeCvText(text?: string): string {
+  if (!text) return "";
+  const cleaned = text
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .trim();
+
+  const lines = cleaned
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  if (lines.length <= 1) return cleaned;
+
+  const hasBullets = lines.some((l) => /^[•\-*▪▸]\s*/.test(l));
+  if (!hasBullets) return lines.join("\n");
+
+  return lines
+    .map((line) => {
+      const stripped = line.replace(/^[•\-*▪▸]\s*/, "").trim();
+      return stripped ? `• ${stripped}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+}
 
 export const COLOR_THEMES: ColorTheme[] = [
   {
@@ -146,9 +191,9 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Best-Seller Cadres",
     atsScore: "98%",
     description:
-      "Hiérarchie exécutive sobre en typographie Serif d'autorité pour postes de direction, conseils et cabinets d'audit.",
+      "Hiérarchie exécutive Harvard en typographie Serif d'autorité pour postes de direction, conseils et cabinets d'audit.",
     recommendedFor: ["Directeur Général", "Chef de Département", "Consultant Senior", "Country Manager"],
-    settings: { layout: "classic", colorTheme: "slate", fontFamily: "serif", spacing: "spacious" },
+    settings: { layout: "executive", colorTheme: "slate", fontFamily: "serif", spacing: "normal" },
   },
   {
     id: "tech-data",
@@ -159,7 +204,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     description:
       "Architecture moderne 2 colonnes valorisant la stack technique, les certifications Cloud et les projets DevOps/Data.",
     recommendedFor: ["Développeur Full-Stack", "Ingénieur Cloud", "Data Analyst", "Architecte Logiciel"],
-    settings: { layout: "modern", colorTheme: "cyan", fontFamily: "sans", spacing: "compact" },
+    settings: { layout: "modern", colorTheme: "cyan", fontFamily: "sans", spacing: "normal" },
   },
   {
     id: "finance-banque",
@@ -179,9 +224,9 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Orientation Résultats",
     atsScore: "96%",
     description:
-      "Design orienté performance qui met immédiatement en évidence vos chiffres d'affaires, parts de marché et KPIs.",
+      "Architecture Split asymétrique qui met immédiatement en évidence vos chiffres d'affaires, parts de marché et KPIs.",
     recommendedFor: ["Business Developer", "Responsable Commercial", "Key Account Manager", "Chef de Produit"],
-    settings: { layout: "modern", colorTheme: "emerald", fontFamily: "sans", spacing: "normal" },
+    settings: { layout: "split", colorTheme: "emerald", fontFamily: "sans", spacing: "normal" },
   },
   {
     id: "ingenierie-btp",
@@ -190,9 +235,9 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Terrain & Projets",
     atsScore: "97%",
     description:
-      "Structure normée pour valoriser les chantiers livrés, habilitations HSE ISO 45001 et budgets d'infrastructure.",
+      "Grille technique structurée valorisant les chantiers livrés, habilitations HSE ISO 45001 et budgets d'infrastructure.",
     recommendedFor: ["Ingénieur Génie Civil", "Responsable HSE", "Ingénieur Mines", "Supply Chain Manager"],
-    settings: { layout: "classic", colorTheme: "amber", fontFamily: "sans", spacing: "compact" },
+    settings: { layout: "compact-grid", colorTheme: "amber", fontFamily: "sans", spacing: "normal" },
   },
   {
     id: "sante-ong",
@@ -203,7 +248,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     description:
       "Format linéaire haute lisibilité conforme aux standards des agences onusiennes (OMS, UNICEF) et ONG internationales.",
     recommendedFor: ["Coordinateur ONG", "Médecin / Pharmacien", "Spécialiste MEAL", "Santé Publique"],
-    settings: { layout: "minimal", colorTheme: "emerald", fontFamily: "sans", spacing: "spacious" },
+    settings: { layout: "minimal", colorTheme: "emerald", fontFamily: "sans", spacing: "normal" },
   },
   {
     id: "rh-juridique",
@@ -214,7 +259,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     description:
       "Équilibre institutionnel mettant en avant le droit des affaires OHADA, la conformité sociale et la direction RH.",
     recommendedFor: ["Directeur RH (DRH)", "Juriste d'Affaires", "Chargé de Recrutement", "Secrétaire Général"],
-    settings: { layout: "classic", colorTheme: "rose", fontFamily: "serif", spacing: "normal" },
+    settings: { layout: "executive", colorTheme: "rose", fontFamily: "serif", spacing: "normal" },
   },
   {
     id: "campus-stage",
@@ -225,7 +270,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     description:
       "Valorise l'excellence académique, les mémoires de fin d'études, les stages PFE et le potentiel des jeunes diplômés.",
     recommendedFor: ["Lauréat Master / École", "Stagiaire PFE", "Jeune Diplômé", "Analyste Junior"],
-    settings: { layout: "modern", colorTheme: "violet", fontFamily: "sans", spacing: "spacious" },
+    settings: { layout: "split", colorTheme: "violet", fontFamily: "sans", spacing: "normal" },
   },
   {
     id: "minimal-ats",

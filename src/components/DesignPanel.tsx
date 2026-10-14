@@ -15,16 +15,16 @@ const LAYOUTS = [
     label: "Classic",
     preview: (
       <svg viewBox="0 0 48 60" className="w-full h-full">
-        <rect x="0" y="0" width="48" height="18" rx="2" fill="#312e81" />
-        <rect x="4" y="22" width="28" height="4" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="29" width="28" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="34" width="22" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="40" width="28" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="45" width="20" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="36" y="22" width="9" height="3" rx="1" fill="#c7d2fe" />
-        <rect x="36" y="28" width="9" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="36" y="33" width="7" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="36" y="38" width="9" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="0" y="0" width="48" height="16" rx="2" fill="#312e81" />
+        <rect x="4" y="20" width="28" height="3.5" rx="1" fill="#cbd5e1" />
+        <rect x="4" y="26" width="28" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="30" width="22" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="36" width="28" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="40" width="20" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="35" y="20" width="9" height="3" rx="1" fill="#c7d2fe" />
+        <rect x="35" y="26" width="9" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="35" y="30" width="7" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="35" y="35" width="9" height="2" rx="1" fill="#e2e8f0" />
       </svg>
     ),
   },
@@ -34,12 +34,12 @@ const LAYOUTS = [
     preview: (
       <svg viewBox="0 0 48 60" className="w-full h-full">
         <rect x="0" y="0" width="16" height="60" rx="2" fill="#312e81" />
-        <circle cx="8" cy="12" r="5" fill="rgba(255,255,255,0.25)" />
-        <rect x="2" y="21" width="12" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
-        <rect x="3" y="25" width="10" height="1.5" rx="1" fill="rgba(255,255,255,0.3)" />
-        <rect x="2" y="31" width="12" height="1.5" rx="1" fill="rgba(255,255,255,0.3)" />
-        <rect x="2" y="35" width="10" height="1.5" rx="1" fill="rgba(255,255,255,0.3)" />
-        <rect x="20" y="6" width="24" height="4" rx="1" fill="#e2e8f0" />
+        <circle cx="8" cy="11" r="4.5" fill="rgba(255,255,255,0.28)" />
+        <rect x="2" y="19" width="12" height="2" rx="1" fill="rgba(255,255,255,0.6)" />
+        <rect x="3" y="23" width="10" height="1.5" rx="1" fill="rgba(255,255,255,0.35)" />
+        <rect x="2" y="29" width="12" height="1.5" rx="1" fill="rgba(255,255,255,0.35)" />
+        <rect x="2" y="33" width="10" height="1.5" rx="1" fill="rgba(255,255,255,0.35)" />
+        <rect x="20" y="6" width="24" height="4" rx="1" fill="#cbd5e1" />
         <rect x="20" y="13" width="24" height="2" rx="1" fill="#e2e8f0" />
         <rect x="20" y="18" width="18" height="2" rx="1" fill="#e2e8f0" />
         <rect x="20" y="25" width="24" height="2" rx="1" fill="#e2e8f0" />
@@ -54,16 +54,71 @@ const LAYOUTS = [
     label: "Minimal",
     preview: (
       <svg viewBox="0 0 48 60" className="w-full h-full">
-        <rect x="4" y="6" width="28" height="5" rx="1" fill="#0f172a" />
-        <rect x="4" y="14" width="16" height="2" rx="1" fill="#94a3b8" />
-        <rect x="4" y="19" width="8" height="1.5" rx="1" fill="#6366f1" />
-        <rect x="4" y="24" width="40" height="0.5" rx="0.5" fill="#e2e8f0" />
-        <rect x="4" y="29" width="12" height="1.5" rx="1" fill="#6366f1" />
-        <rect x="4" y="33" width="40" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="37" width="32" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="43" width="12" height="1.5" rx="1" fill="#6366f1" />
-        <rect x="4" y="47" width="40" height="2" rx="1" fill="#e2e8f0" />
-        <rect x="4" y="51" width="28" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="6" width="28" height="4.5" rx="1" fill="#0f172a" />
+        <rect x="4" y="13" width="16" height="2" rx="1" fill="#94a3b8" />
+        <rect x="4" y="18" width="8" height="1.5" rx="1" fill="#6366f1" />
+        <rect x="4" y="23" width="40" height="0.8" rx="0.4" fill="#cbd5e1" />
+        <rect x="4" y="27" width="12" height="1.5" rx="1" fill="#6366f1" />
+        <rect x="4" y="31" width="40" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="35" width="32" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="41" width="12" height="1.5" rx="1" fill="#6366f1" />
+        <rect x="4" y="45" width="40" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="49" width="28" height="2" rx="1" fill="#e2e8f0" />
+      </svg>
+    ),
+  },
+  {
+    id: "executive" as const,
+    label: "Executive",
+    preview: (
+      <svg viewBox="0 0 48 60" className="w-full h-full">
+        <rect x="0" y="0" width="48" height="3" fill="#312e81" />
+        <rect x="11" y="6" width="26" height="4" rx="1" fill="#0f172a" />
+        <rect x="15" y="12" width="18" height="2" rx="1" fill="#4f46e5" />
+        <rect x="4" y="17" width="40" height="1" fill="#312e81" />
+        <rect x="6" y="21" width="36" height="4" rx="1" fill="#f1f5f9" />
+        <rect x="4" y="28" width="40" height="1.5" rx="0.5" fill="#cbd5e1" />
+        <rect x="4" y="32" width="40" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="36" width="34" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="4" y="42" width="19" height="12" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.6" />
+        <rect x="25" y="42" width="19" height="12" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.6" />
+      </svg>
+    ),
+  },
+  {
+    id: "split" as const,
+    label: "Split",
+    preview: (
+      <svg viewBox="0 0 48 60" className="w-full h-full">
+        <rect x="3" y="5" width="2" height="13" rx="1" fill="#312e81" />
+        <rect x="7" y="6" width="20" height="4" rx="1" fill="#0f172a" />
+        <rect x="7" y="12" width="15" height="2" rx="1" fill="#4f46e5" />
+        <rect x="30" y="5" width="15" height="13" rx="2" fill="#eef2ff" stroke="#c7d2fe" strokeWidth="0.6" />
+        <rect x="3" y="21" width="42" height="0.8" fill="#e2e8f0" />
+        <rect x="3" y="25" width="25" height="3" rx="1" fill="#cbd5e1" />
+        <rect x="3" y="31" width="25" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="3" y="35" width="21" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="3" y="41" width="25" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="31" y="24" width="14" height="31" rx="2" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.8" />
+        <rect x="33" y="28" width="10" height="2" rx="1" fill="#c7d2fe" />
+        <rect x="33" y="33" width="9" height="2" rx="1" fill="#e2e8f0" />
+        <rect x="33" y="38" width="10" height="2" rx="1" fill="#e2e8f0" />
+      </svg>
+    ),
+  },
+  {
+    id: "compact-grid" as const,
+    label: "Tech Grid",
+    preview: (
+      <svg viewBox="0 0 48 60" className="w-full h-full">
+        <rect x="0" y="0" width="48" height="14" fill="#1e1b4b" />
+        <rect x="4" y="4" width="22" height="3.5" rx="1" fill="#ffffff" />
+        <rect x="4" y="9" width="14" height="2" rx="1" fill="#a5b4fc" />
+        <rect x="4" y="17" width="40" height="6" rx="1.5" fill="#eef2ff" />
+        <rect x="4" y="26" width="40" height="8" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.6" />
+        <rect x="4" y="36" width="40" height="8" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.6" />
+        <rect x="4" y="46" width="19" height="10" rx="1.5" fill="#f1f5f9" />
+        <rect x="25" y="46" width="19" height="10" rx="1.5" fill="#eef2ff" />
       </svg>
     ),
   },
@@ -152,14 +207,19 @@ export function DesignPanel({ onClose }: Props) {
         })}
       </div>
 
-      {/* Architecture */}
-      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Architecture</p>
+      {/* Architecture (6) */}
+      <div className="flex items-center justify-between mb-2.5">
+        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider font-heading">
+          Architecture (6)
+        </p>
+        <span className="text-[10px] text-muted-foreground font-medium">Structure A4</span>
+      </div>
       <div className="grid grid-cols-3 gap-2 mb-5">
         {LAYOUTS.map((layout) => (
           <button
             key={layout.id}
             onClick={() => updateDesignSettings({ layout: layout.id })}
-            className={`relative flex flex-col items-center gap-1.5 p-1.5 rounded-xl border-2 transition-all hover:scale-[1.02] focus:outline-none cursor-pointer ${
+            className={`relative flex flex-col items-center gap-1 p-1.5 rounded-xl border-2 transition-all hover:scale-[1.02] focus:outline-none cursor-pointer ${
               currentLayout === layout.id
                 ? "border-brand-blue bg-brand-blue/10"
                 : "border-border bg-muted/40 hover:border-border/80"
@@ -168,7 +228,7 @@ export function DesignPanel({ onClose }: Props) {
             <div className="w-full aspect-[4/5] rounded overflow-hidden bg-white shadow-xs border border-border/40">
               {layout.preview}
             </div>
-            <span className={`text-[10px] font-semibold ${currentLayout === layout.id ? "text-brand-blue" : "text-muted-foreground"}`}>
+            <span className={`text-[10px] font-semibold leading-tight ${currentLayout === layout.id ? "text-brand-blue" : "text-muted-foreground"}`}>
               {layout.label}
             </span>
             {currentLayout === layout.id && (
@@ -214,7 +274,7 @@ export function DesignPanel({ onClose }: Props) {
           }`}
         >
           <Type className="w-3.5 h-3.5" />
-          Sans
+          Sans (Inter)
         </button>
         <button
           onClick={() => updateDesignSettings({ fontFamily: "serif" })}
@@ -226,12 +286,14 @@ export function DesignPanel({ onClose }: Props) {
           style={{ fontFamily: "Georgia, serif" }}
         >
           <Type className="w-3.5 h-3.5" />
-          Serif
+          Serif (Georgia)
         </button>
       </div>
 
-      {/* Espacement */}
-      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Espacement</p>
+      {/* Taille du Texte & Densité */}
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">
+        Taille du Texte &amp; Densité
+      </p>
       <div className="flex gap-2 mb-5">
         {(["compact", "normal", "spacious"] as const).map((s) => (
           <button
@@ -243,7 +305,7 @@ export function DesignPanel({ onClose }: Props) {
                 : "bg-muted/50 border-border text-muted-foreground hover:text-foreground"
             }`}
           >
-            {s === "compact" ? "Compact" : s === "normal" ? "Normal" : "Aéré"}
+            {s === "compact" ? "Compact (S)" : s === "normal" ? "Normal (M)" : "Grand (L)"}
           </button>
         ))}
       </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useCvStore } from "@/store/useCvStore";
 import type { CvData } from "@/store/useCvStore";
 
-type Layout = "classic" | "modern" | "minimal";
+import type { CvLayout } from "@/lib/themes";
 
 let PDFViewer: React.ComponentType<{
   style?: React.CSSProperties;
@@ -13,7 +13,7 @@ let PDFViewer: React.ComponentType<{
   showToolbar?: boolean;
 }>;
 
-const CvDocumentComponents: Record<Layout, React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>> = {} as never;
+const CvDocumentComponents: Record<CvLayout, React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>> = {} as never;
 
 export function DynamicPdfViewer({ showWatermark = false }: { showWatermark?: boolean }) {
   const cvData = useCvStore((s) => s.cvData);
@@ -26,11 +26,15 @@ export function DynamicPdfViewer({ showWatermark = false }: { showWatermark?: bo
       import("./CvDocument").then((m) => m.CvDocument),
       import("./CvDocumentModern").then((m) => m.CvDocumentModern),
       import("./CvDocumentMinimal").then((m) => m.CvDocumentMinimal),
-    ]).then(([viewer, classic, modern, minimal]) => {
+      import("./CvDocumentExtra"),
+    ]).then(([viewer, classic, modern, minimal, extra]) => {
       PDFViewer = viewer as typeof PDFViewer;
       CvDocumentComponents.classic = classic as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
       CvDocumentComponents.modern = modern as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
       CvDocumentComponents.minimal = minimal as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
+      CvDocumentComponents.executive = extra.CvDocumentExecutive as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
+      CvDocumentComponents.split = extra.CvDocumentSplit as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
+      CvDocumentComponents["compact-grid"] = extra.CvDocumentCompactGrid as React.ComponentType<{ cvData: CvData; showWatermark?: boolean }>;
       setReady(true);
     });
   }, []);
@@ -99,7 +103,7 @@ export function DynamicPdfViewer({ showWatermark = false }: { showWatermark?: bo
     );
   }
 
-  const layout: Layout = (cvData.designSettings?.layout as Layout) ?? "classic";
+  const layout: CvLayout = (cvData.designSettings?.layout as CvLayout) ?? "classic";
   const CvDocumentComponent = CvDocumentComponents[layout] ?? CvDocumentComponents.classic;
 
   const displayCvData: CvData = cvData.personalInfo.photoUrl

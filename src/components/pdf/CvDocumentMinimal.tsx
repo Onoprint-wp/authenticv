@@ -2,7 +2,7 @@ import {
   Document, Page, Text, View, Image, StyleSheet, Link,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme, PDF_SPACING } from "@/lib/themes";
+import { getTheme, PDF_SPACING, normalizeCvText } from "@/lib/themes";
 
 function createStyles(
   accent: string,
@@ -10,12 +10,14 @@ function createStyles(
   fontBold: string,
   sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
+  const s = (pt: number) => Number((pt * sp.scale).toFixed(2));
+
   return StyleSheet.create({
     page: {
       flexDirection: "column",
       backgroundColor: "#ffffff",
       fontFamily: fontBase,
-      fontSize: 10,
+      fontSize: s(10),
       color: "#1e293b",
       paddingHorizontal: sp.pagePadH,
       paddingVertical: sp.pagePadV,
@@ -32,12 +34,12 @@ function createStyles(
       flex: 1,
     },
     photo: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
+      width: 62,
+      height: 62,
+      borderRadius: 31,
       objectFit: "cover",
       borderWidth: 1.5,
-      borderColor: "#e2e8f0",
+      borderColor: "#cbd5e1",
     },
     headerName: {
       flexDirection: "row",
@@ -46,15 +48,16 @@ function createStyles(
       gap: 6,
       marginBottom: 4,
     },
-    firstName: { fontSize: 26, fontFamily: fontBold, color: "#0f172a" },
-    lastName: { fontSize: 26, fontFamily: fontBold, color: accent },
+    firstName: { fontSize: s(22), fontFamily: fontBold, color: "#0f172a" },
+    lastName: { fontSize: s(22), fontFamily: fontBold, color: accent },
     jobTitle: {
-      fontSize: 10,
-      color: "#64748b",
+      fontSize: s(10.5),
+      fontFamily: fontBold,
+      color: "#475569",
       textTransform: "uppercase",
       letterSpacing: 0.8,
-      marginTop: 4,
-      marginBottom: 10,
+      marginTop: 3,
+      marginBottom: 8,
     },
     accentBar: {
       width: 36,
@@ -64,60 +67,60 @@ function createStyles(
       marginBottom: 10,
     },
     contactRow: { flexDirection: "row", flexWrap: "wrap", gap: 16, marginBottom: 4 },
-    contactItem: { fontSize: 8.5, color: "#64748b" },
+    contactItem: { fontSize: s(9.2), color: "#475569" },
     divider: {
       borderBottomWidth: 1,
-      borderBottomColor: "#f1f5f9",
-      marginTop: 14,
-      marginBottom: 20,
+      borderBottomColor: "#e2e8f0",
+      marginTop: 12,
+      marginBottom: 16,
     },
 
     // ── Sections ──────────────────────────────────────────────
     section: { marginBottom: sp.sectionMb },
-    sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
+    sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 9 },
     sectionBar: { width: 14, height: 1.5, backgroundColor: accent, borderRadius: 1 },
     sectionTitle: {
-      fontSize: 8.5,
+      fontSize: s(10),
       fontFamily: fontBold,
-      color: "#64748b",
+      color: "#334155",
       textTransform: "uppercase",
       letterSpacing: 1.2,
     },
-    summaryText: { fontSize: 9.5, lineHeight: 1.7, color: "#475569" },
+    summaryText: { fontSize: s(10), lineHeight: 1.6, color: "#334155" },
 
     // ── Experience ────────────────────────────────────────────
     expItem: { marginBottom: sp.itemMb },
     expHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-    expPosition: { fontSize: 10.5, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
-    expDate: { fontSize: 8.5, color: "#94a3b8" },
-    expCompany: { fontSize: 9, color: accent, marginTop: 2, marginBottom: 3 },
-    expDesc: { fontSize: 9, lineHeight: 1.6, color: "#475569" },
+    expPosition: { fontSize: s(11), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
+    expDate: { fontSize: s(9), fontFamily: fontBold, color: "#64748b" },
+    expCompany: { fontSize: s(9.5), fontFamily: fontBold, color: accent, marginTop: 2, marginBottom: 3.5 },
+    expDesc: { fontSize: s(9.8), lineHeight: 1.55, color: "#334155" },
 
     // ── Education ─────────────────────────────────────────────
     eduItem: { marginBottom: 10 },
     eduHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-    eduDegree: { fontSize: 10, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
-    eduDate: { fontSize: 8.5, color: "#94a3b8" },
-    eduInstitution: { fontSize: 9, color: "#64748b", marginTop: 2 },
+    eduDegree: { fontSize: s(10.5), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
+    eduDate: { fontSize: s(9), color: "#64748b" },
+    eduInstitution: { fontSize: s(9.5), color: "#475569", marginTop: 2 },
 
     // ── Skills ────────────────────────────────────────────────
-    skillsText: { fontSize: 9.5, color: "#475569", lineHeight: 1.6 },
+    skillsText: { fontSize: s(9.8), color: "#334155", lineHeight: 1.58 },
 
     // ── Languages ─────────────────────────────────────────────
-    langText: { fontSize: 9.5, color: "#475569" },
+    langText: { fontSize: s(9.8), color: "#334155" },
 
     // ── Certifications ────────────────────────────────────────
     certRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 4, marginBottom: 6 },
-    certName: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a" },
-    certIssuer: { fontSize: 8.5, color: "#64748b" },
-    certDate: { fontSize: 8, color: "#94a3b8" },
+    certName: { fontSize: s(10), fontFamily: fontBold, color: "#0f172a" },
+    certIssuer: { fontSize: s(9.2), color: "#475569" },
+    certDate: { fontSize: s(8.8), color: "#64748b" },
 
     // ── Projects ──────────────────────────────────────────────
     projItem: { marginBottom: 10 },
     projHeaderRow: { flexDirection: "row", alignItems: "baseline", gap: 6, marginBottom: 3 },
-    projName: { fontSize: 10, fontFamily: fontBold, color: "#0f172a" },
-    projLink: { fontSize: 8, color: accent, textDecoration: "none" },
-    projDesc: { fontSize: 9, lineHeight: 1.6, color: "#475569" },
+    projName: { fontSize: s(10.5), fontFamily: fontBold, color: "#0f172a" },
+    projLink: { fontSize: s(8.8), color: accent, textDecoration: "none" },
+    projDesc: { fontSize: s(9.6), lineHeight: 1.55, color: "#334155" },
 
     // Watermark
     watermarkFooter: {
@@ -167,6 +170,7 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
   const styles = createStyles(theme.pdfAccentColor, fontBase, fontBold, sp);
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";
+  const hasName = Boolean(personalInfo.firstName || personalInfo.lastName);
   const hasContact = personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
 
   return (
@@ -176,16 +180,19 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
         {/* ── Header ── */}
         <View style={styles.headerRow}>
           {personalInfo.photoUrl ? (
+            // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={personalInfo.photoUrl} style={styles.photo} />
           ) : null}
           <View style={styles.headerTextCol}>
-            <View style={styles.headerName}>
-              <Text style={styles.firstName}>{personalInfo.firstName}</Text>
-              <Text style={styles.lastName}>{personalInfo.lastName}</Text>
-            </View>
+            {hasName && (
+              <View style={styles.headerName}>
+                {personalInfo.firstName ? <Text style={styles.firstName}>{personalInfo.firstName}</Text> : null}
+                {personalInfo.lastName ? <Text style={styles.lastName}>{personalInfo.lastName}</Text> : null}
+              </View>
+            )}
 
             {personalInfo.title
-              ? <Text style={styles.jobTitle}>{personalInfo.title.toUpperCase()}</Text>
+              ? <Text style={hasName ? styles.jobTitle : styles.firstName}>{personalInfo.title.toUpperCase()}</Text>
               : null}
 
             <View style={styles.accentBar} />
@@ -211,7 +218,7 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
               <View style={styles.sectionBar} />
               <Text style={styles.sectionTitle}>Profil</Text>
             </View>
-            <Text style={styles.summaryText}>{summary}</Text>
+            <Text style={styles.summaryText}>{normalizeCvText(summary)}</Text>
           </View>
         ) : null}
 
@@ -219,7 +226,7 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
           <View style={styles.section}>
             <View style={styles.sectionHeader} minPresenceAhead={20}>
               <View style={styles.sectionBar} />
-              <Text style={styles.sectionTitle}>Expérience</Text>
+              <Text style={styles.sectionTitle}>Expérience Professionnelle</Text>
             </View>
             {experiences.map((exp) => (
               <View key={exp.id} style={styles.expItem} wrap={false}>
@@ -230,7 +237,7 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
                   </Text>
                 </View>
                 <Text style={styles.expCompany}>{exp.company}</Text>
-                {exp.description ? <Text style={styles.expDesc}>{exp.description}</Text> : null}
+                {exp.description ? <Text style={styles.expDesc}>{normalizeCvText(exp.description)}</Text> : null}
               </View>
             ))}
           </View>
@@ -306,7 +313,7 @@ export function CvDocumentMinimal({ cvData, showWatermark = false }: Props) {
                   <Text style={styles.projName}>{proj.name}</Text>
                   {proj.link ? <Link src={proj.link} style={styles.projLink}>Voir ↗</Link> : null}
                 </View>
-                {proj.description ? <Text style={styles.projDesc}>{proj.description}</Text> : null}
+                {proj.description ? <Text style={styles.projDesc}>{normalizeCvText(proj.description)}</Text> : null}
               </View>
             ))}
           </View>

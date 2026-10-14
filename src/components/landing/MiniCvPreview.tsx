@@ -482,6 +482,222 @@ export function MiniCvPreview({ template, className = "" }: Props) {
               </span>
             </div>
           </div>
+        ) : layout === "executive" ? (
+          /* ── ARCHITECTURE 4 : EXECUTIVE HARVARD / BOARD CENTERED ── */
+          <div className="flex flex-col h-full w-full justify-between bg-white">
+            <div>
+              <div className="h-1.5 w-full" style={{ background: theme.pdfHeaderBg }} />
+              <div className="px-3 pt-2 pb-1.5 text-center border-b-2 mx-2.5" style={{ borderColor: theme.pdfHeaderBg }}>
+                <div className="text-[10.5px] font-extrabold text-slate-900 tracking-wide uppercase truncate">
+                  {persona.fullName}
+                </div>
+                <div className="text-[7.5px] font-bold uppercase tracking-wider mt-0.5 truncate" style={{ color: theme.swatch }}>
+                  {persona.title}
+                </div>
+                <div className="flex items-center justify-center gap-1.5 text-[6px] text-slate-500 mt-0.5 truncate">
+                  <span>{persona.location}</span>
+                  <span>•</span>
+                  <span>{persona.phone}</span>
+                  <span>•</span>
+                  <span className="truncate">{persona.email}</span>
+                </div>
+              </div>
+
+              <div className="px-2.5 py-1.5 space-y-1.5">
+                <div className="bg-slate-50 border border-slate-200/80 rounded px-2 py-1 text-center">
+                  <p className="text-[6.2px] text-slate-600 italic leading-snug line-clamp-2">
+                    {persona.summary}
+                  </p>
+                </div>
+
+                <div>
+                  <div
+                    className="text-[6.5px] font-extrabold uppercase tracking-widest text-center border-b pb-0.5 mb-1"
+                    style={{ color: theme.pdfHeaderBg, borderColor: "#cbd5e1" }}
+                  >
+                    Expérience de Direction &amp; Réalisations
+                  </div>
+                  <div className="mb-1">
+                    <div className="flex items-center justify-between text-[7.2px] font-bold text-slate-900">
+                      <span className="truncate">{persona.exp1Role} — {persona.exp1Company}</span>
+                      <span className="text-[6px] text-slate-500 shrink-0 ml-1">{persona.exp1Date}</span>
+                    </div>
+                    <ul className="space-y-0.5 text-[6.3px] text-slate-600 leading-tight mt-0.5">
+                      <li className="truncate">• {persona.exp1Bullet1}</li>
+                      <li className="truncate">• {persona.exp1Bullet2}</li>
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-between text-[6.5px] text-slate-700">
+                    <span className="font-bold truncate">{persona.exp2Role} — <span className="font-normal text-slate-500">{persona.exp2Company}</span></span>
+                    <span className="text-[6px] text-slate-400 shrink-0 ml-1">{persona.exp2Date}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-2.5 pb-2 pt-1 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between gap-1">
+              <span className="text-[6px] font-bold text-slate-700 truncate">
+                {persona.education.split("·")[0]}
+              </span>
+              <span
+                className="text-[6px] font-bold px-1.5 py-0.5 rounded text-white shrink-0"
+                style={{ background: theme.pdfHeaderBg }}
+              >
+                {persona.kpiHighlight}
+              </span>
+            </div>
+          </div>
+        ) : layout === "split" ? (
+          /* ── ARCHITECTURE 5 : SPLIT ASYMMETRIC RIGHT SIDEBAR ── */
+          <div className="p-2.5 flex flex-col h-full w-full justify-between bg-white">
+            <div>
+              {/* Top Asymmetric Header */}
+              <div className="flex items-stretch justify-between gap-2 pb-1.5 mb-1.5 border-b border-slate-200">
+                <div className="border-l-3 pl-2 min-w-0 flex-1" style={{ borderColor: theme.swatch }}>
+                  <div className="text-[10px] font-extrabold text-slate-900 leading-none truncate">
+                    {persona.fullName}
+                  </div>
+                  <div className="text-[7px] font-bold mt-0.5 truncate" style={{ color: theme.swatch }}>
+                    {persona.title}
+                  </div>
+                  <div className="text-[6px] font-semibold text-emerald-700 mt-0.5 truncate">
+                    ★ {persona.kpiHighlight}
+                  </div>
+                </div>
+                <div
+                  className="w-[36%] rounded p-1.5 flex flex-col justify-center text-[5.8px] text-slate-700 shrink-0 border"
+                  style={{ background: theme.accentBg, borderColor: `${theme.swatch}33` }}
+                >
+                  <div className="font-bold truncate">{persona.location}</div>
+                  <div className="truncate">{persona.phone}</div>
+                  <div className="truncate">{persona.email}</div>
+                </div>
+              </div>
+
+              {/* 2-col body: Main Left + Boxed Sidebar Right */}
+              <div className="flex gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[6.2px] text-slate-600 leading-snug mb-1.5 line-clamp-2">
+                    {persona.summary}
+                  </p>
+                  <div className="text-[6.2px] font-extrabold uppercase tracking-wider mb-0.5" style={{ color: theme.swatch }}>
+                    Expériences Clés
+                  </div>
+                  <div className="mb-1 border-l-2 pl-1.5" style={{ borderColor: `${theme.swatch}55` }}>
+                    <div className="text-[7px] font-bold text-slate-900 truncate">{persona.exp1Role}</div>
+                    <div className="text-[6px] font-semibold text-slate-500 truncate">{persona.exp1Company} · {persona.exp1Date}</div>
+                    <div className="text-[6px] text-slate-600 truncate mt-0.5">• {persona.exp1Bullet1}</div>
+                  </div>
+                  <div className="border-l-2 border-slate-200 pl-1.5">
+                    <div className="text-[6.5px] font-bold text-slate-800 truncate">{persona.exp2Role}</div>
+                    <div className="text-[5.8px] text-slate-500 truncate">{persona.exp2Company}</div>
+                  </div>
+                </div>
+
+                {/* Boxed Right Column */}
+                <div className="w-[34%] bg-slate-50 border border-slate-200/90 rounded-md p-1.5 flex flex-col justify-between shrink-0">
+                  <div>
+                    <div className="text-[6px] font-extrabold uppercase tracking-wider mb-1" style={{ color: theme.swatch }}>
+                      Expertises
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      {persona.skills.slice(0, 4).map((s) => (
+                        <span
+                          key={s}
+                          className="text-[5.8px] font-semibold px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-700 truncate"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="pt-1 border-t border-slate-200 mt-1">
+                    <div className="text-[5.5px] font-bold uppercase text-slate-400">Formation</div>
+                    <div className="text-[5.8px] font-semibold text-slate-700 line-clamp-2 leading-tight">
+                      {persona.education}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : layout === "compact-grid" ? (
+          /* ── ARCHITECTURE 6 : COMPACT TECH / ENGINEERING GRID ── */
+          <div className="flex flex-col h-full w-full justify-between bg-white">
+            <div>
+              {/* Dark Tech Top Bar */}
+              <div
+                className="px-2.5 py-2 text-white flex items-center justify-between gap-2"
+                style={{ background: theme.pdfHeaderBg }}
+              >
+                <div className="min-w-0">
+                  <div className="text-[10px] font-extrabold tracking-tight leading-none truncate">
+                    {persona.fullName}
+                  </div>
+                  <div className="text-[7px] font-semibold text-white/90 mt-0.5 truncate">
+                    {persona.title}
+                  </div>
+                </div>
+                <div className="text-right text-[5.8px] text-white/85 shrink-0 leading-tight">
+                  <div>{persona.location}</div>
+                  <div>{persona.phone}</div>
+                </div>
+              </div>
+
+              <div className="p-2 space-y-1.5">
+                {/* Tinted Summary Strip */}
+                <div
+                  className="rounded px-2 py-1 text-[6px] text-slate-700 leading-snug line-clamp-2 font-medium"
+                  style={{ background: theme.accentBg }}
+                >
+                  {persona.summary}
+                </div>
+
+                {/* Boxed Experience Cards */}
+                <div className="space-y-1">
+                  <div className="bg-slate-50/90 border border-slate-200/90 rounded p-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[7px] font-bold text-slate-900 truncate">{persona.exp1Role}</span>
+                      <span className="text-[5.8px] font-bold px-1 rounded bg-white border border-slate-200 text-slate-600 shrink-0">
+                        {persona.exp1Date}
+                      </span>
+                    </div>
+                    <div className="text-[6px] font-bold truncate" style={{ color: theme.swatch }}>
+                      {persona.exp1Company}
+                    </div>
+                    <div className="text-[6px] text-slate-600 truncate mt-0.5">▸ {persona.exp1Bullet1}</div>
+                  </div>
+
+                  <div className="bg-slate-50/90 border border-slate-200/90 rounded px-1.5 py-1 flex items-center justify-between">
+                    <span className="text-[6.5px] font-bold text-slate-800 truncate">
+                      {persona.exp2Role} · <span className="font-normal text-slate-500">{persona.exp2Company}</span>
+                    </span>
+                    <span className="text-[5.8px] text-slate-400 shrink-0 ml-1">{persona.exp2Date}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom 2-Column Bento Grid: Education + Tech Stack */}
+            <div className="px-2 pb-2 grid grid-cols-2 gap-1.5">
+              <div className="bg-slate-50 border border-slate-200 rounded p-1">
+                <div className="text-[5.5px] font-extrabold uppercase tracking-wider" style={{ color: theme.swatch }}>
+                  Formation
+                </div>
+                <div className="text-[6px] font-semibold text-slate-700 truncate mt-0.5">
+                  {persona.education}
+                </div>
+              </div>
+              <div className="rounded p-1 border" style={{ background: theme.accentBg, borderColor: `${theme.swatch}33` }}>
+                <div className="text-[5.5px] font-extrabold uppercase tracking-wider" style={{ color: theme.accentColor }}>
+                  Stack &amp; KPI
+                </div>
+                <div className="text-[6px] font-bold truncate mt-0.5" style={{ color: theme.accentColor }}>
+                  {persona.kpiHighlight}
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           /* ── ARCHITECTURE 3 : MINIMALIST INTERNATIONAL / ONU / BIG FOUR ── */
           <div className="p-3 flex flex-col h-full w-full justify-between bg-white">
@@ -566,10 +782,16 @@ export function MiniCvPreview({ template, className = "" }: Props) {
         <Award className="w-2.5 h-2.5 text-[#32D3E1]" />
         <span>
           {layout === "modern"
-            ? "2 Colonnes"
+            ? "Modern Sidebar"
             : layout === "classic"
-            ? "Exécutif"
-            : "Linéaire ATS"}
+            ? "Classic Corporate"
+            : layout === "executive"
+            ? "Executive Harvard"
+            : layout === "split"
+            ? "Split Bicolonne"
+            : layout === "compact-grid"
+            ? "Tech Grid"
+            : "Minimal ATS"}
           {isSerif ? " · Serif" : " · Sans"}
         </span>
       </div>

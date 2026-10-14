@@ -39,36 +39,69 @@ export const metadata: Metadata = {
 const TEMPLATES = [
   {
     id: "classic",
-    name: "Classique ATS Standard",
+    name: "Classic Corporate",
     badge: "Recommandé Recruteurs",
     badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    description: "Structure chronologique sobre et linéaire. Format plébiscité par les multinationales et les banques.",
+    description: "Bandeau supérieur exécutif, corps principal 2/3 et colonne latérale 1/3. Format plébiscité par les banques et multinationales.",
     atsScore: "100%",
     color: "Indigo & Slate",
-    idealFor: "Finance, Juridique, Administration, Grandes Entreprises",
+    idealFor: "Banque, Finance OHADA, Administration, Grandes Entreprises",
     sampleTemplate: SECTOR_TEMPLATES[2], // Banque, Finance & OHADA (Classic)
   },
   {
     id: "modern",
-    name: "Moderne Deux Colonnes",
+    name: "Modern Sidebar",
     badge: "Le Plus Populaire 🔥",
     badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    description: "Sidebar gauche dédiée aux compétences et contact, corps droit axé sur les réalisations chiffrées.",
+    description: "Sidebar gauche colorée dédiée aux compétences et contact, timeline droite axée sur les réalisations chiffrées.",
     atsScore: "99%",
     color: "Bleu Océan & Émeraude",
-    idealFor: "Tech, Marketing, Vente, Management, Startups",
+    idealFor: "Tech, Cloud, Data, Commercial B2B, Startups",
     sampleTemplate: SECTOR_TEMPLATES[1], // Tech, Cloud & Data (Modern)
   },
   {
     id: "minimal",
-    name: "Minimaliste Épuré",
-    badge: "Design Élégant",
+    name: "Minimaliste International",
+    badge: "Norme ONU / Big Four",
     badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    description: "Mise en page aérée sans éléments graphiques superflus. Focus absolu sur l'impact des mots.",
+    description: "Mise en page linéaire 1 colonne ultra-épurée sans artifice graphique. Focus absolu sur la densité des résultats.",
     atsScore: "100%",
     color: "Monochrome & Anthracite",
-    idealFor: "Consultants, Cadres Dirigeants, Ingénieurs, ONG",
+    idealFor: "Consultants, Institutions (ONU/Banque Mondiale), Santé & ONG",
     sampleTemplate: SECTOR_TEMPLATES[8], // Standard ATS International (Minimal)
+  },
+  {
+    id: "executive",
+    name: "Executive Harvard",
+    badge: "Direction & Board 👑",
+    badgeColor: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    description: "En-tête institutionnel centré à double filet, résumé encadré et parcours pleine largeur pour cadres dirigeants.",
+    atsScore: "100%",
+    color: "Bleu Nuit & Bordeaux",
+    idealFor: "DG, DAF, Directeurs Juridiques OHADA, Membres de Comités",
+    sampleTemplate: SECTOR_TEMPLATES[0], // Exécutif & Direction (Executive)
+  },
+  {
+    id: "split",
+    name: "Split Bicolonne Inversé",
+    badge: "Design Éditorial ✨",
+    badgeColor: "bg-pink-500/10 text-pink-300 border-pink-500/20",
+    description: "En-tête asymétrique avec carte de contact teintée et colonne d'expertise encadrée à droite.",
+    atsScore: "99%",
+    color: "Violet, Rubis & Océan",
+    idealFor: "Médias, Communication, UI/UX, Jeunes Diplômés & Lauréats",
+    sampleTemplate: SECTOR_TEMPLATES[9], // Digital, Médias & Com (Split)
+  },
+  {
+    id: "compact-grid",
+    name: "Tech & Engineering Grid",
+    badge: "Haute Densité ⚙️",
+    badgeColor: "bg-teal-500/10 text-teal-300 border-teal-500/20",
+    description: "Architecture technique structurée en cartes avec grille Bento 2 colonnes en pied de page pour projets complexes.",
+    atsScore: "99%",
+    color: "Teal, Slate & Indigo",
+    idealFor: "Ingénieurs Génie Civil, Mines, BTP, HSE, Architectes Cloud",
+    sampleTemplate: SECTOR_TEMPLATES[4], // Ingénierie, Mines & BTP (Compact Grid)
   },
 ];
 

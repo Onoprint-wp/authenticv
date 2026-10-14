@@ -6,7 +6,7 @@ import { DEFAULT_DESIGN_SETTINGS } from "@/lib/themes";
 export const DesignSettingsSchema = z.object({
   colorTheme: z.string().default("indigo"),
   fontFamily: z.enum(["sans", "serif"]).default("sans"),
-  layout: z.enum(["classic", "modern", "minimal"]).default("classic"),
+  layout: z.enum(["classic", "modern", "minimal", "executive", "split", "compact-grid"]).default("classic"),
   spacing: z.enum(["compact", "normal", "spacious"]).default("normal"),
   recruiterVisible: z.boolean().default(true),
 });

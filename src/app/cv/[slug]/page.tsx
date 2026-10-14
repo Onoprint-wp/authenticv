@@ -3,6 +3,9 @@ import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { CvRenderer } from "@/components/cv/CvRenderer";
+import { CvRendererModern } from "@/components/cv/CvRendererModern";
+import { CvRendererMinimal } from "@/components/cv/CvRendererMinimal";
+import { CvRendererExecutive, CvRendererSplit, CvRendererCompactGrid } from "@/components/cv/CvRendererExtra";
 import type { CvData } from "@/store/useCvStore";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -143,7 +146,19 @@ export default async function PublicCvPage({ params }: Props) {
       {/* CV */}
       <div className="flex-1 p-4 sm:p-8 flex justify-center items-start">
         <div className="w-full max-w-[850px] bg-white rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden">
-          <CvRenderer cvData={cvData} />
+          {cvData.designSettings?.layout === "modern" ? (
+            <CvRendererModern cvData={cvData} />
+          ) : cvData.designSettings?.layout === "minimal" ? (
+            <CvRendererMinimal cvData={cvData} />
+          ) : cvData.designSettings?.layout === "executive" ? (
+            <CvRendererExecutive cvData={cvData} />
+          ) : cvData.designSettings?.layout === "split" ? (
+            <CvRendererSplit cvData={cvData} />
+          ) : cvData.designSettings?.layout === "compact-grid" ? (
+            <CvRendererCompactGrid cvData={cvData} />
+          ) : (
+            <CvRenderer cvData={cvData} />
+          )}
         </div>
       </div>
 

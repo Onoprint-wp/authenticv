@@ -67,7 +67,14 @@ function PaymentReturnDetector({
       const sectorTpl = getSectorTemplate(tplParam);
       if (sectorTpl) {
         useCvStore.getState().updateDesignSettings(sectorTpl.settings);
-      } else if (tplParam === "classic" || tplParam === "modern" || tplParam === "minimal") {
+      } else if (
+        tplParam === "classic" ||
+        tplParam === "modern" ||
+        tplParam === "minimal" ||
+        tplParam === "executive" ||
+        tplParam === "split" ||
+        tplParam === "compact-grid"
+      ) {
         useCvStore.getState().updateDesignSettings({ layout: tplParam });
       }
     }

@@ -26,9 +26,10 @@
   --color-neutral-50: #FAFAFC;
 
   /* Typography Mapping */
-  --font-heading: var(--font-montserrat), sans-serif;
-  --font-sans: var(--font-inter), sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-heading: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Border Radii */
   --radius-sm: 4px;
@@ -165,6 +166,15 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+  }
+  .font-serif,
+  .font-serif h1,
+  .font-serif h2,
+  .font-serif h3,
+  .font-serif h4,
+  .font-serif h5,
+  .font-serif h6 {
+    font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   }
 }
 

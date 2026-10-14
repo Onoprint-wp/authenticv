@@ -2,7 +2,7 @@ import {
   Document, Page, Text, View, Image, StyleSheet, Link, Svg, Path, Rect,
 } from "@react-pdf/renderer";
 import type { CvData } from "@/store/useCvStore";
-import { getTheme, PDF_SPACING } from "@/lib/themes";
+import { getTheme, PDF_SPACING, normalizeCvText } from "@/lib/themes";
 
 function PdfSectionIcon({ type, color }: { type: "briefcase" | "graduation" | "folder" | "user"; color: string }) {
   const p = { stroke: color, strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
@@ -41,12 +41,14 @@ function createStyles(
   fontBold: string,
   sp: (typeof PDF_SPACING)[keyof typeof PDF_SPACING],
 ) {
+  const s = (pt: number) => Number((pt * sp.scale).toFixed(2));
+
   return StyleSheet.create({
     page: {
       flexDirection: "column",
       backgroundColor: "#ffffff",
       fontFamily: fontBase,
-      fontSize: 10,
+      fontSize: s(10),
       color: "#1e293b",
     },
 
@@ -60,26 +62,26 @@ function createStyles(
       gap: 20,
     },
     photo: {
-      width: 74,
-      height: 74,
-      borderRadius: 37,
+      width: 72,
+      height: 72,
+      borderRadius: 36,
       objectFit: "cover",
       borderWidth: 3,
-      borderColor: "rgba(255,255,255,0.25)",
+      borderColor: "rgba(255,255,255,0.28)",
     },
     headerInfo: { flex: 1 },
-    nameRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 5 },
-    firstName: { fontSize: 24, fontFamily: fontBold, color: "#ffffff" },
-    lastName: { fontSize: 24, fontFamily: fontBold, color: accentLight },
+    nameRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 6 },
+    firstName: { fontSize: s(22), fontFamily: fontBold, color: "#ffffff" },
+    lastName: { fontSize: s(22), fontFamily: fontBold, color: accentLight },
     jobTitle: {
-      fontSize: 11,
-      color: "rgba(255,255,255,0.82)",
+      fontSize: s(11),
+      color: "rgba(255,255,255,0.92)",
       marginTop: 4,
-      letterSpacing: 0.5,
-      fontFamily: fontBase,
+      letterSpacing: 0.6,
+      fontFamily: fontBold,
     },
     contactRow: { flexDirection: "row", flexWrap: "wrap", gap: 14, marginTop: 10 },
-    contactItem: { fontSize: 8.5, color: "rgba(255,255,255,0.78)" },
+    contactItem: { fontSize: s(9.2), color: "rgba(255,255,255,0.88)" },
 
     // ── Body (2 columns) ──────────────────────────────────────
     body: { flexDirection: "row", flex: 1 },
@@ -96,13 +98,13 @@ function createStyles(
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 7, marginBottom: 10 },
     sectionDot: { width: 8, height: 8, borderRadius: 2, backgroundColor: accent },
     sectionTitle: {
-      fontSize: 10.5,
+      fontSize: s(11),
       fontFamily: fontBold,
       color: "#0f172a",
       textTransform: "uppercase",
-      letterSpacing: 1.2,
+      letterSpacing: 1.1,
     },
-    summaryText: { fontSize: 9.5, lineHeight: 1.6, color: "#475569" },
+    summaryText: { fontSize: s(10), lineHeight: 1.58, color: "#334155" },
 
     // ── Experience timeline ───────────────────────────────────
     expItem: { flexDirection: "row", gap: 10, marginBottom: sp.itemMb },
@@ -118,42 +120,43 @@ function createStyles(
     timelineLine: { flex: 1, width: 1, backgroundColor: "#e2e8f0", marginTop: 3 },
     expContent: { flex: 1, paddingBottom: 4 },
     expHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-    expPosition: { fontSize: 10.5, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
+    expPosition: { fontSize: s(11), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 8 },
     expDateBadge: {
-      fontSize: 7.5,
+      fontSize: s(8.5),
+      fontFamily: fontBold,
       color: accent,
       backgroundColor: accentBg,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
+      paddingHorizontal: 7,
+      paddingVertical: 2.5,
       borderRadius: 10,
     },
-    expCompany: { fontSize: 9, color: "#64748b", marginTop: 2, marginBottom: 3 },
-    expDesc: { fontSize: 9, lineHeight: 1.5, color: "#475569" },
+    expCompany: { fontSize: s(9.5), fontFamily: fontBold, color: accent, marginTop: 2, marginBottom: 4 },
+    expDesc: { fontSize: s(9.8), lineHeight: 1.52, color: "#334155" },
 
     // ── Projects ──────────────────────────────────────────────
     projItem: {
       backgroundColor: "#f8fafc",
       borderWidth: 1,
-      borderColor: "#f1f5f9",
+      borderColor: "#e2e8f0",
       borderRadius: 5,
-      padding: 9,
+      padding: 10,
       marginBottom: 8,
     },
     projHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 },
-    projName: { fontSize: 10, fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 6 },
-    projLink: { fontSize: 8, color: accent, textDecoration: "none" },
-    projDesc: { fontSize: 9, lineHeight: 1.5, color: "#475569" },
+    projName: { fontSize: s(10.5), fontFamily: fontBold, color: "#0f172a", flex: 1, marginRight: 6 },
+    projLink: { fontSize: s(8.8), color: accent, textDecoration: "none" },
+    projDesc: { fontSize: s(9.6), lineHeight: 1.5, color: "#334155" },
 
     // ── Sidebar ───────────────────────────────────────────────
     sidebar: {
-      width: 166,
+      width: 178,
       backgroundColor: "#f8fafc",
       paddingHorizontal: sp.sidebarPadH,
       paddingVertical: sp.sidebarPadV,
     },
     sideSection: { marginBottom: sp.sectionMb },
     sideSectionTitle: {
-      fontSize: 9.5,
+      fontSize: s(10),
       fontFamily: fontBold,
       color: "#0f172a",
       textTransform: "uppercase",
@@ -161,28 +164,29 @@ function createStyles(
       marginBottom: 9,
       paddingBottom: 5,
       borderBottomWidth: 1,
-      borderBottomColor: "#e2e8f0",
+      borderBottomColor: "#cbd5e1",
     },
 
     // Skills
     skillsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 5 },
     skillChip: {
-      fontSize: 8,
-      color: "#334155",
+      fontSize: s(8.8),
+      fontFamily: fontBold,
+      color: "#1e293b",
       backgroundColor: "#ffffff",
       borderWidth: 1,
-      borderColor: "#e2e8f0",
-      paddingHorizontal: 6,
-      paddingVertical: 3,
+      borderColor: "#cbd5e1",
+      paddingHorizontal: 7,
+      paddingVertical: 3.5,
       borderRadius: 4,
     },
 
     // Education
     eduItem: { marginBottom: 11 },
-    eduDegree: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a", lineHeight: 1.3 },
-    eduField: { fontSize: 8.5, color: accent, marginTop: 2 },
-    eduInstitution: { fontSize: 8.5, color: "#64748b", marginTop: 1 },
-    eduDate: { fontSize: 8, color: "#94a3b8", marginTop: 2 },
+    eduDegree: { fontSize: s(10), fontFamily: fontBold, color: "#0f172a", lineHeight: 1.3 },
+    eduField: { fontSize: s(9), fontFamily: fontBold, color: accent, marginTop: 2 },
+    eduInstitution: { fontSize: s(9), color: "#475569", marginTop: 1.5 },
+    eduDate: { fontSize: s(8.5), color: "#64748b", marginTop: 2 },
 
     // Languages
     langItem: {
@@ -191,21 +195,22 @@ function createStyles(
       alignItems: "center",
       marginBottom: 7,
     },
-    langName: { fontSize: 9.5, fontFamily: fontBold, color: "#334155" },
+    langName: { fontSize: s(9.8), fontFamily: fontBold, color: "#1e293b" },
     langBadge: {
-      fontSize: 7.5,
+      fontSize: s(8.5),
+      fontFamily: fontBold,
       color: accent,
       backgroundColor: accentBg,
-      paddingHorizontal: 5,
+      paddingHorizontal: 6,
       paddingVertical: 2,
       borderRadius: 3,
     },
 
     // Certifications
     certItem: { marginBottom: 10 },
-    certName: { fontSize: 9.5, fontFamily: fontBold, color: "#0f172a", lineHeight: 1.3 },
-    certIssuer: { fontSize: 8.5, color: "#64748b", marginTop: 1 },
-    certDate: { fontSize: 8, color: "#94a3b8", marginTop: 2 },
+    certName: { fontSize: s(9.8), fontFamily: fontBold, color: "#0f172a", lineHeight: 1.3 },
+    certIssuer: { fontSize: s(9), color: "#475569", marginTop: 1.5 },
+    certDate: { fontSize: s(8.5), color: "#64748b", marginTop: 1.5 },
 
     // Watermark
     watermarkFooter: {
@@ -265,6 +270,7 @@ export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
   );
 
   const fullName = `${personalInfo.firstName} ${personalInfo.lastName}`.trim() || "Votre Nom";
+  const hasName = Boolean(personalInfo.firstName || personalInfo.lastName);
   const hasContact = personalInfo.email || personalInfo.phone || personalInfo.location || personalInfo.linkedin;
 
   return (
@@ -279,12 +285,14 @@ export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
             : null}
 
           <View style={styles.headerInfo}>
-            <View style={styles.nameRow}>
-              <Text style={styles.firstName}>{personalInfo.firstName}</Text>
-              <Text style={styles.lastName}>{personalInfo.lastName}</Text>
-            </View>
+            {hasName && (
+              <View style={styles.nameRow}>
+                {personalInfo.firstName ? <Text style={styles.firstName}>{personalInfo.firstName}</Text> : null}
+                {personalInfo.lastName ? <Text style={styles.lastName}>{personalInfo.lastName}</Text> : null}
+              </View>
+            )}
             {personalInfo.title
-              ? <Text style={styles.jobTitle}>{personalInfo.title.toUpperCase()}</Text>
+              ? <Text style={hasName ? styles.jobTitle : styles.firstName}>{personalInfo.title.toUpperCase()}</Text>
               : null}
             {hasContact && (
               <View style={styles.contactRow}>
@@ -317,7 +325,7 @@ export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
                   <View style={styles.sectionDot} />
                   <Text style={styles.sectionTitle}>Profil</Text>
                 </View>
-                <Text style={styles.summaryText}>{summary}</Text>
+                <Text style={styles.summaryText}>{normalizeCvText(summary)}</Text>
               </View>
             ) : null}
 
@@ -343,7 +351,7 @@ export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
                       </View>
                       <Text style={styles.expCompany}>{exp.company}</Text>
                       {exp.description
-                        ? <Text style={styles.expDesc}>{exp.description}</Text>
+                        ? <Text style={styles.expDesc}>{normalizeCvText(exp.description)}</Text>
                         : null}
                     </View>
                   </View>
@@ -367,7 +375,7 @@ export function CvDocument({ cvData, showWatermark = false }: CvDocumentProps) {
                         : null}
                     </View>
                     {proj.description
-                      ? <Text style={styles.projDesc}>{proj.description}</Text>
+                      ? <Text style={styles.projDesc}>{normalizeCvText(proj.description)}</Text>
                       : null}
                   </View>
                 ))}

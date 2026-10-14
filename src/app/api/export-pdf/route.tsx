@@ -2,6 +2,11 @@ import { renderToStream } from "@react-pdf/renderer";
 import { CvDocument } from "@/components/pdf/CvDocument";
 import { CvDocumentModern } from "@/components/pdf/CvDocumentModern";
 import { CvDocumentMinimal } from "@/components/pdf/CvDocumentMinimal";
+import {
+  CvDocumentExecutive,
+  CvDocumentSplit,
+  CvDocumentCompactGrid,
+} from "@/components/pdf/CvDocumentExtra";
 import { createClient } from "@/utils/supabase/server";
 import { getUserPlan, getUserSingleCredits, consumeSingleCredit } from "@/lib/plan";
 import React from "react";
@@ -46,6 +51,12 @@ async function generatePdfResponse(cvData: any, showWatermark: boolean): Promise
     docElement = <CvDocumentModern cvData={cvData} showWatermark={showWatermark} />;
   } else if (layout === "minimal") {
     docElement = <CvDocumentMinimal cvData={cvData} showWatermark={showWatermark} />;
+  } else if (layout === "executive") {
+    docElement = <CvDocumentExecutive cvData={cvData} showWatermark={showWatermark} />;
+  } else if (layout === "split") {
+    docElement = <CvDocumentSplit cvData={cvData} showWatermark={showWatermark} />;
+  } else if (layout === "compact-grid") {
+    docElement = <CvDocumentCompactGrid cvData={cvData} showWatermark={showWatermark} />;
   } else {
     docElement = <CvDocument cvData={cvData} showWatermark={showWatermark} />;
   }

@@ -6,6 +6,7 @@ import { useCvStore } from "@/store/useCvStore";
 import { CvRenderer } from "./CvRenderer";
 import { CvRendererModern } from "./CvRendererModern";
 import { CvRendererMinimal } from "./CvRendererMinimal";
+import { CvRendererExecutive, CvRendererSplit, CvRendererCompactGrid } from "./CvRendererExtra";
 
 const A4_PAGE_PX = 1122;
 
@@ -135,7 +136,12 @@ export function HtmlCvPreview() {
 
         {layout === "modern" && <CvRendererModern cvData={cvData} />}
         {layout === "minimal" && <CvRendererMinimal cvData={cvData} />}
-        {layout === "classic" && <CvRenderer cvData={cvData} />}
+        {layout === "executive" && <CvRendererExecutive cvData={cvData} />}
+        {layout === "split" && <CvRendererSplit cvData={cvData} />}
+        {layout === "compact-grid" && <CvRendererCompactGrid cvData={cvData} />}
+        {(layout === "classic" || !["modern", "minimal", "executive", "split", "compact-grid"].includes(layout)) && (
+          <CvRenderer cvData={cvData} />
+        )}
       </div>
     </div>
   );
