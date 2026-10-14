@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,15 +27,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "resumeId is required" }, { status: 400 });
     }
 
+    const admin = createAdminClient();
+
     // 1. Get or create recruiter company record
-    let { data: company } = await supabase
+    let { data: company } = await admin
       .from("companies")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (!company) {
-      const { data: newCompany, error: createError } = await supabase
+      const { data: newCompany, error: createError } = await admin
         .from("companies")
         .insert({
           user_id: user.id,
@@ -51,7 +54,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Check if this candidate is already unlocked by this company
-    const { data: existingUnlock } = await supabase
+    const { data: existingUnlock } = await admin
       .from("unlocked_contacts")
       .select("*")
       .eq("company_id", company.id)
@@ -78,21 +81,21 @@ export async function POST(req: Request) {
 
       // Deduct credit if not on monthly pro
       if (!hasProPlan) {
-        await supabase
+        await admin
           .from("companies")
           .update({ credits_balance: credits - 1 })
           .eq("id", company.id);
       }
 
       // Record unlock in unlocked_contacts
-      await supabase.from("unlocked_contacts").insert({
+      await admin.from("unlocked_contacts").insert({
         company_id: company.id,
         resume_id: resumeId,
       });
     }
 
     // 4. Fetch candidate resume personal info
-    const { data: resume } = await supabase
+    const { data: resume } = await admin
       .from("resumes")
       .select("content")
       .eq("id", resumeId)
@@ -102,14 +105,14 @@ export async function POST(req: Request) {
     const personalInfo = (resume?.content as any)?.personalInfo ?? {};
 
     const contact = {
-      name: `${personalInfo.firstName ?? "Jean-Paul"} ${personalInfo.lastName ?? "MBOUMI"}`.trim(),
+      name: `${personalInfo.firstName ?? ""} ${personalInfo.lastName ?? ""}`.trim() || "Candidat Qualifié",
       phone: personalInfo.phone || "+237 699 00 11 22",
       email: personalInfo.email || "candidat@authenticv.app",
       photoUrl: personalInfo.photoUrl || undefined,
     };
 
     // Remaining credits
-    const { data: updatedCompany } = await supabase
+    const { data: updatedCompany } = await admin
       .from("companies")
       .select("credits_balance, plan")
       .eq("id", company.id)

@@ -5,8 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Search,
-  MapPin,
-  Lock,
   Unlock,
   ArrowLeft,
   Loader2,
@@ -16,7 +14,6 @@ import {
   SlidersHorizontal,
   Download,
   BookmarkCheck,
-  Zap,
   X,
 } from "lucide-react";
 import { RecruiterBuyCreditsModal } from "./RecruiterBuyCreditsModal";
@@ -40,13 +37,42 @@ export function RecruiterSearchView({ isEn = false }: Props) {
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [creditsBalance, setCreditsBalance] = useState<number>(0);
+  const [companyPlan, setCompanyPlan] = useState<string>("pay_as_you_go");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const { filters, setFilter, resetFilters, shortlist } = useRecruiterStore();
 
   const backUrl = isEn ? "/en/recruiter" : "/recruiter";
+  const hasUnlimitedPlan = companyPlan === "monthly_pro" || companyPlan === "corporate";
 
-  // Charger les talents avec les filtres actuels
+  // Réconciliation automatique au retour de CamPay (?payment=success&externalRef=...)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const externalRef = params.get("externalRef");
+    if (!externalRef) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/campay/status?ref=${encodeURIComponent(externalRef)}`, {
+          cache: "no-store",
+        });
+        if (res.ok && !cancelled) {
+          setRefreshTick((t) => t + 1);
+        }
+      } catch {
+        // ignore network hiccup
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Charger les talents et le solde de crédits recruteur avec les filtres actuels
   useEffect(() => {
     let isMounted = true;
     async function loadTalents() {
@@ -63,12 +89,22 @@ export function RecruiterSearchView({ isEn = false }: Props) {
           availability: filters.availability,
         });
 
-        const res = await fetch(`/api/recruiter/talents?${queryParams.toString()}`);
+        const res = await fetch(`/api/recruiter/talents?${queryParams.toString()}`, {
+          cache: "no-store",
+        });
         if (res.ok) {
           const data = await res.json();
-          if (isMounted && data.profiles && Array.isArray(data.profiles)) {
-            setProfiles(data.profiles);
-            return;
+          if (isMounted) {
+            if (typeof data.credits_balance === "number") {
+              setCreditsBalance(data.credits_balance);
+            }
+            if (typeof data.plan === "string") {
+              setCompanyPlan(data.plan);
+            }
+            if (data.profiles && Array.isArray(data.profiles)) {
+              setProfiles(data.profiles);
+              return;
+            }
           }
         }
       } catch (err) {
@@ -94,11 +130,12 @@ export function RecruiterSearchView({ isEn = false }: Props) {
     filters.sector,
     filters.education,
     filters.availability,
+    refreshTick,
   ]);
 
   // Déblocage unitaire
   const handleUnlockSingle = async (profileId: string) => {
-    if (creditsBalance <= 0) {
+    if (!hasUnlimitedPlan && creditsBalance <= 0) {
       setIsBuyModalOpen(true);
       return;
     }
@@ -110,7 +147,7 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         body: JSON.stringify({ resumeId: profileId }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.contact) {
         setProfiles((prev) =>
           prev.map((p) =>
@@ -119,50 +156,14 @@ export function RecruiterSearchView({ isEn = false }: Props) {
         );
         if (typeof data.credits_balance === "number") {
           setCreditsBalance(data.credits_balance);
-        } else {
+        } else if (!hasUnlimitedPlan) {
           setCreditsBalance((prev) => Math.max(0, prev - 1));
         }
-      } else {
-        // Fallback simulation
-        setProfiles((prev) =>
-          prev.map((p) =>
-            p.id === profileId
-              ? {
-                  ...p,
-                  isUnlocked: true,
-                  contact: {
-                    name: "Jean-Paul MBOUMI",
-                    phone: "+237 699 00 11 22",
-                    email: "jp.mboumi@example.com",
-                    photoUrl:
-                      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80",
-                  },
-                }
-              : p
-          )
-        );
-        setCreditsBalance((prev) => Math.max(0, prev - 1));
+      } else if (res.status === 402 || res.status === 401) {
+        setIsBuyModalOpen(true);
       }
     } catch {
-      // Demo fallback
-      setProfiles((prev) =>
-        prev.map((p) =>
-          p.id === profileId
-            ? {
-                ...p,
-                isUnlocked: true,
-                contact: {
-                  name: "Jean-Paul MBOUMI",
-                  phone: "+237 699 00 11 22",
-                  email: "jp.mboumi@example.com",
-                  photoUrl:
-                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80",
-                },
-              }
-            : p
-        )
-      );
-      setCreditsBalance((prev) => Math.max(0, prev - 1));
+      setIsBuyModalOpen(true);
     } finally {
       setUnlockingId(null);
     }

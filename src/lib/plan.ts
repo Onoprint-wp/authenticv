@@ -89,11 +89,17 @@ export async function consumeSingleCredit(userId: string): Promise<boolean> {
   const credits = await getUserSingleCredits(userId);
   if (credits <= 0) return false;
 
+  const { data: current } = await admin
+    .from("user_subscriptions")
+    .select("campay_operator")
+    .eq("user_id", userId)
+    .maybeSingle();
+
   const { data, error } = await admin
     .from("user_subscriptions")
     .update({
       single_credits: credits - 1,
-      campay_operator: "WELCOME_GRANTED",
+      campay_operator: current?.campay_operator || "WELCOME_GRANTED",
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", userId)

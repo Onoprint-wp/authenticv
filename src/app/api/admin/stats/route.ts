@@ -20,29 +20,30 @@ export async function GET() {
     // 2. Subscriptions stats
     const { data: subs } = await admin
       .from("user_subscriptions")
-      .select("status, plan_name, single_credits, created_at, updated_at");
+      .select("status, plan_name, single_credits, campay_operator, created_at, updated_at");
 
     const totalSubs = subs?.length ?? 0;
     const activeProSubs = subs?.filter((s) => s.status === "active").length ?? 0;
     const totalSingleCredits = subs?.reduce((acc, s) => acc + (s.single_credits ?? 0), 0) ?? 0;
 
-    // 3. Estimate Revenue & Breakdown
+    // 3. Estimate Revenue & Breakdown (fallback if transactions table is empty)
     let estimatedRevenueXaf = 0;
-    let b2cSingleRevenue = 0;
-    let b2cMonthlyRevenue = 0;
-    let b2cAnnualRevenue = 0;
+    let estB2cSingleRevenue = 0;
+    let estB2cMonthlyRevenue = 0;
+    let estB2cAnnualRevenue = 0;
 
     subs?.forEach((s) => {
       if (s.plan_name === "pro_annual") {
         estimatedRevenueXaf += 18000;
-        b2cAnnualRevenue += 18000;
+        estB2cAnnualRevenue += 18000;
       } else if (s.plan_name === "pro" || (s.status === "active" && s.plan_name !== "pro_referral")) {
         estimatedRevenueXaf += 5000;
-        b2cMonthlyRevenue += 5000;
+        estB2cMonthlyRevenue += 5000;
       }
-      if (s.single_credits && s.single_credits > 0) {
+      const isPaidOperator = Boolean(s.campay_operator && s.campay_operator !== "WELCOME_GRANTED");
+      if (s.single_credits && s.single_credits > 0 && isPaidOperator) {
         estimatedRevenueXaf += s.single_credits * 1000;
-        b2cSingleRevenue += s.single_credits * 1000;
+        estB2cSingleRevenue += s.single_credits * 1000;
       }
     });
 
@@ -52,20 +53,24 @@ export async function GET() {
       .select("id, company_name, credits_balance, plan, created_at");
 
     const totalCompanies = companies?.length ?? 0;
-    let b2bRevenue = 0;
+    let estB2bRevenue = 0;
     companies?.forEach((c) => {
       if (c.plan === "monthly_pro") {
-        b2bRevenue += 75000;
+        estB2bRevenue += 75000;
       } else if (c.credits_balance && c.credits_balance > 0) {
-        b2bRevenue += c.credits_balance * 4000;
+        estB2bRevenue += c.credits_balance * 4000;
       }
     });
-    estimatedRevenueXaf += b2bRevenue;
+    estimatedRevenueXaf += estB2bRevenue;
 
     // 5. Query Transactions table for actual revenue and fees
     let totalRevenueXaf = 0;
     let totalFeesOperator = 0;
     let totalCostAi = 0;
+    let b2cSingleRevenue = 0;
+    let b2cMonthlyRevenue = 0;
+    let b2cAnnualRevenue = 0;
+    let b2bRevenue = 0;
 
     const countryBreakdown: Record<string, number> = {
       CM: 0,
@@ -80,8 +85,9 @@ export async function GET() {
       .from("transactions")
       .select("amount_xaf, fees_operator, cost_ai_estimated, country_code, status, payment_type");
 
-    if (realTx && realTx.length > 0) {
-      const successfulTxs = realTx.filter((t) => t.status === "successful");
+    const successfulTxs = (realTx ?? []).filter((t) => t.status === "successful");
+
+    if (successfulTxs.length > 0) {
       successfulTxs.forEach((t) => {
         const amt = Number(t.amount_xaf || 0);
         totalRevenueXaf += amt;
@@ -96,13 +102,18 @@ export async function GET() {
         }
 
         const pType = t.payment_type || "";
-        if (pType.includes("single")) b2cSingleRevenue += amt;
+        if (pType.includes("single") && !pType.includes("b2b")) b2cSingleRevenue += amt;
         else if (pType.includes("monthly") && !pType.includes("b2b")) b2cMonthlyRevenue += amt;
         else if (pType.includes("annual")) b2cAnnualRevenue += amt;
         else if (pType.includes("b2b") || pType.includes("pack") || pType.includes("recruiter")) b2bRevenue += amt;
+        else b2cSingleRevenue += amt;
       });
     } else {
       totalRevenueXaf = estimatedRevenueXaf;
+      b2cSingleRevenue = estB2cSingleRevenue;
+      b2cMonthlyRevenue = estB2cMonthlyRevenue;
+      b2cAnnualRevenue = estB2cAnnualRevenue;
+      b2bRevenue = estB2bRevenue;
       totalFeesOperator = Math.round(estimatedRevenueXaf * 0.03);
       totalCostAi = Math.round(activeProSubs * 250 + (totalResumes ?? 0) * 40);
       if (totalRevenueXaf > 0) {
@@ -131,14 +142,17 @@ export async function GET() {
       .from("campus_partners")
       .select("*", { count: "exact", head: true });
 
-    // 9. Abandoned Carts estimate
-    const abandonedCartsCount = Math.max(0, (totalResumes ?? 0) - activeProSubs - (subs?.filter(s => (s.single_credits ?? 0) > 0).length ?? 0));
+    // 9. Abandoned Carts estimate (exclude active Pro and users who have purchased single credits)
+    const paidSingleUsersCount = subs?.filter(
+      (s) => (s.single_credits ?? 0) > 0 && s.campay_operator && s.campay_operator !== "WELCOME_GRANTED"
+    ).length ?? 0;
+    const abandonedCartsCount = Math.max(0, (totalResumes ?? 0) - activeProSubs - paidSingleUsersCount);
 
     return NextResponse.json({
       success: true,
       metrics: {
         financial: {
-          totalRevenueXaf: estimatedRevenueXaf,
+          totalRevenueXaf,
           totalFeesOperatorXaf: totalFeesOperator,
           totalCostAiXaf: totalCostAi,
           netMarginXaf,

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,15 +31,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const admin = createAdminClient();
+
     // 1. Get or create recruiter company record
-    let { data: company } = await supabase
+    let { data: company } = await admin
       .from("companies")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (!company) {
-      const { data: newCompany, error: createError } = await supabase
+      const { data: newCompany, error: createError } = await admin
         .from("companies")
         .insert({
           user_id: user.id,
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Identify which profiles are already unlocked
-    const { data: existingUnlocks } = await supabase
+    const { data: existingUnlocks } = await admin
       .from("unlocked_contacts")
       .select("resume_id")
       .eq("company_id", company.id)
@@ -101,7 +104,7 @@ export async function POST(req: Request) {
 
     // 4. Deduct credits and insert unlock records
     if (!hasProPlan && count > 0) {
-      await supabase
+      await admin
         .from("companies")
         .update({ credits_balance: currentCredits - totalCreditsCost })
         .eq("id", company.id);
@@ -112,11 +115,11 @@ export async function POST(req: Request) {
         company_id: company.id,
         resume_id: rId,
       }));
-      await supabase.from("unlocked_contacts").insert(inserts);
+      await admin.from("unlocked_contacts").insert(inserts);
     }
 
     // 5. Fetch candidate contacts for all requested resumeIds
-    const { data: resumes } = await supabase
+    const { data: resumes } = await admin
       .from("resumes")
       .select("id, content")
       .in("id", resumeIds);

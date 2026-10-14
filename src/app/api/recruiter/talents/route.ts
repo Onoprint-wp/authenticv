@@ -21,16 +21,21 @@ export async function GET(req: Request) {
     const { data: { user } } = await supabaseUser.auth.getUser();
 
     let unlockedResumeIds = new Set<string>();
+    let creditsBalance = 0;
+    let companyPlan = "pay_as_you_go";
 
     if (user) {
       const adminClient = createAdminClient();
       const { data: company } = await adminClient
         .from("companies")
-        .select("id")
+        .select("id, credits_balance, plan")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (company) {
+        creditsBalance = company.credits_balance ?? 0;
+        companyPlan = company.plan ?? "pay_as_you_go";
+
         const { data: unlocks } = await adminClient
           .from("unlocked_contacts")
           .select("resume_id")
@@ -266,9 +271,13 @@ export async function GET(req: Request) {
         );
       });
 
-    return NextResponse.json({ profiles });
+    return NextResponse.json({
+      profiles,
+      credits_balance: creditsBalance,
+      plan: companyPlan,
+    });
   } catch (err) {
     console.error("[Recruiter Talents API Error]:", err);
-    return NextResponse.json({ profiles: [] }, { status: 500 });
+    return NextResponse.json({ profiles: [], credits_balance: 0, plan: "pay_as_you_go" }, { status: 500 });
   }
 }

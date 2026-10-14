@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { createMoovPaymentLink, SITE_URL } from "@/lib/moov";
+import { createMoovPaymentLink, MOOV_API_KEY, MOOV_SITE_ID, SITE_URL } from "@/lib/moov";
+import { createPaymentLink } from "@/lib/campay";
 import { PRICE_SINGLE_XAF, PRICE_MONTHLY_XAF, PRICE_ANNUAL_XAF } from "@/lib/plan";
 import { PaymentLedgerService, type PaymentTargetType } from "@/services/payment/payment-ledger.service";
 import { provisionGuestSession } from "@/lib/guest-checkout";
@@ -15,6 +16,7 @@ export const dynamic = "force-dynamic";
  *
  * Body: { tier?: "single" | "monthly" | "annual", countryCode?: string, promoCode?: string, phoneNumber?: string, email?: string, cvData?: object }
  * Creates a Moov Money payment link for Gabon (GA), Tchad (TD), CI or CEMAC region with deterministic intent registration.
+ * Falls back to CamPay hosted checkout link when Moov/CinetPay keys are not configured.
  * Supports zero-friction guest checkouts: account created, session opened and guest CV saved before redirect.
  */
 export async function POST(req: Request) {
@@ -64,14 +66,14 @@ export async function POST(req: Request) {
   }
 
   let amount = PRICE_MONTHLY_XAF;
-  let description = `AuthenticV Pro – Abonnement mensuel Moov Money (${countryCode})`;
+  let description = `AuthenticV Pro – Abonnement mensuel (${countryCode})`;
 
   if (tier === "single") {
     amount = PRICE_SINGLE_XAF;
-    description = `AuthenticV – Déblocage 1 Candidature Moov Money (${countryCode})`;
+    description = `AuthenticV – Déblocage 1 Candidature (${countryCode})`;
   } else if (tier === "annual") {
     amount = PRICE_ANNUAL_XAF;
-    description = `AuthenticV Pro – Pass Annuel Moov Money (${countryCode})`;
+    description = `AuthenticV Pro – Pass Annuel (${countryCode})`;
   }
 
   let discountPercent = 0;
@@ -125,6 +127,8 @@ export async function POST(req: Request) {
   const intentNonce = crypto.randomUUID().slice(0, 8);
   const externalRef = `b2c:${userId}:${tier}:${intentNonce}`;
   const targetType = `b2c_${tier}` as PaymentTargetType;
+  const hasMoovKeys = Boolean(MOOV_API_KEY && MOOV_SITE_ID);
+  const provider = hasMoovKeys ? "moov" : "campay";
 
   try {
     const admin = createAdminClient();
@@ -132,7 +136,7 @@ export async function POST(req: Request) {
     await PaymentLedgerService.createPaymentIntent(admin, {
       user_id: userId,
       external_reference: externalRef,
-      provider: "moov",
+      provider,
       target_type: targetType,
       amount_xaf: amount,
       promo_code: promoCode || undefined,
@@ -147,12 +151,34 @@ export async function POST(req: Request) {
       },
     });
 
+    const redirectUrl = `${SITE_URL}/builder?upgraded=true&gateway=${provider}&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`;
+
+    if (!hasMoovKeys) {
+      try {
+        const campayLink = await createPaymentLink({
+          amount,
+          userId,
+          externalReference: externalRef,
+          userEmail,
+          redirectUrl,
+          description,
+        });
+        return NextResponse.json({
+          url: campayLink.link,
+          externalReference: externalRef,
+          redirectUrl,
+        });
+      } catch (campayErr) {
+        console.warn("[Moov Checkout] CamPay fallback failed, using Moov sandbox:", campayErr);
+      }
+    }
+
     const result = await createMoovPaymentLink({
       amount,
       userId: externalRef,
       userEmail,
       countryCode,
-      redirectUrl: `${SITE_URL}/builder?upgraded=true&gateway=moov&tier=${tier}&ref=${encodeURIComponent(externalRef)}${promoCode ? `&promo=${promoCode}` : ""}`,
+      redirectUrl,
       description,
     });
 
