@@ -5,6 +5,7 @@ import {
   getMonthlyMessageCount,
   getUserSingleCredits,
   FREE_MONTHLY_MESSAGES,
+  WELCOME_FREE_SINGLE_CREDITS,
 } from "@/lib/plan";
 
 export const runtime = "nodejs";
@@ -21,7 +22,7 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({
       plan: "free",
-      singleCredits: 0,
+      singleCredits: WELCOME_FREE_SINGLE_CREDITS,
       messageCount: 0,
       messageLimit: FREE_MONTHLY_MESSAGES,
       messagesRemaining: FREE_MONTHLY_MESSAGES,

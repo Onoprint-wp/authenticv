@@ -37,7 +37,7 @@ export async function getUserSingleCredits(userId: string): Promise<number> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("user_subscriptions")
-    .select("single_credits")
+    .select("single_credits, status, campay_operator")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -51,6 +51,7 @@ export async function getUserSingleCredits(userId: string): Promise<number> {
             user_id: userId,
             status: "free",
             single_credits: WELCOME_FREE_SINGLE_CREDITS,
+            campay_operator: "WELCOME_GRANTED",
             updated_at: new Date().toISOString(),
           },
           { onConflict: "user_id", ignoreDuplicates: true }
@@ -59,6 +60,24 @@ export async function getUserSingleCredits(userId: string): Promise<number> {
       // Fallback silencieux si la clé admin n'est pas disponible localement
     }
     return WELCOME_FREE_SINGLE_CREDITS;
+  }
+
+  // Utilisateur existant (créé avant l'offre 1er PDF offert) n'ayant jamais reçu son crédit de bienvenue
+  if ((data.single_credits ?? 0) === 0 && data.status === "free" && !data.campay_operator) {
+    try {
+      const admin = createAdminClient();
+      await admin
+        .from("user_subscriptions")
+        .update({
+          single_credits: WELCOME_FREE_SINGLE_CREDITS,
+          campay_operator: "WELCOME_GRANTED",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
+      return WELCOME_FREE_SINGLE_CREDITS;
+    } catch {
+      return WELCOME_FREE_SINGLE_CREDITS;
+    }
   }
 
   return data.single_credits ?? 0;
@@ -72,7 +91,11 @@ export async function consumeSingleCredit(userId: string): Promise<boolean> {
 
   const { data, error } = await admin
     .from("user_subscriptions")
-    .update({ single_credits: credits - 1, updated_at: new Date().toISOString() })
+    .update({
+      single_credits: credits - 1,
+      campay_operator: "WELCOME_GRANTED",
+      updated_at: new Date().toISOString(),
+    })
     .eq("user_id", userId)
     .select("single_credits")
     .single();

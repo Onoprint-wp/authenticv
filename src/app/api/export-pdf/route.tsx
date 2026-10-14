@@ -66,13 +66,13 @@ async function generatePdfResponse(cvData: any, showWatermark: boolean): Promise
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return new Response("Unauthorized", { status: 401 });
+      return NextResponse.redirect(new URL("/login?next=/builder", request.url));
     }
 
     const plan = await getUserPlan(user.id);

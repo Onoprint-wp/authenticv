@@ -11,6 +11,8 @@ export function initPostHog() {
     capture_pageview: true,
     capture_pageleave: true,
     autocapture: false,
+    advanced_disable_flags: true,
+    disable_external_dependency_loading: true,
   });
 }
 
