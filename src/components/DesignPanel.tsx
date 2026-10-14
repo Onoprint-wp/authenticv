@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useCvStore } from "@/store/useCvStore";
-import { COLOR_THEMES } from "@/lib/themes";
-import { Check, Type } from "lucide-react";
+import { COLOR_THEMES, SECTOR_TEMPLATES, getTheme } from "@/lib/themes";
+import { Check, Type, Sparkles } from "lucide-react";
 
 interface Props {
   onClose: () => void;
@@ -100,10 +100,60 @@ export function DesignPanel({ onClose }: Props) {
   return (
     <div
       ref={panelRef}
-      className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-full mt-2 z-50 sm:w-72 max-w-[340px] mx-auto sm:mx-0 bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl p-4 backdrop-blur-md"
+      className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-full mt-2 z-50 sm:w-80 max-w-[360px] max-h-[82vh] overflow-y-auto mx-auto sm:mx-0 bg-card border border-border text-card-foreground rounded-[16px] shadow-2xl p-4 backdrop-blur-md"
     >
-      {/* Modèles */}
-      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Modèle</p>
+      {/* 10 Modèles Sectoriels ATS */}
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider font-heading flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3 text-brand-blue" />
+          Modèles Sectoriels ATS (10)
+        </p>
+        <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+          1 clic
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-1.5 mb-5 max-h-48 overflow-y-auto pr-1">
+        {SECTOR_TEMPLATES.map((tpl) => {
+          const tplTheme = getTheme(tpl.settings.colorTheme);
+          const isSelected =
+            currentLayout === tpl.settings.layout &&
+            currentTheme === tpl.settings.colorTheme &&
+            currentFont === tpl.settings.fontFamily &&
+            currentSpacing === tpl.settings.spacing;
+
+          return (
+            <button
+              key={tpl.id}
+              type="button"
+              onClick={() => updateDesignSettings(tpl.settings)}
+              className={`flex flex-col items-start text-left p-2 rounded-xl border transition-all cursor-pointer ${
+                isSelected
+                  ? "border-brand-blue bg-brand-blue/10 shadow-xs"
+                  : "border-border bg-muted/30 hover:border-border/80 hover:bg-muted/60"
+              }`}
+            >
+              <div className="flex items-center justify-between w-full gap-1 mb-1">
+                <span
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ background: tplTheme.swatch }}
+                />
+                <span className="text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-1 py-0.2 rounded">
+                  ATS {tpl.atsScore}
+                </span>
+              </div>
+              <span className="text-[11px] font-bold text-foreground leading-tight line-clamp-1">
+                {tpl.name}
+              </span>
+              <span className="text-[9px] text-muted-foreground line-clamp-1 mt-0.5">
+                {tpl.sector}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Architecture */}
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5 font-heading">Architecture</p>
       <div className="grid grid-cols-3 gap-2 mb-5">
         {LAYOUTS.map((layout) => (
           <button

@@ -54,8 +54,8 @@ export function PricingSection({}: Props = {}) {
             className="text-muted-foreground font-sans text-base md:text-lg"
           >
             {isEn
-              ? "Start for free with Mobile Money. Pay 1,000 FCFA for a single application or 5,000 FCFA/month for unlimited access."
-              : "Commencez gratuitement par Mobile Money. Payez 1 000 FCFA pour une candidature unique ou 5 000 FCFA/mois en illimité."}
+              ? "Your 1st clean HD PDF export is free! Unlock additional exports, AI Cover Letter & Job Match for 1,000 FCFA or 5,000 FCFA/month."
+              : "Votre 1er téléchargement PDF HD sans filigrane est offert ! Débloquez ensuite vos candidatures ciblées dès 1 000 FCFA par Mobile Money."}
           </motion.p>
         </div>
 
@@ -72,47 +72,54 @@ export function PricingSection({}: Props = {}) {
           >
             <div>
               <div className="mb-4">
-                <p className="text-sm font-semibold text-slate-300 mb-1">{isEn ? "Free" : "Gratuit"}</p>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-semibold text-slate-300">{isEn ? "Free" : "Découverte Gratuit"}</p>
+                  <span className="text-[10px] font-bold text-[#25C78A] bg-[#25C78A]/10 border border-[#25C78A]/30 px-2 py-0.5 rounded-full">
+                    {isEn ? "1st PDF FREE" : "1er PDF OFFERT"}
+                  </span>
+                </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold text-white">0 FCFA</span>
-                  <span className="text-slate-400 text-xs">{isEn ? "/month" : "/mois"}</span>
+                  <span className="text-slate-400 text-xs">{isEn ? "/forever" : "/sans carte"}</span>
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  {isEn ? "No card, no commitment" : "Sans carte ni engagement"}
+                  {isEn ? "No card, no commitment" : "Sans carte bancaire ni engagement"}
                 </p>
               </div>
 
               <ul className="space-y-2.5 mb-6 text-sm text-slate-200">
                 <li className="flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{isEn ? "Unlimited Alex chat & CV drafting" : "Chat Alex & rédaction CV illimités"}</span>
+                  <Check className="w-4 h-4 text-[#25C78A] flex-shrink-0" />
+                  <span className="font-bold text-white">
+                    {isEn ? "1st Clean HD PDF export FREE (no watermark)" : "1er Export PDF HD sans filigrane OFFERT"}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{isEn ? "Real-time web preview" : "Aperçu Web en temps réel"}</span>
+                  <span>{isEn ? "10 Sector ATS Templates & Live ATS X-Ray" : "10 Modèles Sectoriels & Radiographie ATS"}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{isEn ? "PDF export (with watermark)" : "Export PDF (avec filigrane)"}</span>
+                  <span>{isEn ? "Coach Alex AI (20 messages/month)" : "Coach IA Alex (20 messages/mois)"}</span>
                 </li>
                 <li className="flex items-center gap-2.5 text-slate-400">
                   <X className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span>{isEn ? "Clean HD PDF export (no watermark)" : "Export PDF HD sans filigrane"}</span>
+                  <span>{isEn ? "Additional HD PDF exports & Multi-CV" : "Exports PDF supplémentaires & Multi-CV"}</span>
                 </li>
                 <li className="flex items-center gap-2.5 text-slate-400">
                   <X className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span>{isEn ? "AI Cover Letter" : "Lettre de motivation IA"}</span>
+                  <span>{isEn ? "AI Cover Letter & Job Match" : "Lettre de motivation IA & Job Match"}</span>
                 </li>
               </ul>
             </div>
 
             <Link
               href="/builder"
-              className="w-full flex items-center justify-center py-2.5 border border-slate-600
-                text-slate-200 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 text-sm font-semibold
+              className="w-full flex items-center justify-center py-2.5 border border-emerald-500/40 bg-emerald-500/10
+                text-emerald-300 hover:text-white hover:border-emerald-400 hover:bg-emerald-500/20 text-sm font-bold
                 rounded-xl transition-all"
             >
-              {isEn ? "Get Started (Free)" : "Commencer (Gratuit)"}
+              {isEn ? "Create my CV (1st PDF Free)" : "Créer mon CV (1er PDF Offert)"}
             </Link>
           </motion.div>
 
@@ -126,28 +133,28 @@ export function PricingSection({}: Props = {}) {
           >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-bold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1">
-                <Sparkles className="w-3 h-3 fill-slate-950" /> {isEn ? "MOST POPULAR 🔥" : "LE PLUS POPULAIRE 🔥"}
+                <Sparkles className="w-3 h-3 fill-slate-950" /> {isEn ? "MOST POPULAR 🔥" : "PACK CANDIDATURE 🔥"}
               </span>
             </div>
 
             <div>
               <div className="mb-4 pt-1">
                 <p className="text-sm font-semibold text-amber-400 mb-1">
-                  {isEn ? "Single Application" : "À l'acte — 1 Candidature"}
+                  {isEn ? "Single Application" : "À l'acte — 1 Offre Ciblée"}
                 </p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-extrabold text-white">1 000 FCFA</span>
                   <span className="text-amber-300/80 text-xs">{isEn ? "/one-time" : "/une fois"}</span>
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  {isEn ? "Ideal for an urgent job opening" : "Idéal pour une offre urgente"}
+                  {isEn ? "Ideal to target a specific job offer" : "Idéal pour cibler une offre d'emploi précise"}
                 </p>
               </div>
 
               <ul className="space-y-2.5 mb-6 text-sm text-slate-200">
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span className="font-medium text-white">{isEn ? "1 Clean HD PDF export (no watermark)" : "1 Export PDF HD sans filigrane"}</span>
+                  <span className="font-medium text-white">{isEn ? "+1 Clean HD PDF export (no watermark)" : "+1 Export PDF HD sans filigrane"}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
@@ -155,11 +162,11 @@ export function PricingSection({}: Props = {}) {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>{isEn ? "1 ATS Job Match analysis" : "1 Analyse Job Match ATS"}</span>
+                  <span>{isEn ? "1 ATS Job Match optimization" : "1 Optimisation Job Match ATS"}</span>
                 </li>
                 <li className="flex items-center gap-2.5 text-slate-400">
                   <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>{isEn ? "Instant Mobile Money payment" : "Paiement MoMo instantané"}</span>
+                  <span>{isEn ? "Instant MTN MoMo / Orange Money" : "Paiement MTN MoMo / Orange Money"}</span>
                 </li>
               </ul>
             </div>

@@ -25,6 +25,7 @@ import {
 import { CvEditorView } from "@/components/editor/CvEditorView";
 import { HtmlCvPreview } from "@/components/cv/HtmlCvPreview";
 import { DesignPanel } from "@/components/DesignPanel";
+import { getSectorTemplate } from "@/lib/themes";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { CoverLetterPanel } from "@/components/CoverLetterPanel";
@@ -61,6 +62,16 @@ function PaymentReturnDetector({
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const tplParam = searchParams.get("template");
+    if (tplParam) {
+      const sectorTpl = getSectorTemplate(tplParam);
+      if (sectorTpl) {
+        useCvStore.getState().updateDesignSettings(sectorTpl.settings);
+      } else if (tplParam === "classic" || tplParam === "modern" || tplParam === "minimal") {
+        useCvStore.getState().updateDesignSettings({ layout: tplParam });
+      }
+    }
+
     // Read the params once: replaceState below updates useSearchParams and must not cancel polling.
     if (searchParams.get("signup") === "true") {
       trackEvent("signup_completed", { plan: "free", source: "signup_form" });
@@ -237,13 +248,17 @@ export default function BuilderPage() {
     a.click();
     document.body.removeChild(a);
     posthog.capture("pdf_exported");
-    setTimeout(() => setIsPdfDownloading(false), 4000);
+    setTimeout(() => {
+      setIsPdfDownloading(false);
+      refreshPlan();
+    }, 4000);
   };
 
   const handlePrintPdf = () => {
     if (plan.loading) return;
     if (!hasPdfAccess) { setUpgradeModal({ open: true, reason: "pdf" }); return; }
     window.open("/api/export-pdf", "_blank", "noopener,noreferrer");
+    setTimeout(() => refreshPlan(), 3000);
   };
 
   const handleOpenJobMatch = () => {
@@ -465,7 +480,13 @@ export default function BuilderPage() {
                   >
                     {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                     <span className="hidden lg:inline">
-                      {isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro / 1000 FCFA"}
+                      {isPdfDownloading
+                        ? "Génération…"
+                        : plan.plan === "pro"
+                          ? "Télécharger PDF"
+                          : (plan.singleCredits ?? 0) > 0
+                            ? "Télécharger PDF (1er Offert)"
+                            : "PDF — Pro / 1000 FCFA"}
                     </span>
                   </button>
                   <button
@@ -483,7 +504,7 @@ export default function BuilderPage() {
               {viewMode === "preview-web" && isDesktop && <HtmlCvPreview />}
               {viewMode === "preview-pdf" && isDesktop && (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  {plan.plan !== "pro" && (
+                  {!hasPdfAccess && (
                     <div className="bg-indigo-950/90 border-b border-indigo-800/50 px-4 py-2 flex items-center justify-between text-xs text-indigo-200 flex-shrink-0">
                       <span className="flex items-center gap-2">
                         <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
@@ -498,7 +519,7 @@ export default function BuilderPage() {
                     </div>
                   )}
                   <div className="flex-1 overflow-hidden">
-                    <DynamicPdfViewer showWatermark={plan.plan !== "pro"} />
+                    <DynamicPdfViewer showWatermark={!hasPdfAccess} />
                   </div>
                 </div>
               )}
@@ -579,7 +600,15 @@ export default function BuilderPage() {
                     className="flex items-center gap-1.5 text-xs bg-brand-blue hover:bg-brand-blue/90 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
                   >
                     {isPdfDownloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                    <span>{isPdfDownloading ? "Génération…" : plan.plan === "pro" ? "Télécharger PDF" : "PDF — Pro"}</span>
+                    <span>
+                      {isPdfDownloading
+                        ? "Génération…"
+                        : plan.plan === "pro"
+                          ? "Télécharger PDF"
+                          : (plan.singleCredits ?? 0) > 0
+                            ? "PDF (1er Offert)"
+                            : "PDF — Pro"}
+                    </span>
                   </button>
                   <button
                     onClick={handlePrintPdf}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail, Phone } from "lucide-react";
+import { X, Sparkles, Loader2, Zap, MessageSquare, Download, Briefcase, Mail } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { useCvStore } from "@/store/useCvStore";
 
@@ -12,7 +12,7 @@ interface UpgradeModalProps {
 }
 
 const REASONS: Record<"pdf" | "jobmatch" | "quota" | "letter" | "multi-cv", string> = {
-  pdf: "Pour télécharger votre CV en PDF, passez à AuthenticV Pro.",
+  pdf: "Vous avez utilisé votre 1er export PDF HD offert. Débloquez un nouvel export + Lettre IA + Job Match dès 1 000 FCFA ou passez Pro en illimité.",
   jobmatch: "Pour optimiser votre CV pour une offre d\u2019emploi, passez à AuthenticV Pro.",
   quota: "Vous avez atteint la limite de 20 messages gratuits ce mois-ci.",
   letter: "Pour générer une lettre de motivation personnalisée, passez à AuthenticV Pro.",

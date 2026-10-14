@@ -4,6 +4,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 export type Plan = "free" | "pro";
 
 export const FREE_MONTHLY_MESSAGES = 20;
+export const WELCOME_FREE_SINGLE_CREDITS = 1;
 
 /** Tarifs en FCFA (XAF) */
 export const PRICE_SINGLE_XAF = 1000;
@@ -31,7 +32,7 @@ export async function getUserPlan(userId: string): Promise<Plan> {
   return "pro";
 }
 
-/** Retourne le nombre de crédits de déblocage uniques de l'utilisateur (achat 1 000 FCFA). */
+/** Retourne le nombre de crédits de déblocage uniques de l'utilisateur (1er export PDF HD offert à l'inscription + achats 1 000 FCFA). */
 export async function getUserSingleCredits(userId: string): Promise<number> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -40,7 +41,27 @@ export async function getUserSingleCredits(userId: string): Promise<number> {
     .eq("user_id", userId)
     .maybeSingle();
 
-  return data?.single_credits ?? 0;
+  if (!data) {
+    try {
+      const admin = createAdminClient();
+      await admin
+        .from("user_subscriptions")
+        .upsert(
+          {
+            user_id: userId,
+            status: "free",
+            single_credits: WELCOME_FREE_SINGLE_CREDITS,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id", ignoreDuplicates: true }
+        );
+    } catch {
+      // Fallback silencieux si la clé admin n'est pas disponible localement
+    }
+    return WELCOME_FREE_SINGLE_CREDITS;
+  }
+
+  return data.single_credits ?? 0;
 }
 
 /** Consomme 1 crédit à l'acte en utilisant le client admin pour contourner la restriction RLS. */

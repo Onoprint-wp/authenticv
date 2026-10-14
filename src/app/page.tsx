@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { VideoShowcaseSection } from "@/components/landing/VideoShowcaseSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { AtsAndTemplatesShowcase } from "@/components/landing/AtsAndTemplatesShowcase";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { RecruiterCTASection } from "@/components/landing/RecruiterCTASection";
 import { FaqSection } from "@/components/landing/FaqSection";
@@ -27,22 +28,24 @@ const softwareSchema = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Générateur de CV par IA conversationnelle. Créez un CV ATS-optimisé avec Alex, votre coach IA personnel. Compatible MTN MoMo & Orange Money.",
-  url: "https://authenticv.app",
+    "Générateur de CV par IA conversationnelle avec Radiographie ATS en temps réel et 10 modèles sectoriels. 1er téléchargement PDF HD sans filigrane offert. Compatible MTN MoMo & Orange Money (Cameroun & CEMAC).",
+  url: "https://www.authenticv.app",
   offers: {
     "@type": "Offer",
     price: "0",
     priceCurrency: "XAF",
-    description: "Plan gratuit — création de CV illimitée, paiement à l'acte (1 000 FCFA) ou Pro (5 000 FCFA/mois)",
+    description:
+      "Plan gratuit avec 1er export PDF HD sans filigrane offert, Pass Candidature à 1 000 FCFA ou Pass Mensuel Pro à 5 000 FCFA/mois",
   },
   featureList: [
-    "Coach IA conversationnel (Alex)",
-    "CV optimisé ATS",
-    "Export PDF",
-    "Lettre de motivation IA",
-    "Job Match",
-    "Préparation entretien IA",
-    "Paiement Mobile Money (MTN MoMo & Orange Money)",
+    "Coach IA conversationnel maïeutique (Alex)",
+    "1er Export PDF HD sans filigrane offert",
+    "Radiographie ATS en temps réel (Workday, Taleo, SAP)",
+    "10 Modèles de CV sectoriels ATS-optimisés",
+    "Lettre de motivation IA sur-mesure",
+    "Job Match & ciblage d'offre d'emploi",
+    "Simulateur d'entretien d'embauche IA",
+    "Paiement Mobile Money (MTN MoMo, Orange Money, Moov Money)",
   ],
 };
 
@@ -65,6 +68,7 @@ export default function Home() {
         <Navbar dict={fr.navbar} />
         <HeroSection dict={fr.hero} />
         <HowItWorks dict={fr.howItWorks} />
+        <AtsAndTemplatesShowcase />
         <VideoShowcaseSection />
         <FeaturesSection dict={fr.features} />
         <PricingSection dict={fr.pricing} />

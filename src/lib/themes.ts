@@ -126,3 +126,132 @@ export const COLOR_THEMES: ColorTheme[] = [
 export function getTheme(id: string): ColorTheme {
   return COLOR_THEMES.find((t) => t.id === id) ?? COLOR_THEMES[0];
 }
+
+export interface SectorTemplate {
+  id: string;
+  name: string;
+  sector: string;
+  badge: string;
+  atsScore: string;
+  description: string;
+  recommendedFor: string[];
+  settings: Omit<DesignSettings, "recruiterVisible">;
+}
+
+export const SECTOR_TEMPLATES: SectorTemplate[] = [
+  {
+    id: "executive",
+    name: "Exécutif & Direction",
+    sector: "Direction & Conseil",
+    badge: "Best-Seller Cadres",
+    atsScore: "98%",
+    description:
+      "Hiérarchie exécutive sobre avec typographie Serif d'autorité. Idéal pour postes de direction, conseils d'administration et cabinets d'audit.",
+    recommendedFor: ["Directeur Général", "Chef de Département", "Consultant Senior", "Country Manager"],
+    settings: { layout: "classic", colorTheme: "slate", fontFamily: "serif", spacing: "spacious" },
+  },
+  {
+    id: "tech-data",
+    name: "Tech, Cloud & Data",
+    sector: "IT, Data & Télécoms",
+    badge: "Spécial Tech",
+    atsScore: "99%",
+    description:
+      "Architecture moderne à colonne latérale mettant en valeur la stack technique, les certifications Cloud et les projets DevOps/Data.",
+    recommendedFor: ["Développeur Full-Stack", "Ingénieur DevOps / Cloud", "Data Analyst", "Architecte Logiciel"],
+    settings: { layout: "modern", colorTheme: "cyan", fontFamily: "sans", spacing: "compact" },
+  },
+  {
+    id: "finance-banque",
+    name: "Banque, Finance & OHADA",
+    sector: "Banque, Audit & Comptabilité",
+    badge: "Standard Bancaire",
+    atsScore: "98%",
+    description:
+      "Mise en page rigoureuse pensée pour les banques, microfinances, assurances et cabinets d'expertise comptable de la zone CEMAC.",
+    recommendedFor: ["Analyste Financier", "Comptable OHADA", "Auditeur Interne", "Gestionnaire de Portefeuille"],
+    settings: { layout: "classic", colorTheme: "indigo", fontFamily: "serif", spacing: "normal" },
+  },
+  {
+    id: "commercial-marketing",
+    name: "Commercial, Vente & B2B",
+    sector: "Commerce, FMCG & Distribution",
+    badge: "Orientation Résultats",
+    atsScore: "96%",
+    description:
+      "Design dynamique qui fait ressortir immédiatement vos chiffres d'affaires, parts de marché gagnées et KPIs commerciaux.",
+    recommendedFor: ["Business Developer", "Responsable Commercial", "Key Account Manager", "Chef de Produit"],
+    settings: { layout: "modern", colorTheme: "emerald", fontFamily: "sans", spacing: "normal" },
+  },
+  {
+    id: "ingenierie-btp",
+    name: "Ingénierie, Mines & BTP",
+    sector: "Industrie, BTP, HSE & Logistique",
+    badge: "Terrain & Projets",
+    atsScore: "97%",
+    description:
+      "Structure dense et normée pour valoriser les chantiers livrés, habilitations HSE, budgets d'infrastructure et opérations logistiques.",
+    recommendedFor: ["Ingénieur Génie Civil", "Responsable HSE", "Ingénieur Pétrole & Mines", "Supply Chain Manager"],
+    settings: { layout: "classic", colorTheme: "amber", fontFamily: "sans", spacing: "compact" },
+  },
+  {
+    id: "sante-ong",
+    name: "Santé, Pharma & ONG",
+    sector: "Médical, Humanitaire & Développement",
+    badge: "Norme ONG / ONU",
+    atsScore: "99%",
+    description:
+      "Format épuré haute lisibilité conforme aux exigences des agences onusiennes (OMS, UNICEF), ONG internationales et établissements de santé.",
+    recommendedFor: ["Coordinateur de Projet ONG", "Médecin / Pharmacien", "Spécialiste MEAL", "Santé Publique"],
+    settings: { layout: "minimal", colorTheme: "emerald", fontFamily: "sans", spacing: "spacious" },
+  },
+  {
+    id: "rh-juridique",
+    name: "RH, Juridique & Gouvernance",
+    sector: "Ressources Humaines & Droit",
+    badge: "Élégance Éditoriale",
+    atsScore: "97%",
+    description:
+      "Équilibre académique et institutionnel valorisant l'expertise réglementaire, le droit des affaires OHADA et la gestion du capital humain.",
+    recommendedFor: ["Responsable RH (DRH)", "Juriste d'Entreprise", "Chargé de Recrutement", "Secrétaire Général"],
+    settings: { layout: "classic", colorTheme: "rose", fontFamily: "serif", spacing: "normal" },
+  },
+  {
+    id: "campus-stage",
+    name: "Campus, Lauréat & 1er Emploi",
+    sector: "Étudiants & Jeunes Diplômés",
+    badge: "Spécial 1er Emploi",
+    atsScore: "96%",
+    description:
+      "Valorise la formation académique, les projets universitaires, les stages et le potentiel même avec peu d'années d'expérience.",
+    recommendedFor: ["Étudiant en Master / Grande École", "Stagiaire PFE", "Jeune Diplômé", "Alternant"],
+    settings: { layout: "modern", colorTheme: "violet", fontFamily: "sans", spacing: "spacious" },
+  },
+  {
+    id: "minimal-ats",
+    name: "Standard ATS International",
+    sector: "Multinationales & Big Four",
+    badge: "Score ATS 100%",
+    atsScore: "100%",
+    description:
+      "Le format linéaire universel exigé par les robots Workday, Taleo et Greenhouse des multinationales. Zéro artifice, impact pur.",
+    recommendedFor: ["Candidatures Internationales", "Big Four (Deloitte, PwC, EY)", "Programmes Graduate", "Mobilité Internationale"],
+    settings: { layout: "minimal", colorTheme: "neutral", fontFamily: "sans", spacing: "normal" },
+  },
+  {
+    id: "digital-creatif",
+    name: "Digital, Médias & Com",
+    sector: "Communication, Design & Digital",
+    badge: "Créatif & ATS-Safe",
+    atsScore: "95%",
+    description:
+      "Affirme votre identité visuelle et vos campagnes digitales tout en conservant un flux texte 100% extractible par les logiciels RH.",
+    recommendedFor: ["Responsable Communication", "UI/UX Designer", "Social Media Manager", "Chef de Projet Digital"],
+    settings: { layout: "modern", colorTheme: "rose", fontFamily: "sans", spacing: "normal" },
+  },
+];
+
+export function getSectorTemplate(id: string): SectorTemplate | undefined {
+  return SECTOR_TEMPLATES.find((t) => t.id === id);
+}
+

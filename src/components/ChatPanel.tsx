@@ -59,51 +59,51 @@ function applyOptimisticUpdate(toolName: string, args: Record<string, any>) {
         skills: args.skills && args.skills.length > 0 ? args.skills : current.skills,
         experiences:
           args.experiences && args.experiences.length > 0
-            ? args.experiences.map((exp: any) => ({
+            ? args.experiences.map((exp: Record<string, unknown>) => ({
                 id: genId(),
-                company: exp.company,
-                position: exp.position,
-                startDate: exp.startDate,
-                endDate: exp.endDate || "",
-                current: exp.current ?? false,
-                description: exp.description || "",
+                company: String(exp.company ?? ""),
+                position: String(exp.position ?? ""),
+                startDate: String(exp.startDate ?? ""),
+                endDate: String(exp.endDate ?? ""),
+                current: Boolean(exp.current ?? false),
+                description: String(exp.description ?? ""),
               }))
             : current.experiences,
         education:
           args.education && args.education.length > 0
-            ? args.education.map((edu: any) => ({
+            ? args.education.map((edu: Record<string, unknown>) => ({
                 id: genId(),
-                institution: edu.institution,
-                degree: edu.degree,
-                field: edu.field || "",
-                startDate: edu.startDate,
-                endDate: edu.endDate || "",
+                institution: String(edu.institution ?? ""),
+                degree: String(edu.degree ?? ""),
+                field: String(edu.field ?? ""),
+                startDate: String(edu.startDate ?? ""),
+                endDate: String(edu.endDate ?? ""),
               }))
             : current.education,
         languages:
           args.languages && args.languages.length > 0
-            ? args.languages.map((l: any) => ({
+            ? args.languages.map((l: Record<string, unknown>) => ({
                 id: genId(),
-                name: l.name,
-                level: l.level || "",
+                name: String(l.name ?? ""),
+                level: String(l.level ?? ""),
               }))
             : current.languages,
         certifications:
           args.certifications && args.certifications.length > 0
-            ? args.certifications.map((c: any) => ({
+            ? args.certifications.map((c: Record<string, unknown>) => ({
                 id: genId(),
-                name: c.name,
-                issuer: c.issuer || "",
-                date: c.date || "",
+                name: String(c.name ?? ""),
+                issuer: String(c.issuer ?? ""),
+                date: String(c.date ?? ""),
               }))
             : current.certifications,
         projects:
           args.projects && args.projects.length > 0
-            ? args.projects.map((p: any) => ({
+            ? args.projects.map((p: Record<string, unknown>) => ({
                 id: genId(),
-                name: p.name,
-                description: p.description || "",
-                link: p.link,
+                name: String(p.name ?? ""),
+                description: String(p.description ?? ""),
+                link: p.link ? String(p.link) : undefined,
               }))
             : current.projects,
       });

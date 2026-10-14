@@ -82,16 +82,16 @@ export const fr: LandingDict = {
     cta: "Créer mon CV",
   },
   hero: {
-    badge: "Générateur de CV par IA conversationnelle",
+    badge: "Générateur de CV IA & Radiographie ATS · Cameroun & CEMAC",
     title1: "Créez votre CV avec l'IA —",
     title2: "Authentique, pas robotique.",
     description:
-      "Alex, votre coach IA, vous guide question par question pour extraire vos meilleures expériences et construire un CV ATS-optimisé qui vous ressemble — pas un copié-collé de ChatGPT.",
-    cta1: "Créer mon CV gratuitement",
+      "Alex, votre coach IA maïeutique, vous guide question par question pour extraire vos résultats chiffrés et générer un CV 100% compatible ATS. Votre 1er téléchargement PDF HD sans filigrane est offert.",
+    cta1: "Créer mon CV (1er PDF HD Offert)",
     cta2: "Comment ça marche",
-    benefit1: "CV optimisé ATS",
-    benefit2: "20 messages offerts",
-    benefit3: "Sans carte bancaire",
+    benefit1: "1er Export PDF HD Offert (sans filigrane)",
+    benefit2: "10 Modèles Sectoriels & Radiographie ATS",
+    benefit3: "Sans carte bancaire · MTN MoMo & Orange Money",
     aiLabel: "Alex (IA)",
     aiQuestion: "Quelles étaient vos missions ?",
     cvGenerated: "CV généré",
@@ -99,134 +99,134 @@ export const fr: LandingDict = {
   },
   howItWorks: {
     title: "Comment ça marche ?",
-    subtitle: "Créer un CV professionnel n'a jamais été aussi simple. Laissez-vous guider.",
+    subtitle: "Créer un CV professionnel calibré pour les recruteurs n'a jamais été aussi simple.",
     steps: [
       {
         title: "1. Discutez avec Alex",
         description:
-          "Répondez aux questions simples de notre IA conversationnelle. Pas besoin de rédiger, racontez juste votre parcours comme lors d'un entretien.",
+          "Répondez aux questions ciblées de notre IA conversationnelle ou importez votre ancien CV. Racontez votre parcours comme lors d'un entretien.",
       },
       {
-        title: "2. Génération automatique",
+        title: "2. Radiographie ATS & Modèles Sectoriels",
         description:
-          "Alex analyse vos réponses et rédige instantanément le contenu de votre CV avec les mots-clés recherchés par les recruteurs.",
+          "Vérifiez en direct ce que lisent les robots RH (Workday, Taleo) grâce à la Radiographie ATS et choisissez parmi 10 modèles sectoriels.",
       },
       {
-        title: "3. Personnalisez et exportez",
+        title: "3. Téléchargez votre 1er PDF HD Offert",
         description:
-          "Ajustez le design, choisissez vos couleurs, et téléchargez votre CV au format PDF, prêt à être envoyé.",
+          "Exportez gratuitement votre 1er CV en PDF vectoriel haute définition sans filigrane, prêt à être envoyé aux recruteurs.",
       },
     ],
   },
   features: {
     title: "Pourquoi choisir AuthentiCV ?",
     subtitle:
-      "Tous les outils dont vous avez besoin pour décrocher votre prochain entretien, réunis en une seule plateforme intelligente.",
+      "L'écosystème carrière complet conçu pour franchir les filtres algorithmiques (ATS) et convaincre les décideurs RH.",
     items: [
       {
-        title: "Coach IA Conversationnel",
+        title: "Coach IA Maïeutique (Alex)",
         description:
-          "Plus de formulaires ennuyeux. Répondez aux questions d'Alex, notre IA qui agit comme un recruteur pour extraire vos meilleures expériences.",
+          "Plus de syndrome de la page blanche. Alex agit comme un chasseur de têtes pour transformer vos tâches en réalisations chiffrées à fort impact.",
       },
       {
-        title: "Génération en temps réel",
+        title: "Radiographie ATS en Temps Réel",
         description:
-          "À chaque réponse, votre CV s'actualise sous vos yeux. Voyez instantanément le résultat de vos échanges avec l'assistant.",
+          "Visualisez exactement le flux texte brut extrait par les logiciels de recrutement (Workday, Taleo, SAP) avant même de postuler.",
       },
       {
-        title: "Optimisé pour les ATS",
+        title: "1er Export PDF HD Offert",
         description:
-          "Générez des CV au format PDF lisibles par 100% des logiciels de recrutement (ATS) utilisés par les entreprises.",
+          "Téléchargez votre premier CV en PDF vectoriel haute définition sans aucun filigrane et sans sortir de carte bancaire.",
       },
       {
-        title: "Contenu percutant",
+        title: "Job Match & Ciblage d'Offre",
         description:
-          "L'IA reformule vos expériences en mettant l'accent sur vos résultats et vos compétences clés pour convaincre les recruteurs.",
+          "Collez une annonce d'emploi : Alex détecte les mots-clés manquants et adapte chirurgicalement votre CV à l'offre visée.",
       },
       {
-        title: "Design professionnel",
+        title: "10 Modèles Sectoriels ATS-Safe",
         description:
-          "Choisissez parmi plusieurs modèles de CV élégants, modernes et personnalisables (couleurs, polices, espacements).",
+          "Exécutif, Tech & Data, Banque & OHADA, Mines & BTP, Santé & ONG, Campus… 10 architectures calibrées par secteur d'activité.",
       },
       {
-        title: "Lettre de motivation IA",
+        title: "Lettre de Motivation & Entretien IA",
         description:
-          "Collez une offre d'emploi et obtenez une lettre de motivation personnalisée en quelques secondes, adaptée à votre parcours et au poste ciblé.",
+          "Générez votre lettre de motivation sur-mesure en 10 secondes et entraînez-vous en conditions réelles avec le simulateur d'entretien.",
       },
     ],
   },
   pricing: {
-    title: "Un tarif simple et transparent",
-    subtitle: "Commencez gratuitement. Passez à Pro quand vous êtes prêt.",
+    title: "Un tarif simple, pensé pour votre réussite",
+    subtitle: "Votre 1er téléchargement PDF HD sans filigrane est offert. Débloquez ensuite les outils IA avancés à l'acte (1 000 FCFA) ou en illimité.",
     free: {
       label: "Gratuit",
-      price: "0 €",
+      price: "0 FCFA",
       period: "/mois",
-      note: "Sans carte bancaire",
-      cta: "Commencer gratuitement",
+      note: "Sans carte bancaire · Accès immédiat",
+      cta: "Créer mon CV (1er PDF Offert)",
       features: [
-        { label: "1 CV", included: true },
-        { label: "20 messages Alex / mois", included: true },
-        { label: "Aperçu Web en temps réel", included: true },
-        { label: "Tableau de bord ATS & suivi de candidatures", included: true },
-        { label: "Sauvegarde automatique", included: true },
-        { label: "Multi-CV (plusieurs CVs)", included: false },
-        { label: "Export PDF", included: false },
-        { label: "Lettre de motivation IA", included: false },
-        { label: "Benchmark sectoriel", included: false },
+        { label: "1er Export PDF HD sans filigrane offert", included: true },
+        { label: "10 Modèles Sectoriels ATS & Radiographie ATS", included: true },
+        { label: "20 messages Coach IA Alex / mois", included: true },
+        { label: "Aperçu Web & PDF en temps réel", included: true },
+        { label: "Sauvegarde Cloud automatique", included: true },
+        { label: "Exports PDF supplémentaires illimités", included: false },
+        { label: "Multi-CV (un CV par candidature)", included: false },
+        { label: "Lettre de motivation IA & Job Match", included: false },
+        { label: "Simulateur d'entretien IA & Benchmark", included: false },
       ],
     },
     pro: {
       label: "Pro",
-      price: "9 €",
+      price: "5 000 FCFA",
       period: "/mois · sans engagement",
-      note: "≈ 5 900 FCFA · Résiliable à tout moment",
+      note: "Ou 1 000 FCFA à l'acte · MTN MoMo & Orange Money",
       badge: "Recommandé",
       features: [
-        "Messages Alex illimités",
-        "Multi-CV — un CV par candidature",
-        "Export PDF en un clic",
+        "Messages Coach IA Alex illimités",
+        "Exports PDF HD sans filigrane illimités",
+        "Multi-CV — un CV adapté par candidature",
         "Lettre de motivation personnalisée par IA",
-        "Job Match — Optimisation pour une offre",
-        "Benchmark sectoriel — votre rang parmi les candidats",
-        "Accès prioritaire aux nouveautés",
+        "Job Match — Optimisation sur offre d'emploi",
+        "Simulateur d'entretien d'embauche IA",
+        "Visibilité prioritaire CVthèque Recruteurs CEMAC",
       ],
     },
-    footer: "Paiement sécurisé · Carte bancaire & Mobile Money (MTN / Orange) · Résiliable en un clic",
+    footer: "Paiement instantané · MTN MoMo, Orange Money & Moov Money · Sans abonnement forcé",
   },
   faq: {
     title: "Questions fréquentes",
-    subtitle: "Tout ce que vous devez savoir avant de commencer.",
+    subtitle: "Tout ce que vous devez savoir avant de créer votre CV.",
     items: [
       {
-        question: "Dois-je entrer ma carte bancaire pour commencer ?",
+        question: "Mon premier téléchargement PDF est-il vraiment gratuit et sans filigrane ?",
         answer:
-          "Non. Le plan gratuit est accessible sans carte bancaire. Vous pouvez créer votre CV, discuter avec Alex et prévisualiser le résultat immédiatement. Vous ne payez que si vous souhaitez passer au plan Pro.",
+          "Oui, à 100% ! Dès votre inscription gratuite (sans carte bancaire), vous recevez 1 crédit d'export PDF Haute Définition offert. Vous pouvez créer votre CV avec Alex, choisir parmi nos 10 modèles sectoriels et télécharger votre 1er PDF officiel sans aucun filigrane.",
       },
       {
-        question: "Que se passe-t-il si j'atteins les 20 messages gratuits ?",
+        question: "Comment fonctionne le Pass Candidature à 1 000 FCFA ?",
         answer:
-          "Le plan gratuit vous permet de discuter avec Alex et de prévisualiser votre CV en direct. Vous pouvez débloquer votre export PDF HD sans filigrane + lettre de motivation pour seulement 1 000 FCFA à l'acte par Mobile Money (MTN / Orange), ou passer au Pass Mensuel Pro pour un usage illimité.",
+          "Après votre 1er PDF offert, si vous souhaitez adapter votre CV à une nouvelle offre d'emploi spécifique sans prendre d'abonnement, le Pass à 1 000 FCFA (via MTN MoMo ou Orange Money) débloque 1 nouvel export PDF HD + 1 Lettre de motivation IA + 1 analyse Job Match.",
       },
       {
-        question: "Puis-je résilier mon abonnement Pro à tout moment ?",
+        question: "Qu'est-ce que la « Radiographie ATS » incluse dans l'éditeur ?",
         answer:
-          "Oui, sans condition ni frais. Votre abonnement reste actif jusqu'à la fin de la période payée, puis vous repassez automatiquement sur le plan gratuit. La résiliation se fait en un clic depuis le portail de facturation.",
+          "Les grandes entreprises et cabinets RH utilisent des logiciels (ATS comme Workday, Taleo, Greenhouse) qui lisent le code texte de votre PDF. Notre outil Radiographie ATS vous affiche en temps réel le flux texte exact que le robot recruteur extrait de votre CV ainsi que votre score sur 100.",
       },
       {
-        question: "Mon CV est-il compatible avec les logiciels de recrutement (ATS) ?",
+        question: "Puis-je résilier le Pass Mensuel Pro à tout moment ?",
         answer:
-          "Oui. Le format PDF généré suit les bonnes pratiques ATS : pas d'images dans le corps, police lisible, sections clairement balisées. Il est compatible avec les principaux outils utilisés par les recruteurs (Workday, Lever, Greenhouse, etc.).",
+          "Oui, il n'y a aucun prélèvement automatique forcé. Vous gardez le contrôle total sur vos paiements Mobile Money (MTN MoMo, Orange Money, Moov Money).",
+      },
+      {
+        question: "Quels sont les 10 modèles sectoriels disponibles ?",
+        answer:
+          "AuthentiCV propose 10 modèles calibrés par secteur : Exécutif & Direction, Tech & Data, Banque Finance & OHADA, Commercial & Vente, Ingénierie Mines & BTP, Santé Pharma & ONG, RH & Juridique, Campus & 1er Emploi, Standard ATS International et Digital & Médias.",
       },
       {
         question: "Mes données personnelles sont-elles sécurisées ?",
         answer:
-          "Vos données sont hébergées en Europe sur Supabase (PostgreSQL chiffré). Elles ne sont jamais vendues ni partagées avec des tiers. Chaque utilisateur n'a accès qu'à ses propres données grâce au système de sécurité Row-Level Security (RLS).",
-      },
-      {
-        question: "Comment fonctionne la fonctionnalité Job Match ?",
-        answer:
-          "Collez le texte d'une offre d'emploi et Alex analyse les mots-clés, compétences et exigences du poste pour vous suggérer des améliorations ciblées de votre CV. Disponible sur le plan Pro.",
+          "Vos données sont chiffrées et protégées par Row-Level Security (RLS). Vous pouvez également choisir d'activer ou désactiver en un clic la visibilité anonymisée de votre profil auprès des recruteurs partenaires de la zone CEMAC.",
       },
     ],
   },
@@ -256,16 +256,16 @@ export const en: LandingDict = {
     cta: "Build my CV",
   },
   hero: {
-    badge: "AI-powered conversational CV builder",
+    badge: "AI Conversational CV Builder & Live ATS X-Ray",
     title1: "Build your CV with AI —",
     title2: "Authentic, not robotic.",
     description:
-      "Alex, your AI coach, guides you step by step to surface your best experiences and craft an ATS-optimized CV that sounds like you — not a ChatGPT copy-paste.",
-    cta1: "Build my CV for free",
+      "Alex, your AI career coach, guides you step by step to surface measurable achievements and craft a 100% ATS-compliant CV. Your 1st clean HD PDF download is completely free.",
+    cta1: "Build my CV (1st HD PDF Free)",
     cta2: "See how it works",
-    benefit1: "ATS-optimized CV",
-    benefit2: "Free unlimited AI Coach",
-    benefit3: "Mobile Money & Card payment",
+    benefit1: "1st HD PDF Download Free (no watermark)",
+    benefit2: "10 Sector Templates & Live ATS X-Ray",
+    benefit3: "MTN MoMo, Orange Money & Card",
     aiLabel: "Alex (AI)",
     aiQuestion: "What were your main responsibilities?",
     cvGenerated: "CV generated",
@@ -273,134 +273,134 @@ export const en: LandingDict = {
   },
   howItWorks: {
     title: "How does it work?",
-    subtitle: "Creating a professional CV has never been this simple. Just follow along.",
+    subtitle: "Creating a recruiter-ready professional CV has never been this simple.",
     steps: [
       {
         title: "1. Chat with Alex",
         description:
-          "Answer simple questions from our conversational AI. No writing required — just tell your story like you would in an interview.",
+          "Answer simple questions from our conversational AI or upload your old resume. Tell your story like you would in an interview.",
       },
       {
-        title: "2. Automatic generation",
+        title: "2. ATS X-Ray & Sector Templates",
         description:
-          "Alex analyses your answers and instantly writes your CV content with the keywords recruiters are looking for.",
+          "Inspect the exact raw text stream extracted by recruitment robots (Workday, Taleo) and pick from 10 sector-tailored templates.",
       },
       {
-        title: "3. Customize & export",
+        title: "3. Download your 1st Free HD PDF",
         description:
-          "Adjust the design, pick your colors, and download your CV as a PDF — ready to send.",
+          "Export your first high-definition vector PDF with zero watermark for free — ready to send to hiring managers.",
       },
     ],
   },
   features: {
     title: "Why choose AuthentiCV?",
     subtitle:
-      "All the tools you need to land your next interview, brought together in one smart platform.",
+      "All the tools you need to beat ATS filters and land your next interview, brought together in one platform.",
     items: [
       {
-        title: "Conversational AI Coach",
+        title: "Conversational AI Coach (Alex)",
         description:
-          "No more boring forms. Answer Alex's questions — our AI acts like a recruiter to draw out your best experiences.",
+          "No more blank page syndrome. Alex acts like an executive recruiter to turn your daily duties into quantified achievements.",
       },
       {
-        title: "Real-time generation",
+        title: "Live ATS X-Ray",
         description:
-          "With every answer, your CV updates before your eyes. See the result of your conversation with the assistant instantly.",
+          "See the exact plain-text stream extracted by applicant tracking systems (Workday, Taleo, Greenhouse) before you apply.",
       },
       {
-        title: "ATS-optimized",
+        title: "1st Clean HD PDF Included",
         description:
-          "Generate PDF CVs readable by 100% of the recruitment software (ATS) used by companies.",
+          "Download your first high-definition vector PDF resume without any watermark and without entering a credit card.",
       },
       {
-        title: "Impactful content",
+        title: "Job Match Optimization",
         description:
-          "The AI rewrites your experiences to highlight your results and key skills — making you stand out to recruiters.",
+          "Paste a job description and Alex automatically highlights missing keywords and tailors your CV to the target role.",
       },
       {
-        title: "Professional design",
+        title: "10 Sector-Specific ATS Templates",
         description:
-          "Choose from several elegant, modern, and customizable CV templates (colors, fonts, spacing).",
+          "Executive, Tech & Data, Finance & Banking, Engineering & BTP, Healthcare & NGO, Campus… 10 layouts tailored by industry.",
       },
       {
-        title: "AI cover letter",
+        title: "AI Cover Letter & Interview Prep",
         description:
-          "Paste a job offer and get a personalized cover letter in seconds, tailored to your background and the target role.",
+          "Generate a tailored cover letter in seconds and practice with our live AI job interview simulator.",
       },
     ],
   },
   pricing: {
     title: "Flexible & Transparent Pricing",
-    subtitle: "Start for free with Mobile Money. Pay 1,000 FCFA for a single application or 5,000 FCFA/month for unlimited access.",
+    subtitle: "Your 1st clean HD PDF download is free. Unlock advanced AI career tools for 1,000 FCFA per application or 5,000 FCFA/month.",
     free: {
       label: "Free",
       price: "0 FCFA",
       period: "/month",
-      note: "No credit card, no commitment",
-      cta: "Get started (Free)",
+      note: "No credit card · Instant access",
+      cta: "Get started (1st PDF Free)",
       features: [
-        { label: "1 CV", included: true },
-        { label: "Unlimited Alex chat", included: true },
-        { label: "Real-time web preview", included: true },
-        { label: "ATS dashboard & application tracker", included: true },
-        { label: "Auto-save", included: true },
-        { label: "PDF export (with watermark)", included: true },
-        { label: "Multi-CVs (per job application)", included: false },
-        { label: "AI cover letter", included: false },
-        { label: "Sector benchmark", included: false },
+        { label: "1st clean HD PDF export free (no watermark)", included: true },
+        { label: "10 Sector ATS Templates & Live ATS X-Ray", included: true },
+        { label: "20 Alex AI Coach messages / month", included: true },
+        { label: "Real-time Web & PDF preview", included: true },
+        { label: "Automatic Cloud backup", included: true },
+        { label: "Unlimited additional PDF exports", included: false },
+        { label: "Multi-CVs (one CV per application)", included: false },
+        { label: "AI cover letter & Job Match", included: false },
+        { label: "AI Interview Simulator & Sector Benchmark", included: false },
       ],
     },
     pro: {
       label: "Pro",
       price: "5 000 FCFA",
       period: "/month · no commitment",
-      note: "≈ €8 · Cancel anytime",
+      note: "Or 1,000 FCFA single pass · MTN MoMo & Orange Money",
       badge: "Recommended",
       features: [
-        "Unlimited Alex chat",
-        "Multi-CVs — one tailored CV per application",
+        "Unlimited Alex AI Coach messages",
         "Unlimited clean HD PDF exports",
+        "Multi-CVs — one tailored CV per application",
         "Personalized AI cover letter",
         "Job Match — optimize for a specific job offer",
-        "Sector benchmark — your rank among candidates",
-        "Priority access to new AI models",
+        "AI Interview Simulator",
+        "Priority visibility in CEMAC Recruiter Talent Pool",
       ],
     },
-    footer: "Secure payment · MTN MoMo, Orange Money & Credit Card · Cancel in one click",
+    footer: "Secure payment · MTN MoMo, Orange Money & Moov Money · Cancel in one click",
   },
   faq: {
     title: "Frequently asked questions",
     subtitle: "Everything you need to know about AuthentiCV and our pricing.",
     items: [
       {
-        question: "Is AuthentiCV really free to start?",
+        question: "Is my first PDF download really free without a watermark?",
         answer:
-          "Yes! The free plan requires no credit card. You can chat with Alex without limits, create your CV, and preview it in real time. Free PDF exports include a discreet watermark.",
+          "Yes! As soon as you create your free account (no credit card required), you receive 1 complimentary clean HD PDF export credit. You can build your CV with Alex, choose from our 10 sector templates, and download your 1st official PDF with zero watermark.",
       },
       {
         question: "How does the 1,000 FCFA single application pass work?",
         answer:
-          "If you only need to apply to one specific job, you can unlock 1 clean HD PDF export with no watermark, 1 AI-tailored cover letter, and 1 ATS Job Match analysis for just 1,000 FCFA via MTN MoMo or Orange Money.",
+          "After your first free PDF export, if you need to tailor your CV to another job offer without a monthly subscription, you can unlock 1 clean HD PDF export, 1 AI-tailored cover letter, and 1 ATS Job Match analysis for just 1,000 FCFA via MTN MoMo or Orange Money.",
       },
       {
-        question: "Can I cancel my Pro subscription at any time?",
+        question: "What is the Live ATS X-Ray feature?",
         answer:
-          "Yes, with no conditions or fees. Your subscription stays active until the end of the paid period, then automatically reverts to the free plan. Cancellation takes one click.",
+          "Companies use Applicant Tracking Systems (Workday, Taleo, Greenhouse) to parse resumes into raw text. Our Live ATS X-Ray shows you the exact text stream extracted by those robots along with a 7-point checklist and a live score out of 100.",
       },
       {
         question: "What payment methods are accepted?",
         answer:
-          "We accept Mobile Money (MTN Mobile Money, Orange Money) and Credit Cards (Visa, Mastercard) through our secure payment gateway.",
+          "We accept Mobile Money (MTN Mobile Money, Orange Money, Moov Money) across Cameroon and the CEMAC region.",
       },
       {
         question: "Is my CV compatible with applicant tracking systems (ATS)?",
         answer:
-          "Yes. The generated PDF follows ATS best practices: clean typography, standard formatting, and clearly labeled sections compatible with Workday, Taleo, Greenhouse, and other recruitment software.",
+          "Yes. Our native vector PDF engine generates 100% machine-readable text streams with zero blocking tables or broken layers, compatible with Workday, Taleo, Greenhouse, and SAP SuccessFactors.",
       },
       {
         question: "Is my personal data secure?",
         answer:
-          "Your data is hosted securely on Supabase (encrypted PostgreSQL). It is never sold or shared with third parties without your consent. Each user only has access to their own data through Row-Level Security (RLS).",
+          "Your data is hosted securely on Supabase (encrypted PostgreSQL) and protected by Row-Level Security (RLS). You control your visibility in the B2B Recruiter Talent Pool at any time.",
       },
     ],
   },

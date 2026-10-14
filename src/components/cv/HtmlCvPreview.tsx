@@ -50,7 +50,7 @@ export function HtmlCvPreview() {
           Votre CV est encore vide
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed font-sans">
-          Discutez avec Alex Coach pour générer un CV technique complet et optimisé ATS en 30 secondes, ou commencez par l'édition manuelle.
+          Discutez avec Alex Coach pour générer un CV technique complet et optimisé ATS en 30 secondes, ou commencez par l&apos;édition manuelle.
         </p>
         <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-xs">
           <button

@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { computeAtsScore } from "@/lib/ats-score";
+import { computeAtsScore, generateAtsXrayReport } from "@/lib/ats-score";
+import { SECTOR_TEMPLATES, getSectorTemplate } from "@/lib/themes";
+import { WELCOME_FREE_SINGLE_CREDITS } from "@/lib/plan";
 import { DEFAULT_CV_DATA, type CvData } from "@/lib/schemas/cv.schema";
 
-describe("computeAtsScore", () => {
+describe("computeAtsScore & generateAtsXrayReport", () => {
   it("should return a low score and suggestions for an empty CV", () => {
     const result = computeAtsScore(DEFAULT_CV_DATA);
     expect(result.score).toBeLessThan(20);
@@ -72,5 +74,22 @@ describe("computeAtsScore", () => {
 
     const result = computeAtsScore(completeCv);
     expect(result.score).toBeGreaterThanOrEqual(80);
+
+    const xray = generateAtsXrayReport(completeCv);
+    expect(xray.score).toBe(result.score);
+    expect(xray.checks).toHaveLength(7);
+    expect(xray.checks.every((c) => c.status === "pass")).toBe(true);
+    expect(xray.rawStream).toContain("Jean Ewane");
+    expect(xray.rawStream).toContain("Orange Cameroun");
+    expect(xray.keywordCount).toBe(10);
+  });
+
+  it("should provide 10 valid sector templates and 1 welcome free PDF credit", () => {
+    expect(WELCOME_FREE_SINGLE_CREDITS).toBe(1);
+    expect(SECTOR_TEMPLATES).toHaveLength(10);
+    expect(getSectorTemplate("executive")?.settings.layout).toBe("classic");
+    expect(getSectorTemplate("tech-data")?.settings.layout).toBe("modern");
+    expect(getSectorTemplate("minimal-ats")?.settings.layout).toBe("minimal");
   });
 });
+
