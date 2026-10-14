@@ -14,6 +14,7 @@ import {
   Layers,
 } from "lucide-react";
 import { SECTOR_TEMPLATES, getTheme } from "@/lib/themes";
+import { MiniCvPreview } from "./MiniCvPreview";
 
 const SAMPLE_ATS_STREAM = `=== AUTHENTICV NATIVE VECTOR STREAM (ISO-ATS v2.5) ===
 PARSER_STATUS : 100% READABLE_TEXT | ATS_SCORE : 98/100
@@ -33,8 +34,41 @@ LOCATION      : Douala, Cameroun (Mobilité Zone CEMAC)
 [03. INDEXED_KEYWORDS]
 [Comptabilité OHADA] [Audit Interne] [SAP FI/CO] [Contrôle Budgétaire] [IFRS]`;
 
+type FilterCategory = "all" | "exec-finance" | "tech-indus" | "sales-creative" | "ngo-campus";
+
+const FILTER_TABS: { id: FilterCategory; label: string; ids?: string[] }[] = [
+  { id: "all", label: "Tous les modèles (10)" },
+  {
+    id: "exec-finance",
+    label: "Direction, Banque & Droit",
+    ids: ["executive", "finance-banque", "rh-juridique", "minimal-ats"],
+  },
+  {
+    id: "tech-indus",
+    label: "Tech, Ingénierie & BTP",
+    ids: ["tech-data", "ingenierie-btp", "minimal-ats"],
+  },
+  {
+    id: "sales-creative",
+    label: "Commerce, Marketing & Digital",
+    ids: ["commercial-marketing", "digital-creatif"],
+  },
+  {
+    id: "ngo-campus",
+    label: "Santé, ONG & 1er Emploi",
+    ids: ["sante-ong", "campus-stage"],
+  },
+];
+
 export function AtsAndTemplatesShowcase() {
   const [activeTab, setActiveTab] = useState<"xray" | "human">("xray");
+  const [selectedCategory, setSelectedCategory] = useState<FilterCategory>("all");
+
+  const activeFilter = FILTER_TABS.find((f) => f.id === selectedCategory);
+  const displayedTemplates =
+    selectedCategory === "all" || !activeFilter?.ids
+      ? SECTOR_TEMPLATES
+      : SECTOR_TEMPLATES.filter((t) => activeFilter.ids!.includes(t.id));
 
   return (
     <section className="py-24 bg-[#0F223D] relative border-b border-slate-800" id="modeles-ats">
@@ -152,8 +186,8 @@ export function AtsAndTemplatesShowcase() {
         </div>
 
         {/* PART 2: 10 Sector Templates Gallery */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3667F0]/15 border border-[#3667F0]/30 text-[#32D3E1] text-xs font-bold mb-3">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#3667F0]/15 border border-[#3667F0]/30 text-[#32D3E1] text-xs font-bold mb-3">
             <Layers className="w-3.5 h-3.5" />
             <span>10 MODÈLES SECTORIELS PRÊTS À L&apos;EMPLOI</span>
           </div>
@@ -161,14 +195,36 @@ export function AtsAndTemplatesShowcase() {
             Un modèle calibré pour{" "}
             <span className="text-[#32D3E1]">chaque secteur d&apos;activité</span>
           </h2>
-          <p className="text-slate-300 max-w-2xl mx-auto text-base">
+          <p className="text-slate-300 max-w-2xl mx-auto text-base mb-8">
             Cliquez sur le modèle de votre secteur pour l&apos;ouvrir directement dans l&apos;éditeur avec Alex et bénéficier de votre{" "}
             <strong className="text-white">1er export PDF HD sans filigrane offert</strong>.
           </p>
+
+          {/* Interactive Sector Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {FILTER_TABS.map((tab) => {
+              const isActive = selectedCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(tab.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                    isActive
+                      ? "bg-[#3667F0] text-white border-[#32D3E1]/50 shadow-[0_0_20px_rgba(54,103,240,0.4)]"
+                      : "bg-[#162B46]/90 text-slate-300 border-slate-700/80 hover:border-slate-500 hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {SECTOR_TEMPLATES.map((tpl, idx) => {
+        {/* Spacious 3-Column / 4-Column Gallery Grid with Real Miniature A4 Previews */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayedTemplates.map((tpl, idx) => {
             const theme = getTheme(tpl.settings.colorTheme);
             return (
               <motion.div
@@ -177,86 +233,49 @@ export function AtsAndTemplatesShowcase() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.04 }}
-                className="bg-[#162B46] border border-slate-700/70 hover:border-[#32D3E1]/60 rounded-2xl p-4 flex flex-col justify-between transition-all group shadow-md"
+                className="bg-gradient-to-b from-[#162B46] to-[#0C1A30] border border-slate-700/80 hover:border-[#32D3E1] rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 group shadow-xl hover:shadow-[0_12px_40px_rgba(50,211,225,0.12)]"
               >
                 <div>
-                  {/* Mini Header Bar with Swatch & ATS Badge */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
+                  {/* Top Bar: Sector Badge + ATS Score */}
+                  <div className="flex items-center justify-between gap-2 mb-3.5">
                     <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+                      className="text-[11px] font-bold px-3 py-1 rounded-full text-white shadow-xs"
                       style={{ background: theme.swatch }}
                     >
                       {tpl.badge}
                     </span>
-                    <span className="text-[10px] font-bold text-[#25C78A] bg-[#25C78A]/10 border border-[#25C78A]/30 px-2 py-0.5 rounded-full">
-                      ATS {tpl.atsScore}
+                    <span className="text-[11px] font-bold text-[#25C78A] bg-[#25C78A]/10 border border-[#25C78A]/30 px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>ATS {tpl.atsScore}</span>
                     </span>
                   </div>
 
-                  {/* Mini Visual Wireframe Preview */}
-                  <div className="w-full h-24 rounded-xl bg-white p-2.5 mb-3 border border-slate-200 overflow-hidden shadow-inner flex flex-col justify-between">
-                    {tpl.settings.layout === "modern" ? (
-                      <div className="flex gap-2 h-full">
-                        <div
-                          className="w-1/3 h-full rounded-md p-1.5 flex flex-col gap-1"
-                          style={{ background: theme.pdfHeaderBg }}
-                        >
-                          <div className="w-4 h-4 rounded-full bg-white/30 mx-auto" />
-                          <div className="h-1 w-full bg-white/50 rounded" />
-                          <div className="h-1 w-2/3 bg-white/30 rounded" />
-                        </div>
-                        <div className="flex-1 flex flex-col gap-1.5 py-1">
-                          <div className="h-2 w-3/4 rounded" style={{ background: theme.swatch }} />
-                          <div className="h-1.5 w-full bg-slate-200 rounded" />
-                          <div className="h-1.5 w-5/6 bg-slate-200 rounded" />
-                          <div className="h-1.5 w-2/3 bg-slate-200 rounded" />
-                        </div>
-                      </div>
-                    ) : tpl.settings.layout === "classic" ? (
-                      <div className="flex flex-col h-full justify-between">
-                        <div
-                          className="w-full h-7 rounded-md px-2 flex items-center justify-between"
-                          style={{ background: theme.pdfHeaderBg }}
-                        >
-                          <div className="h-2 w-1/2 bg-white/80 rounded" />
-                          <div className="h-1.5 w-1/4 bg-white/40 rounded" />
-                        </div>
-                        <div className="space-y-1.5 py-1">
-                          <div className="h-1.5 w-1/3 rounded" style={{ background: theme.swatch }} />
-                          <div className="h-1.5 w-full bg-slate-200 rounded" />
-                          <div className="h-1.5 w-4/5 bg-slate-200 rounded" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col h-full justify-between py-0.5">
-                        <div className="border-b pb-1.5" style={{ borderColor: theme.swatch }}>
-                          <div className="h-2 w-2/3 bg-slate-900 rounded mb-1" />
-                          <div className="h-1.5 w-1/3 rounded" style={{ background: theme.swatch }} />
-                        </div>
-                        <div className="space-y-1.5">
-                          <div className="h-1.5 w-full bg-slate-200 rounded" />
-                          <div className="h-1.5 w-5/6 bg-slate-200 rounded" />
-                          <div className="h-1.5 w-3/4 bg-slate-200 rounded" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  {/* Realistic Miniature A4 CV Preview */}
+                  <Link href={`/builder?template=${tpl.id}`} className="block mb-4">
+                    <MiniCvPreview template={tpl} />
+                  </Link>
 
-                  <h3 className="text-sm font-bold font-heading text-white mb-1 group-hover:text-[#32D3E1] transition-colors">
-                    {tpl.name}
-                  </h3>
-                  <p className="text-[11px] text-[#32D3E1] font-medium mb-2">{tpl.sector}</p>
-                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-3 mb-3">
-                    {tpl.description}
-                  </p>
+                  {/* Title, Sector & Complete Non-Truncated Description */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-extrabold font-heading text-white mb-1 group-hover:text-[#32D3E1] transition-colors">
+                      {tpl.name}
+                    </h3>
+                    <p className="text-xs text-[#32D3E1] font-semibold mb-2">
+                      {tpl.sector}
+                    </p>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {tpl.description}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <div className="flex flex-wrap gap-1 mb-3">
+                {/* Footer: Single-Row Role Pills + Vibrant High-Contrast CTA */}
+                <div className="pt-3 border-t border-slate-800/90">
+                  <div className="flex items-center gap-1.5 mb-3.5 overflow-hidden">
                     {tpl.recommendedFor.slice(0, 2).map((role) => (
                       <span
                         key={role}
-                        className="text-[10px] text-slate-300 bg-[#081426] border border-slate-700/80 px-2 py-0.5 rounded-md truncate max-w-full"
+                        className="text-[11px] font-medium text-slate-200 bg-[#081426] border border-slate-700 px-2.5 py-1 rounded-lg truncate"
                       >
                         {role}
                       </span>
@@ -264,10 +283,11 @@ export function AtsAndTemplatesShowcase() {
                   </div>
                   <Link
                     href={`/builder?template=${tpl.id}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#081426] hover:bg-[#3667F0] text-slate-200 hover:text-white border border-slate-700 hover:border-[#3667F0] text-xs font-bold transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#3667F0]/20 hover:bg-[#3667F0] text-white border border-[#3667F0]/50 hover:border-[#32D3E1] text-xs font-bold transition-all shadow-sm group-hover:shadow-[0_0_20px_rgba(54,103,240,0.35)]"
                   >
-                    <Sparkles className="w-3 h-3 text-[#32D3E1] group-hover:text-white" />
-                    <span>Choisir ce modèle</span>
+                    <Sparkles className="w-3.5 h-3.5 text-[#32D3E1] group-hover:text-white transition-colors" />
+                    <span>Choisir ce modèle (1er PDF Offert)</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-auto opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all" />
                   </Link>
                 </div>
               </motion.div>
@@ -275,10 +295,10 @@ export function AtsAndTemplatesShowcase() {
           })}
         </div>
 
-        <div className="text-center mt-8">
+        <div className="text-center mt-10">
           <Link
             href="/modeles-cv"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#32D3E1] hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#162B46] hover:bg-[#1E3A5F] border border-slate-700 text-xs font-bold text-[#32D3E1] hover:text-white transition-all"
           >
             <span>Explorer le guide détaillé des 10 modèles de CV sectoriels</span>
             <ArrowRight className="w-3.5 h-3.5" />

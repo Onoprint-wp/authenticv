@@ -146,7 +146,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Best-Seller Cadres",
     atsScore: "98%",
     description:
-      "Hiérarchie exécutive sobre avec typographie Serif d'autorité. Idéal pour postes de direction, conseils d'administration et cabinets d'audit.",
+      "Hiérarchie exécutive sobre en typographie Serif d'autorité pour postes de direction, conseils et cabinets d'audit.",
     recommendedFor: ["Directeur Général", "Chef de Département", "Consultant Senior", "Country Manager"],
     settings: { layout: "classic", colorTheme: "slate", fontFamily: "serif", spacing: "spacious" },
   },
@@ -157,8 +157,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Spécial Tech",
     atsScore: "99%",
     description:
-      "Architecture moderne à colonne latérale mettant en valeur la stack technique, les certifications Cloud et les projets DevOps/Data.",
-    recommendedFor: ["Développeur Full-Stack", "Ingénieur DevOps / Cloud", "Data Analyst", "Architecte Logiciel"],
+      "Architecture moderne 2 colonnes valorisant la stack technique, les certifications Cloud et les projets DevOps/Data.",
+    recommendedFor: ["Développeur Full-Stack", "Ingénieur Cloud", "Data Analyst", "Architecte Logiciel"],
     settings: { layout: "modern", colorTheme: "cyan", fontFamily: "sans", spacing: "compact" },
   },
   {
@@ -168,8 +168,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Standard Bancaire",
     atsScore: "98%",
     description:
-      "Mise en page rigoureuse pensée pour les banques, microfinances, assurances et cabinets d'expertise comptable de la zone CEMAC.",
-    recommendedFor: ["Analyste Financier", "Comptable OHADA", "Auditeur Interne", "Gestionnaire de Portefeuille"],
+      "Mise en page rigoureuse calibrée pour les banques, assurances, microfinances et cabinets comptables CEMAC.",
+    recommendedFor: ["Analyste Financier", "Comptable OHADA", "Auditeur Interne", "Contrôleur de Gestion"],
     settings: { layout: "classic", colorTheme: "indigo", fontFamily: "serif", spacing: "normal" },
   },
   {
@@ -179,7 +179,7 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Orientation Résultats",
     atsScore: "96%",
     description:
-      "Design dynamique qui fait ressortir immédiatement vos chiffres d'affaires, parts de marché gagnées et KPIs commerciaux.",
+      "Design orienté performance qui met immédiatement en évidence vos chiffres d'affaires, parts de marché et KPIs.",
     recommendedFor: ["Business Developer", "Responsable Commercial", "Key Account Manager", "Chef de Produit"],
     settings: { layout: "modern", colorTheme: "emerald", fontFamily: "sans", spacing: "normal" },
   },
@@ -190,8 +190,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Terrain & Projets",
     atsScore: "97%",
     description:
-      "Structure dense et normée pour valoriser les chantiers livrés, habilitations HSE, budgets d'infrastructure et opérations logistiques.",
-    recommendedFor: ["Ingénieur Génie Civil", "Responsable HSE", "Ingénieur Pétrole & Mines", "Supply Chain Manager"],
+      "Structure normée pour valoriser les chantiers livrés, habilitations HSE ISO 45001 et budgets d'infrastructure.",
+    recommendedFor: ["Ingénieur Génie Civil", "Responsable HSE", "Ingénieur Mines", "Supply Chain Manager"],
     settings: { layout: "classic", colorTheme: "amber", fontFamily: "sans", spacing: "compact" },
   },
   {
@@ -201,8 +201,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Norme ONG / ONU",
     atsScore: "99%",
     description:
-      "Format épuré haute lisibilité conforme aux exigences des agences onusiennes (OMS, UNICEF), ONG internationales et établissements de santé.",
-    recommendedFor: ["Coordinateur de Projet ONG", "Médecin / Pharmacien", "Spécialiste MEAL", "Santé Publique"],
+      "Format linéaire haute lisibilité conforme aux standards des agences onusiennes (OMS, UNICEF) et ONG internationales.",
+    recommendedFor: ["Coordinateur ONG", "Médecin / Pharmacien", "Spécialiste MEAL", "Santé Publique"],
     settings: { layout: "minimal", colorTheme: "emerald", fontFamily: "sans", spacing: "spacious" },
   },
   {
@@ -212,8 +212,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Élégance Éditoriale",
     atsScore: "97%",
     description:
-      "Équilibre académique et institutionnel valorisant l'expertise réglementaire, le droit des affaires OHADA et la gestion du capital humain.",
-    recommendedFor: ["Responsable RH (DRH)", "Juriste d'Entreprise", "Chargé de Recrutement", "Secrétaire Général"],
+      "Équilibre institutionnel mettant en avant le droit des affaires OHADA, la conformité sociale et la direction RH.",
+    recommendedFor: ["Directeur RH (DRH)", "Juriste d'Affaires", "Chargé de Recrutement", "Secrétaire Général"],
     settings: { layout: "classic", colorTheme: "rose", fontFamily: "serif", spacing: "normal" },
   },
   {
@@ -223,8 +223,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Spécial 1er Emploi",
     atsScore: "96%",
     description:
-      "Valorise la formation académique, les projets universitaires, les stages et le potentiel même avec peu d'années d'expérience.",
-    recommendedFor: ["Étudiant en Master / Grande École", "Stagiaire PFE", "Jeune Diplômé", "Alternant"],
+      "Valorise l'excellence académique, les mémoires de fin d'études, les stages PFE et le potentiel des jeunes diplômés.",
+    recommendedFor: ["Lauréat Master / École", "Stagiaire PFE", "Jeune Diplômé", "Analyste Junior"],
     settings: { layout: "modern", colorTheme: "violet", fontFamily: "sans", spacing: "spacious" },
   },
   {
@@ -234,8 +234,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Score ATS 100%",
     atsScore: "100%",
     description:
-      "Le format linéaire universel exigé par les robots Workday, Taleo et Greenhouse des multinationales. Zéro artifice, impact pur.",
-    recommendedFor: ["Candidatures Internationales", "Big Four (Deloitte, PwC, EY)", "Programmes Graduate", "Mobilité Internationale"],
+      "Le format linéaire universel exigé par les robots Workday, Taleo et Greenhouse des multinationales et Big Four.",
+    recommendedFor: ["Candidature Internationale", "Big Four (Deloitte, EY)", "Programme Graduate", "PMO Senior"],
     settings: { layout: "minimal", colorTheme: "neutral", fontFamily: "sans", spacing: "normal" },
   },
   {
@@ -245,8 +245,8 @@ export const SECTOR_TEMPLATES: SectorTemplate[] = [
     badge: "Créatif & ATS-Safe",
     atsScore: "95%",
     description:
-      "Affirme votre identité visuelle et vos campagnes digitales tout en conservant un flux texte 100% extractible par les logiciels RH.",
-    recommendedFor: ["Responsable Communication", "UI/UX Designer", "Social Media Manager", "Chef de Projet Digital"],
+      "Affirme votre identité créative et vos campagnes 360° tout en garantissant un flux vectoriel 100 % lisible par les ATS.",
+    recommendedFor: ["Responsable Com", "UI/UX Designer", "Social Media Manager", "Brand Manager"],
     settings: { layout: "modern", colorTheme: "rose", fontFamily: "sans", spacing: "normal" },
   },
 ];
