@@ -89,8 +89,8 @@ const TEMPLATES = [
     description: "En-tête asymétrique avec carte de contact teintée et colonne d'expertise encadrée à droite.",
     atsScore: "99%",
     color: "Violet, Rubis & Océan",
-    idealFor: "Médias, Communication, UI/UX, Jeunes Diplômés & Lauréats",
-    sampleTemplate: SECTOR_TEMPLATES[9], // Digital, Médias & Com (Split)
+    idealFor: "Commercial B2B, Médias, Communication, Jeunes Diplômés & Lauréats",
+    sampleTemplate: SECTOR_TEMPLATES[3], // Commercial, Vente & B2B (Split)
   },
   {
     id: "compact-grid",

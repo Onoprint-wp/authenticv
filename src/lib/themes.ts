@@ -34,10 +34,12 @@ export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   recruiterVisible: true,
 };
 
+// Marges calibrées pour impression physique sur format A4 (210 × 297 mm = 595.28 × 841.89 pt)
+// 1 mm = 2.83465 pt → 34pt ≈ 12mm (Compact), 40pt ≈ 14.1mm (Normal ISO), 46pt ≈ 16.2mm (Grand)
 export const PDF_SPACING = {
-  compact:  { scale: 0.94, headerPadH: 28, headerPadV: 20, mainPadH: 22, mainPadV: 18, sidebarPadH: 14, sidebarPadV: 18, sidebarGap: 12, sectionMb: 14, itemMb: 8,  pagePadH: 32, pagePadV: 28 },
-  normal:   { scale: 1.0,  headerPadH: 36, headerPadV: 26, mainPadH: 28, mainPadV: 24, sidebarPadH: 18, sidebarPadV: 24, sidebarGap: 16, sectionMb: 18, itemMb: 11, pagePadH: 42, pagePadV: 36 },
-  spacious: { scale: 1.08, headerPadH: 44, headerPadV: 34, mainPadH: 34, mainPadV: 30, sidebarPadH: 22, sidebarPadV: 30, sidebarGap: 20, sectionMb: 24, itemMb: 14, pagePadH: 50, pagePadV: 44 },
+  compact:  { scale: 0.94, headerPadH: 34, headerPadV: 20, mainPadH: 26, mainPadV: 18, sidebarPadH: 20, sidebarPadV: 18, sidebarGap: 12, sectionMb: 13, itemMb: 8,  pagePadH: 34, pagePadV: 32 },
+  normal:   { scale: 1.0,  headerPadH: 40, headerPadV: 24, mainPadH: 30, mainPadV: 22, sidebarPadH: 22, sidebarPadV: 22, sidebarGap: 15, sectionMb: 16, itemMb: 10, pagePadH: 40, pagePadV: 36 },
+  spacious: { scale: 1.08, headerPadH: 46, headerPadV: 30, mainPadH: 34, mainPadV: 26, sidebarPadH: 24, sidebarPadV: 26, sidebarGap: 18, sectionMb: 21, itemMb: 13, pagePadH: 46, pagePadV: 42 },
 } as const;
 
 export const WEB_FONT_SCALE = {

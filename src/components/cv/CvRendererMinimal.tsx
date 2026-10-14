@@ -17,7 +17,7 @@ function SectionTitle({ children, accent, sizeClass }: { children: React.ReactNo
 
 const SPACING = {
   compact: {
-    outerPad: "px-9 py-7",
+    outerPad: "px-10 py-8",
     sectionGap: "gap-5",
     expGap: "gap-3.5",
     nameSize: "text-2xl sm:text-3xl",
@@ -29,8 +29,8 @@ const SPACING = {
   },
   normal: {
     outerPad: "px-12 py-10",
-    sectionGap: "gap-7",
-    expGap: "gap-5",
+    sectionGap: "gap-6",
+    expGap: "gap-4.5",
     nameSize: "text-3xl sm:text-4xl",
     titleSize: "text-sm",
     sectionSize: "text-[13px]",
@@ -40,7 +40,7 @@ const SPACING = {
   },
   spacious: {
     outerPad: "px-14 py-12",
-    sectionGap: "gap-9",
+    sectionGap: "gap-8",
     expGap: "gap-6",
     nameSize: "text-4xl",
     titleSize: "text-base",
@@ -80,7 +80,7 @@ export function CvRendererMinimal({ cvData }: Props) {
             </h1>
           )}
           {personalInfo.title && (
-            <p className={`${hasName ? sp.titleSize : sp.nameSize} font-semibold tracking-[0.12em] uppercase text-slate-600 mt-1`}>
+            <p className={`${sp.titleSize} font-semibold tracking-[0.12em] uppercase text-slate-600 mt-1`}>
               {personalInfo.title}
             </p>
           )}

@@ -45,14 +45,25 @@ function createStyles(
       fontFamily: fontBase,
       fontSize: s(10),
       color: "#1e293b",
+      paddingTop: sp.pagePadV,
+      paddingBottom: sp.pagePadV,
     },
 
     // ── Sidebar ───────────────────────────────────────────────
-    sidebar: {
-      width: 188,
+    sidebarBg: {
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: 0,
+      width: 196,
       backgroundColor: headerBg,
-      paddingHorizontal: sp.sidebarPadH,
-      paddingVertical: sp.sidebarPadV,
+    },
+    sidebar: {
+      width: 196,
+      paddingLeft: 28,
+      paddingRight: 16,
+      paddingTop: 4,
+      paddingBottom: 6,
       flexDirection: "column",
       gap: sp.sidebarGap,
     },
@@ -128,8 +139,10 @@ function createStyles(
     // ── Main content ──────────────────────────────────────────
     main: {
       flex: 1,
-      paddingHorizontal: sp.mainPadH,
-      paddingVertical: sp.mainPadV,
+      paddingLeft: 24,
+      paddingRight: sp.pagePadH,
+      paddingTop: 4,
+      paddingBottom: 6,
     },
     mainSection: { marginBottom: sp.sectionMb },
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 7, marginBottom: 10 },
@@ -250,6 +263,7 @@ export function CvDocumentModern({ cvData, showWatermark = false }: Props) {
   return (
     <Document title={fullName} author={fullName} subject="Curriculum Vitae" creator="AuthentiCV">
       <Page size="A4" style={styles.page}>
+        <View fixed style={styles.sidebarBg} />
 
         {/* ── Sidebar ── */}
         <View style={styles.sidebar}>

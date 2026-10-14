@@ -128,7 +128,7 @@ export default async function PublicCvPage({ params }: Props) {
       />
 
       {/* Bandeau AuthentiCV */}
-      <div className="bg-slate-950 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
+      <div className="no-print bg-slate-950 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-white hover:text-indigo-300 transition-colors">
           <div className="w-6 h-6 bg-indigo-600 rounded-md flex items-center justify-center">
             <FileText className="w-3.5 h-3.5 text-white" />
@@ -143,9 +143,9 @@ export default async function PublicCvPage({ params }: Props) {
         </Link>
       </div>
 
-      {/* CV */}
-      <div className="flex-1 p-4 sm:p-8 flex justify-center items-start">
-        <div className="w-full max-w-[850px] bg-white rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] overflow-hidden">
+      {/* Feuille A4 (210mm x 297mm = 794px x 1123px @ 96 DPI) */}
+      <div className="flex-1 p-4 sm:p-8 flex justify-center items-start print:p-0">
+        <div className="cv-a4-sheet w-full max-w-[794px] min-h-[1123px] bg-white rounded-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] border border-slate-200/80 overflow-hidden">
           {cvData.designSettings?.layout === "modern" ? (
             <CvRendererModern cvData={cvData} />
           ) : cvData.designSettings?.layout === "minimal" ? (
@@ -163,7 +163,7 @@ export default async function PublicCvPage({ params }: Props) {
       </div>
 
       {/* Footer */}
-      <div className="text-center py-4 text-xs text-slate-400">
+      <div className="no-print text-center py-4 text-xs text-slate-400">
         CV créé avec{" "}
         <Link href="/" className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
           AuthentiCV

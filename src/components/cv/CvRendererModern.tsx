@@ -17,9 +17,9 @@ function SectionTitle({ children, accent, sizeClass }: { children: React.ReactNo
 
 const SPACING = {
   compact: {
-    sidebarPad: "px-5 py-6",
+    sidebarPad: "pl-8 pr-5 py-7",
     sidebarGap: "gap-5",
-    mainPad: "px-7 py-6",
+    mainPad: "pl-7 pr-10 py-7",
     mainGap: "gap-5",
     expGap: "gap-4",
     nameSize: "text-lg",
@@ -31,9 +31,9 @@ const SPACING = {
     sideText: "text-[11.5px]",
   },
   normal: {
-    sidebarPad: "px-6 py-8",
+    sidebarPad: "pl-9 pr-6 py-9",
     sidebarGap: "gap-6",
-    mainPad: "px-8 py-8",
+    mainPad: "pl-8 pr-12 py-9",
     mainGap: "gap-7",
     expGap: "gap-5",
     nameSize: "text-xl",
@@ -45,9 +45,9 @@ const SPACING = {
     sideText: "text-xs",
   },
   spacious: {
-    sidebarPad: "px-7 py-10",
+    sidebarPad: "pl-10 pr-6 py-11",
     sidebarGap: "gap-7",
-    mainPad: "px-10 py-10",
+    mainPad: "pl-9 pr-14 py-11",
     mainGap: "gap-9",
     expGap: "gap-7",
     nameSize: "text-2xl",

@@ -8,10 +8,10 @@ interface Props {
 
 const SPACING = {
   compact: {
-    headerPad: "px-8 py-6",
-    mainPad: "px-8 py-6",
+    headerPad: "px-10 py-6",
+    mainPad: "pl-10 pr-7 py-7",
     mainGap: "gap-5",
-    sidebarPad: "px-6 py-6",
+    sidebarPad: "pl-6 pr-9 py-7",
     sidebarGap: "gap-5",
     expGap: "gap-4",
     nameSize: "text-2xl sm:text-3xl",
@@ -22,10 +22,10 @@ const SPACING = {
     metaSize: "text-xs",
   },
   normal: {
-    headerPad: "px-10 py-8",
-    mainPad: "px-9 py-8",
+    headerPad: "px-12 py-8",
+    mainPad: "pl-12 pr-8 py-8",
     mainGap: "gap-7",
-    sidebarPad: "px-7 py-8",
+    sidebarPad: "pl-6 pr-10 py-8",
     sidebarGap: "gap-7",
     expGap: "gap-6",
     nameSize: "text-3xl sm:text-4xl",
@@ -36,10 +36,10 @@ const SPACING = {
     metaSize: "text-xs",
   },
   spacious: {
-    headerPad: "px-12 py-10",
-    mainPad: "px-10 py-10",
+    headerPad: "px-14 py-9",
+    mainPad: "pl-14 pr-9 py-10",
     mainGap: "gap-9",
-    sidebarPad: "px-8 py-10",
+    sidebarPad: "pl-7 pr-12 py-10",
     sidebarGap: "gap-9",
     expGap: "gap-7",
     nameSize: "text-4xl",
@@ -89,7 +89,7 @@ export function CvRenderer({ cvData }: Props) {
               )}
               {personalInfo.title && (
                 <h2
-                  className={`${hasName ? sp.titleSize : sp.nameSize} font-semibold tracking-wide uppercase`}
+                  className={`${sp.titleSize} font-semibold tracking-wide uppercase`}
                   style={{ color: "rgba(255,255,255,0.92)" }}
                 >
                   {personalInfo.title}
@@ -130,7 +130,7 @@ export function CvRenderer({ cvData }: Props) {
       </div>
 
       {/* Body */}
-      <div className="flex flex-col md:flex-row flex-1 bg-white text-slate-800">
+      <div className="flex flex-col sm:flex-row flex-1 bg-white text-slate-800">
 
         {/* Main (2/3) */}
         <div className={`flex-1 ${sp.mainPad} flex flex-col ${sp.mainGap} border-r border-slate-100`}>
@@ -159,7 +159,7 @@ export function CvRenderer({ cvData }: Props) {
               </div>
               <div className={`flex flex-col ${sp.expGap}`}>
                 {experiences.map((exp) => (
-                  <div key={exp.id} className="relative pl-5 border-l-2 border-slate-200">
+                  <div key={exp.id} className="relative pl-5 border-l-2 border-slate-200 break-inside-avoid">
                     <div className="absolute w-3 h-3 bg-white rounded-full -left-[7px] top-1.5 shadow-xs border-2" style={{ borderColor: theme.accentColor }} />
                     <div className="flex flex-col gap-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-y-1">

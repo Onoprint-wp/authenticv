@@ -8,7 +8,7 @@ import { CvRendererModern } from "./CvRendererModern";
 import { CvRendererMinimal } from "./CvRendererMinimal";
 import { CvRendererExecutive, CvRendererSplit, CvRendererCompactGrid } from "./CvRendererExtra";
 
-const A4_PAGE_PX = 1122;
+const A4_PAGE_PX = 1123; // 297mm at 96 DPI (A4: 210mm × 297mm = 794px × 1123px)
 
 export function HtmlCvPreview() {
   const cvData = useCvStore((s) => s.cvData);
@@ -76,11 +76,13 @@ export function HtmlCvPreview() {
   }
 
   const layout = cvData.designSettings?.layout ?? "classic";
+  const spacing = cvData.designSettings?.spacing ?? "normal";
+  const marginPx = spacing === "compact" ? 40 : spacing === "spacious" ? 56 : 48; // ~11mm / 13mm / 15mm
 
   return (
     <div className="flex-1 overflow-auto bg-slate-200/80 dark:bg-slate-900/60 p-4 sm:p-8 flex justify-center items-start custom-scrollbar relative">
-      {/* Floating Canvas Zoom Controls — positionné au-dessus de la bottom nav mobile (bottom-20) */}
-      <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 flex flex-col gap-1 z-30 shadow-lg bg-card/95 backdrop-blur-md rounded-full border border-border p-1">
+      {/* Floating Canvas Zoom Controls */}
+      <div className="no-print fixed bottom-20 sm:bottom-6 right-4 sm:right-6 flex flex-col gap-1 z-30 shadow-lg bg-card/95 backdrop-blur-md rounded-full border border-border p-1">
         <button
           type="button"
           onClick={handleZoomIn}
@@ -118,18 +120,47 @@ export function HtmlCvPreview() {
           transformOrigin: "top center",
           transition: "transform 0.15s ease-out",
         }}
-        className="relative w-full max-w-[850px] min-h-[1122px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(15,34,61,0.08)] border border-slate-200/80 overflow-hidden flex flex-col mb-16 sm:mb-0"
+        className="cv-a4-sheet relative w-full max-w-[794px] min-h-[1123px] bg-white rounded-sm shadow-[0_14px_38px_rgba(15,34,61,0.14)] border border-slate-300/90 overflow-hidden flex flex-col mb-16 sm:mb-0"
       >
-        {/* Page break indicators */}
+        {/* Discrete A4 Print Margin Corner Crop Marks (hidden on print) */}
+        <div className="no-print pointer-events-none absolute inset-0 z-20">
+          {/* Top-left crop mark */}
+          <div
+            className="absolute w-3.5 h-3.5 border-t border-l border-slate-400/45"
+            style={{ top: `${marginPx - 12}px`, left: `${marginPx}px` }}
+          />
+          {/* Top-right crop mark */}
+          <div
+            className="absolute w-3.5 h-3.5 border-t border-r border-slate-400/45"
+            style={{ top: `${marginPx - 12}px`, right: `${marginPx}px` }}
+          />
+          {/* Bottom-left crop mark of Page 1 */}
+          <div
+            className="absolute w-3.5 h-3.5 border-b border-l border-slate-400/45"
+            style={{ top: `${A4_PAGE_PX - marginPx}px`, left: `${marginPx}px` }}
+          />
+          {/* Bottom-right crop mark of Page 1 */}
+          <div
+            className="absolute w-3.5 h-3.5 border-b border-r border-slate-400/45"
+            style={{ top: `${A4_PAGE_PX - marginPx}px`, right: `${marginPx}px` }}
+          />
+        </div>
+
+        {/* Page break indicators with A4 print margin safe zone */}
         {Array.from({ length: Math.floor(paperHeight / A4_PAGE_PX) }, (_, i) => (
           <div
             key={i}
-            className="absolute left-0 right-0 pointer-events-none z-20 flex flex-col items-center"
+            className="no-print absolute left-0 right-0 pointer-events-none z-20 flex flex-col items-center"
             style={{ top: `${(i + 1) * A4_PAGE_PX}px` }}
           >
-            <div className="w-full h-px bg-slate-400/40 border-t border-dashed border-slate-400/50" />
-            <span className="bg-slate-300 text-slate-500 text-[10px] font-semibold px-2.5 py-0.5 rounded-b tracking-wide">
-              Page {i + 2}
+            {/* Bottom margin safe zone before page cut */}
+            <div
+              className="w-full bg-amber-500/[0.04] border-t border-dotted border-amber-500/30"
+              style={{ height: `${marginPx - 8}px`, marginTop: `-${marginPx - 8}px` }}
+            />
+            <div className="w-full h-px bg-slate-500/50 border-t border-dashed border-slate-500/60" />
+            <span className="bg-slate-800/90 text-white text-[10px] font-semibold px-3 py-0.5 rounded-b shadow-xs tracking-wide">
+              Saut de page A4 (297 mm) · Début Page {i + 2}
             </span>
           </div>
         ))}

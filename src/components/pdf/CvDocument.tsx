@@ -50,13 +50,17 @@ function createStyles(
       fontFamily: fontBase,
       fontSize: s(10),
       color: "#1e293b",
+      paddingTop: sp.pagePadV,
+      paddingBottom: sp.pagePadV,
     },
 
     // ── Header ───────────────────────────────────────────────
     header: {
       backgroundColor: headerBg,
-      paddingHorizontal: sp.headerPadH,
-      paddingVertical: sp.headerPadV,
+      marginTop: -sp.pagePadV,
+      paddingTop: sp.pagePadV,
+      paddingBottom: sp.headerPadV,
+      paddingHorizontal: sp.pagePadH,
       flexDirection: "row",
       alignItems: "center",
       gap: 20,
@@ -89,8 +93,10 @@ function createStyles(
     // ── Main column ───────────────────────────────────────────
     main: {
       flex: 1,
-      paddingHorizontal: sp.mainPadH,
-      paddingVertical: sp.mainPadV,
+      paddingLeft: sp.pagePadH,
+      paddingRight: 22,
+      paddingTop: sp.mainPadV,
+      paddingBottom: 6,
       borderRightWidth: 1,
       borderRightColor: "#f1f5f9",
     },
@@ -149,10 +155,12 @@ function createStyles(
 
     // ── Sidebar ───────────────────────────────────────────────
     sidebar: {
-      width: 178,
+      width: 192,
       backgroundColor: "#f8fafc",
-      paddingHorizontal: sp.sidebarPadH,
-      paddingVertical: sp.sidebarPadV,
+      paddingLeft: 18,
+      paddingRight: sp.pagePadH - 6,
+      paddingTop: sp.sidebarPadV,
+      paddingBottom: 6,
     },
     sideSection: { marginBottom: sp.sectionMb },
     sideSectionTitle: {
